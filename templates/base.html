@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>AVE Joyas</h1>
+        {% if usuario %}
+            <p>Bienvenido, {{ usuario.nombre_completo }}</p>
+        {% endif %}
+    </header>
+
+    <!-- Navegación -->
+    <nav>
+        <ul class="menu">
+            <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            {% if session.get ('rol') == 1 %}
+            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            {% endif %}
+            <li><a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenido dinámico -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

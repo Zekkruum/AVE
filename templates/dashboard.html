@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Principal - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Encabezado -->
+    <header>
+        <h1>AVE Joyas – Panel Principal</h1>
+        <p>Bienvenido, {{ usuario }}</p>
+    </header>
+
+    <!-- Menú -->
+    {% include "seller_actions.html" %}
+
+    <!-- Panel de control -->
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>AVE Joyas - Proyecto</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+    <body>
+        <header>
+            <h1 style="margin-bottom: -20px;">Bienvenido a AVE Joyas</h1>
+            <div class="acceso">
+                <a href="{{ url_for('login') }}" style="margin-right: 20px;">Iniciar sesión</a>
+                <a href="{{ url_for('signin') }}">Registrarse</a>
+            </div>
+            <p style="margin-bottom: 25px; margin-top: -10px;">Sistema eCommerce para la compra y venta de joyería en línea</p>
+    </header>
+
+    <main>
+        <section style="max-width: 900px; margin: auto; padding: 30px; text-align: center;">
+            <h2>¿Qué es AVE Joyas?</h2>
+            <p>
+                <strong>AVE Joyas</strong> es un sistema web diseñado para gestionar de manera eficiente 
+                la compra y venta de joyería en línea. Ofrece a clientes, vendedores e invitados una 
+                experiencia segura, rápida y moderna.
+            </p>
+
+            <h2>Características principales</h2>
+            <ul style="justify-content:center; text-align: left; max-width: 600px; margin: 20px auto;">
+                <li>Catálogo dinámico de productos con imágenes, precios y stock.</li>
+                <li>Gestión de usuarios con roles (cliente, vendedor, invitado).</li>
+                <li>Pedidos personalizados, devoluciones y control de incidencias.</li>
+                <li>Panel de control con estadísticas de ventas y productos.</li>
+                <li>Seguridad mediante contraseñas encriptadas y sesiones protegidas.</li>
+            </ul>
+
+            
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 AVE Joyas - Proyecto académico de eCommerce</p>
+    </footer>
+</body>
+</html>

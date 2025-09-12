@@ -1,0 +1,33 @@
+<nav>
+    <ul class="menu">
+        <li><a href="catalogo.html">Productos</a></li>
+
+        <li><a href="#">Pedidos</a>
+            <ul class="submenu">
+                <li><a href="#">Ver pedidos activos</a></li>
+                <li><a href="#">Historial de pedidos</a></li>
+                <li><a href="#">Pedidos personalizados</a></li>
+                <li><a href="#">Devoluciones</a></li>
+                <li><a href="#">Incidencias de entrega</a></li>
+            </ul>
+        </li>
+
+        <li><a href="#">Estadísticas</a>
+            <ul class="submenu">
+                <li><a href="#">Ventas diarias</a></li>
+                <li><a href="#">Productos más vendidos</a></li>
+                <li><a href="#">Comportamiento de clientes</a></li>
+                <li><a href="#">Reportes de inventario</a></li>
+            </ul>
+        </li>
+
+        <li><a href="#">Perfil</a>
+            <ul class="submenu">
+                <li><a href="#">Editar perfil</a></li>
+                <li><a href="#">Cambiar contraseña</a></li>
+            </ul>
+        </li>
+
+        <li><a class="logout" href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+    </ul>
+</nav>

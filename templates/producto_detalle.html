@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+    <div class="producto-detalle">
+        <img src="{{ producto.imagen or url_for('static', filename='img/no-image.png') }}" alt="{{ producto.nombre }}">
+        <div class="info">
+            <h2>{{ producto.nombre }}</h2>
+            <p class="descripcion">{{ producto.descripcion }}</p>
+            <p class="precio">Precio: ${{ producto.precio }}</p>
+            <p class="stock">Disponible: {{ producto.stock }}</p>
+
+            <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
+                <label for="cantidad">Cantidad:</label>
+                <input type="number" name="cantidad" id="cantidad" min="1" value="1">
+                <button type="submit">Agregar al carrito</button>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

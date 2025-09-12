@@ -1,0 +1,437 @@
+/* ---------- Reset básico ---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* ---------- Encabezado ---------- */
+header {
+    background: linear-gradient(to right, #fdfdfd, #eaeaea);
+    border-bottom: 1px solid #ddd;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #000;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #777;
+}
+
+
+/* ---------- Navegación ---------- */
+nav {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.menu>li {
+    position: relative;
+}
+
+.menu>li>a {
+    display: block;
+    padding: 15px 25px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+}
+
+.menu>li>a:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+/* Submenús */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.submenu li a:hover {
+    background-color: #f5f5f5;
+    color: #000;
+}
+
+.menu>li:hover .submenu {
+    display: block;
+}
+
+/* Logout */
+.logout {
+    color: #fff !important;
+    background: #444;
+    border-radius: 20px;
+    padding: 10px 20px !important;
+    margin-left: 20px;
+    transition: background 0.3s;
+}
+
+.logout:hover {
+    background: #222;
+}
+
+/* ---------- Contenido principal ---------- */
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+main h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #444;
+    font-size: 1.6rem;
+}
+
+/* ---------- Grillas reutilizables ---------- */
+.grid,
+.dashboard-grid,
+.catalogo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+/* ---------- Tarjetas reutilizables ---------- */
+.card,
+.producto-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover,
+.producto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Tarjetas de productos */
+.producto-card img {
+    max-width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.producto-card h3 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.producto-card .descripcion {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 10px 0;
+}
+
+.producto-card .precio {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2a9d8f;
+    margin: 10px 0;
+}
+
+.producto-card .stock {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* ---------- Botones ---------- */
+button {
+    background: #2a9d8f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #21867a;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    background: #444;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    font-size: 0.9rem;
+}
+
+/* ---------- Formularios de autenticación ---------- */
+.auth-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #fdfdfd, #f5f5f5);
+}
+
+.auth-container {
+    background: #fff;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.auth-container h2 {
+    margin-bottom: 20px;
+    color: #444;
+}
+
+.auth-container label {
+    display: block;
+    text-align: left;
+    margin: 10px 0 5px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.auth-container input,
+.auth-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.auth-container input:focus,
+.auth-container select:focus {
+    outline: none;
+    border-color: #2a9d8f;
+    box-shadow: 0 0 5px rgba(42, 157, 143, 0.3);
+}
+
+.auth-container button {
+    background: #2a9d8f;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.auth-container button:hover {
+    background: #21867a;
+}
+
+.error {
+    color: red;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.auth-link {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.auth-link a {
+    color: #2a9d8f;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Estilos del Menú Premium ---------- */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(to right, #fdfdfd, #eaeaea);
+    border-bottom: 1px solid #ddd;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #444;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #777;
+}
+
+/* Barra de navegación */
+nav {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.menu>li {
+    position: relative;
+}
+
+.menu>li>a {
+    display: block;
+    padding: 15px 25px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+}
+
+.menu>li>a:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+/* Submenús */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.submenu li a:hover {
+    background-color: #f5f5f5;
+    color: #000;
+}
+
+.menu>li:hover .submenu {
+    display: block;
+}
+
+/* Logout especial */
+.logout {
+    color: #fff !important;
+    background: #444;
+    border-radius: 20px;
+    padding: 10px 20px !important;
+    margin-left: 20px;
+    transition: background 0.3s;
+}
+
+.logout:hover {
+    background: #222;
+}
+
+.acceso {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-right: 20px;
+    margin-bottom: 10px;
+}
+
+.acceso a {
+    
+    background: #333;
+    color: white;
+    border: none;
+    padding: 12px;
+    
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-decoration: none;
+}
+
+.acceso a:hover {
+    background-color: #000;
+}

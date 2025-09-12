@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Elegir Rol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/roles.css') }}">
+</head>
+<body>
+    <div class="auth-body">
+        <div class="auth-container">
+            <h2>Elige tu Rol en AVE Joyas</h2>
+            <form method="POST">
+                <div class="roles-container">
+                    <div class="rol-card">
+                        <img src="{{ url_for('static', filename='img/vendedor.png') }}" alt="Vendedor">
+                        <h3>Vendedor</h3>
+                        <p>Podrás publicar y gestionar productos de joyería para llegar a más clientes.</p>
+                        <button type="submit" name="rol" value="1">Seleccionar</button>
+                    </div>
+
+                    <div class="rol-card">
+                        <img src="{{ url_for('static', filename='img/comprador.png') }}" alt="Comprador">
+                        <h3>Comprador</h3>
+                        <p>Podrás explorar el catálogo, añadir productos al carrito y realizar compras.</p>
+                        <button type="submit" name="rol" value="2">Seleccionar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

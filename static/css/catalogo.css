@@ -1,0 +1,124 @@
+/* ---------- Estilos generales ---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* ---------- Encabezado ---------- */
+header {
+    background: linear-gradient(to right, #fdfdfd, #eaeaea);
+    border-bottom: 1px solid #ddd;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #444;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    color: #777;
+}
+
+/* ---------- Contenido principal ---------- */
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+main h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #444;
+    font-size: 1.6rem;
+}
+
+/* ---------- Grid del catálogo ---------- */
+.catalogo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+/* ---------- Tarjetas de productos ---------- */
+.producto-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.producto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.1);
+}
+
+.producto-card img {
+    max-width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+/* ---------- Texto dentro de la tarjeta ---------- */
+.producto-card h3 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.producto-card .descripcion {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 10px 0;
+}
+
+.producto-card .precio {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2a9d8f;
+    margin: 10px 0;
+}
+
+.producto-card .stock {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* ---------- Botón ---------- */
+button {
+    background: #2a9d8f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #21867a;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    background: #444;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    font-size: 0.9rem;
+}

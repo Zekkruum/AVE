@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+    <h2>Catálogo de productos</h2>
+    <div class="catalogo-grid">
+        {% for producto in productos %}
+        <div class="producto-card">
+            <a href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">
+                <img src="{{ producto.imagen or url_for('static', filename='img/no-image.png') }}" alt="{{ producto.nombre }}">
+                <h3>{{ producto.nombre }}</h3>
+                <p class="descripcion">{{ producto.descripcion[:80] }}...</p>
+                <p class="precio">${{ producto.precio }}</p>
+                <p class="stock">Stock: {{ producto.stock }}</p>
+            </a>
+            <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
+                <input type="hidden" name="cantidad" value="1">
+                <button type="submit">Agregar al carrito</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}
