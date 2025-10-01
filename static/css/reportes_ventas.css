@@ -1,0 +1,68 @@
+main {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #fdfdfd;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    font-family: "Segoe UI", sans-serif;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.filtro-fechas {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.filtro-fechas label {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #444;
+}
+
+.filtro-fechas input,
+.filtro-fechas button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+}
+
+.filtro-fechas button {
+    background: #222;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.filtro-fechas button:hover {
+    background: #444;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table thead {
+    background: #333;
+    color: #fff;
+}
+
+table th, table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+table tbody tr:nth-child(even) {
+    background: #f2f2f2;
+}

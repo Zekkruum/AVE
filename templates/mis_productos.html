@@ -115,6 +115,8 @@
                     <div class="card-actions">
                         <a href="{{ url_for('producto_detalle_vendedor', id_producto=producto.id_producto) }}">Ver Detalle</a>
                         <a href="{{ url_for('editar_producto', id_producto=producto.id_producto) }}" class="btn ghost small">Editar</a>
+                        <a href="{{ url_for('registrar_entrada_stock', id_producto=producto.id_producto) }}" class="btn">Entrada Stock</a>
+                        <a href="{{ url_for('registrar_salida_stock', id_producto=producto.id_producto) }}" class="btn">Salida Stock</a>
                         <a href="{{ url_for('eliminar_producto', id_producto=producto.id_producto) }}" class="btn ghost small" onclick="return confirm('Eliminar producto?')">Eliminar</a>
                     </div>
                 </article>

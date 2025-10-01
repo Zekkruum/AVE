@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registrar_entrada_stock.css') }}">
+
 <main>
     <h2>Registrar Entrada de Stock</h2>
     <p>Producto: <strong>{{ producto.nombre }}</strong></p>
@@ -11,6 +13,8 @@
         <input type="text" id="observacion" name="observacion" placeholder="Ej: compra proveedor, devolución, etc.">
 
         <button type="submit">Registrar Entrada</button>
+        <a href="{{ url_for('mis_productos') }}" class="btn-cancelar">Cancelar</a>
+
     </form>
 </main>
 {% endblock %}

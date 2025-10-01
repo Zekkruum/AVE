@@ -658,7 +658,7 @@ def crear_pedido():
 @app.route('/vendedor/stock/entrada/<int:id_producto>', methods=['GET', 'POST'])
 def registrar_entrada_stock(id_producto):
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 1:
+    if not usuario or usuario['id_rol'] != 2:
         return redirect(url_for('login'))
 
     conn = get_db_connection()
@@ -673,13 +673,18 @@ def registrar_entrada_stock(id_producto):
 
     if request.method == 'POST':
         cantidad = int(request.form['cantidad'])
-        observacion = request.form.get('observacion', '')
+        motivo = request.form.get('observacion', '')  # aquí recoges el form
+
+        id_usuario = session.get('usuario_id')  # si no hay sesión, forzar al vendedor con id 2
+
+        if not id_usuario:
+            return redirect(url_for('login'))  # seguridad extra
 
         # 1. Insertar en movimientos_inventario
         cursor.execute("""
-            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, observacion)
-            VALUES (%s, 'entrada', %s, %s)
-        """, (id_producto, cantidad, observacion))
+            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario)
+            VALUES (%s, 'entrada', %s, %s, %s)
+        """, (id_producto, cantidad, motivo, id_usuario))
 
         # 2. Actualizar stock en la tabla productos
         cursor.execute("""
@@ -697,6 +702,102 @@ def registrar_entrada_stock(id_producto):
     cursor.close()
     conn.close()
     return render_template('registrar_entrada_stock.html', producto=producto, usuario=usuario)
+
+
+#-----------------------------
+# Registrar salida stock
+#-----------------------------
+@app.route('/producto/<int:id_producto>/registrar_salida', methods=['GET', 'POST'])
+def registrar_salida_stock(id_producto):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores/admins
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos WHERE id_producto = %s", (id_producto,))
+    producto = cursor.fetchone()
+
+    if request.method == 'POST':
+        cantidad = int(request.form['cantidad'])
+        motivo = request.form['motivo']
+
+        # Validar stock disponible
+        if cantidad <= 0:
+            return render_template("registrar_salida_stock.html", producto=producto, error="La cantidad debe ser mayor a 0.")
+        if cantidad > producto['stock']:
+            return render_template("registrar_salida_stock.html", producto=producto, error="No hay suficiente stock disponible.")
+
+        # Insertar movimiento de salida
+
+        id_usuario = session.get('id_usuario')
+
+        cursor.execute("""
+            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario)
+            VALUES (%s, 'salida', %s, %s, %s)
+        """, (id_producto, cantidad, motivo, usuario['id_usuario']))
+
+        # Actualizar stock del producto
+        cursor.execute("""
+            UPDATE productos SET stock = stock - %s WHERE id_producto = %s
+        """, (cantidad, id_producto))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for('mis_productos'))
+
+    cursor.close()
+    conn.close()
+    return render_template("registrar_salida_stock.html", producto=producto, usuario=usuario)
+
+# ----------------------------
+# Reportes de ventas (RF024)
+# ----------------------------
+@app.route('/vendedor/reportes', methods=['GET', 'POST'])
+def reportes_ventas():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
+        return redirect(url_for('login'))
+
+    reportes = []
+    fecha_inicio = fecha_fin = None
+
+    if request.method == 'POST':
+        fecha_inicio = request.form['fecha_inicio']
+        fecha_fin = request.form['fecha_fin']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT 
+                p.id_pedido,
+                p.fecha,
+                u.nombre_completo AS cliente,
+                p.estado,
+                SUM(dp.cantidad * dp.precio_unitario) AS total,
+                GROUP_CONCAT(CONCAT(pr.nombre, ' (x', dp.cantidad, ')') SEPARATOR ', ') AS productos
+            FROM pedidos p
+            INNER JOIN usuarios u ON p.id_usuario = u.id_usuario
+            INNER JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+            INNER JOIN productos pr ON dp.id_producto = pr.id_producto
+            WHERE DATE(p.fecha) BETWEEN %s AND %s
+            GROUP BY p.id_pedido, p.fecha, u.nombre_completo, p.estado
+            ORDER BY p.fecha ASC
+        """, (fecha_inicio, fecha_fin))
+
+        reportes = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+    return render_template("reportes_ventas.html",
+                           usuario=usuario,
+                           reportes=reportes,
+                           fecha_inicio=fecha_inicio,
+                           fecha_fin=fecha_fin)
+
 
 
 
