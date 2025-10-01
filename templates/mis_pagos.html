@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Pagos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/acciones.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Historial de Pagos</h1>
+        <nav>
+            <a href="{{ url_for('catalogo') }}">⬅ Volver al Catálogo</a>
+            <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+        </nav>
+    </header>
+
+    <main>
+        {% if pagos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Pago</th>
+                    <th>ID Pedido</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in pagos %}
+                <tr>
+                    <td>{{ pago.id_pago }}</td>
+                    <td>{{ pago.id_pedido }}</td>
+                    <td>${{ pago.monto }}</td>
+                    <td>{{ pago.metodo }}</td>
+                    <td>{{ pago.estado }}</td>
+                    <td>{{ pago.fecha }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No tienes pagos registrados.</p>
+        {% endif %}
+    </main>
+</body>
+</html>

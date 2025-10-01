@@ -8,10 +8,27 @@
 <body>
     <!-- Header -->
     <header>
-        <h1>AVE Joyas</h1>
-        {% if usuario %}
-            <p>Bienvenido, {{ usuario.nombre_completo }}</p>
-        {% endif %}
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logo AVE Joyas">
+                
+            </div>
+
+            <!-- Accesos -->
+            <div class="acceso">
+                {% if usuario %}
+                    <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                    <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                    <a href="{{ url_for('signin') }}">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Descripción -->
+        
     </header>
 
     <!-- Navegación -->
@@ -20,10 +37,9 @@
             <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
-            {% if session.get ('rol') == 1 %}
+            {% if session.get('rol') == 2 %}
             <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
             {% endif %}
-            <li><a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
         </ul>
     </nav>
 

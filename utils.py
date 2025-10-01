@@ -3,25 +3,15 @@ import smtplib
 from email.mime.text import MIMEText
 import secrets
 import datetime
-
-# ----------------------------
-# Configuración SMTP (correo Gmail)
-# ----------------------------
-EMAIL_ADDRESS = "ave.joyas.juan@gmail.com"
-EMAIL_PASSWORD = "rhof yngu bdza ogij"
-
+from config import DB_CONFIG, EMAIL_CONFIG   # 👈 ahora importamos la config
 
 
 # ----------------------------
 # Conexión con la base de datos
 # ----------------------------
 def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",         
-        password="",         
-        database="ave_joyas"
-    )
+    return mysql.connector.connect(**DB_CONFIG)
+
 
 # ----------------------------
 # Enviar correo con token
@@ -29,14 +19,14 @@ def get_db_connection():
 def enviar_correo(destinatario, token):
     msg = MIMEText(f"Tu código de recuperación es: {token}")
     msg["Subject"] = "Recuperación de contraseña - AVE Joyas"
-    msg["From"] = EMAIL_ADDRESS
+    msg["From"] = EMAIL_CONFIG["address"]
     msg["To"] = destinatario
 
     try:
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
-            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_ADDRESS, destinatario, msg.as_string())
+            server.login(EMAIL_CONFIG["address"], EMAIL_CONFIG["password"])
+            server.sendmail(EMAIL_CONFIG["address"], destinatario, msg.as_string())
         print(f"[INFO] Correo enviado a {destinatario}")
     except Exception as e:
         print(f"[ERROR] No se pudo enviar correo: {e}")

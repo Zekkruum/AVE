@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Producto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registrar.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <!-- Logo + título -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logo AVE Joyas">
+            </div>
+
+            <!-- Accesos -->
+            <div class="acceso">
+                <a href="{{ url_for('vendedor_panel') }}">⬅ Volver al Panel</a>
+                <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
+            </div>
+        </div>
+
+        <!-- Slogan -->
+    </header>
+    <center><p class="slogan">Registrar un nuevo producto en la tienda</p></center>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="form-container">
+            <h1>Nuevo Producto</h1>
+            <form action="{{ url_for('registrar_producto') }}" method="POST">
+                <div class="form-group">
+                    <label for="nombre">Nombre del producto</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">Precio</label>
+                    <input type="number" id="precio" name="precio" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock</label>
+                    <input type="number" id="stock" name="stock" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagen">URL de la imagen</label>
+                    <input type="url" id="imagen" name="imagen">
+                </div>
+
+                <div class="form-actions">
+    <a href="{{ url_for('vendedor_panel') }}" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary">Registrar</button>
+</div>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

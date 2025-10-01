@@ -20,7 +20,12 @@
     </div>
     <div class="carrito-total">
         <h3>Total: ${{ total }}</h3>
-        <button>Proceder al pago</button>
+
+        <!-- 🔥 Este form llama a la ruta crear_pedido -->
+        <form action="{{ url_for('crear_pedido') }}" method="post">
+            <button type="submit" class="btn">Proceder al Pago</button>
+        </form>
+        
     </div>
     {% else %}
     <p>Tu carrito está vacío.</p>

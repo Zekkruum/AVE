@@ -1,12 +1,16 @@
 /* ---------- Estilos de autenticación (login / signin / recuperar / reset) ---------- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to right, #fdfdfd, #f5f5f5);
     margin: 0;
     padding: 0;
     color: #333;
+    background: url("../img/fondo-joyas.png") no-repeat center center fixed;
+    background-size: cover;
+
+    
 }
 
+/* Contenedor de login centrado */
 .auth-body {
     display: flex;
     justify-content: center;
@@ -14,83 +18,75 @@ body {
     height: 100vh;
 }
 
+/* Caja principal translúcida */
 .auth-container {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.75);
+    margin-top: 200px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 40px;
     width: 100%;
     max-width: 400px;
-    border-radius: 12px;
-    box-shadow: 0px 6px 20px rgba(0,0,0,0.08);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     text-align: center;
+    animation: fadeIn 0.6s ease-in-out;
 }
 
+/* Animación de entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Título */
 .auth-container h2 {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     color: #222;
+    font-size: 1.8rem;
+    font-weight: bold;
+    position: relative;
 }
 
+.auth-container h2::after {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 3px;
+    background: #000000; 
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+/* Labels */
 .auth-container label {
     display: block;
     text-align: left;
     margin: 10px 0 5px;
     font-size: 0.9rem;
-    color: #555;
+    color: #444;
+    font-weight: 500;
 }
 
+/* Inputs */
 .auth-container input,
 .auth-container select {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 12px;
+    margin-bottom: 18px;
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 0.95rem;
-    background: #fafafa;
+    background: rgba(250, 250, 250, 0.9);
     color: #333;
+    transition: border 0.3s, box-shadow 0.3s;
 }
 
 .auth-container input:focus,
 .auth-container select:focus {
     outline: none;
-    border-color: #666;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.auth-container button {
-    background: #333;
-    color: white;
-    border: none;
-    padding: 12px;
-    width: 100%;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.auth-container button:hover {
-    background: #000;
-}
-
-.error {
-    color: red;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-}
-
-.auth-link {
-    margin-top: 15px;
-    font-size: 0.9rem;
-}
-
-.auth-link a {
-    color: #000;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.auth-link a:hover {
-    text-decoration: underline;
+    border-color: #383838;
+    box-shadow: 0 0 8px rgba(2, 2, 2, 0.4);
 }
 
 /* Mostrar contraseña */
@@ -99,11 +95,54 @@ body {
     align-items: center;
     justify-content: flex-start;
     gap: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
     font-size: 0.85rem;
-    color: #444;
+    color: #555;
 }
 
 .show-pass input {
     width: auto;
+}
+
+/* Botón */
+.auth-container button {
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s ease;
+}
+
+.auth-container button:hover {
+    background: linear-gradient(135deg, #6d6d6c, #afafae);
+    transform: translateY(-2px);
+}
+
+/* Errores */
+.error {
+    color: red;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+/* Links */
+.auth-link {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.auth-link a {
+    color: #3f3f3f;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.auth-link a:hover {
+    color: #070707;
+    
 }

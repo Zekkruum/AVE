@@ -25,36 +25,43 @@ def login():
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM usuarios WHERE correo = %s", (correo,))
         user = cursor.fetchone()
+        # print("DEBUG USER:", user)  # 👈 para ver qué datos devuelve
         cursor.close()
         conn.close()
 
         if user and check_password_hash(user['contrasena'], password):
-            session['usuario'] = user['correo']  # Guardamos correo para consultas posteriores
-            session['rol'] = user['id_rol']  # guardamos el rol en sesión 
+            session['usuario_id'] = user['id_usuario']   # 👈 este faltaba
+            session['usuario'] = user['correo']
+            session['rol'] = user['id_rol']
 
-            if user['id_rol'] == 1:   # vendedor
+            # 👇 Aquí definimos dónde va cada rol
+            if user['id_rol'] == 2:   # vendedor
                 return redirect(url_for('vendedor_panel'))
-            elif user['id_rol'] == 2: # comprador
+            elif user['id_rol'] == 3: # cliente
                 return redirect(url_for('catalogo'))
             else:
-                return redirect(url_for('menu'))  # fallback
+                return redirect(url_for('login'))  # fallback
 
-        else:
-            return render_template('login.html', error="Correo o contraseña incorrectos")
+        return render_template('login.html', error="Correo o contraseña incorrectos")
 
     return render_template('login.html')
 
+
+#----------------------------------------------------------------------------------------
 # Función auxiliar para obtener datos completos del usuario por correo guardado en sesión
+#----------------------------------------------------------------------------------------
+
 def obtener_usuario():
-    if 'usuario' not in session:
+    if 'usuario_id' not in session:
         return None
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM usuarios WHERE correo = %s", (session['usuario'],))
+    cursor.execute("SELECT * FROM usuarios WHERE id_usuario = %s", (session['usuario_id'],))
     usuario = cursor.fetchone()
     cursor.close()
     conn.close()
     return usuario
+
 
 # ----------------------------
 # Perfil de usuario
@@ -73,26 +80,18 @@ def perfil():
 @app.route('/vendedor')
 def vendedor_panel():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 1:
+    if not usuario or usuario['id_rol'] != 2:
         return redirect(url_for('login'))
 
     return render_template('vendedor_panel.html', usuario=usuario)
 
-# ----------------------------
-# Dashboard
-# ----------------------------
-@app.route('/menu')
-def menu():
-    usuario = obtener_usuario()
-    if usuario:
-        return render_template('dashboard.html', usuario=usuario)
-    return redirect(url_for('login'))
 
 # ----------------------------
 # Logout
 # ----------------------------
 @app.route('/logout')
 def logout():
+    session.pop('usuario_id', None)
     session.pop('usuario', None)
     session.pop('rol', None)
     return redirect(url_for('login'))
@@ -112,7 +111,7 @@ def signin():
 
         contrasena = generate_password_hash(request.form['contrasena'])
         direccion = request.form['direccion']
-        estado = "activo"
+        estado = 1 # "activo"
         id_rol = None  # aún no tiene rol
 
         db = get_db_connection()
@@ -140,7 +139,7 @@ def elegir_rol():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        rol = request.form.get('rol')  # 1 = vendedor, 2 = comprador
+        rol = request.form.get('rol')  # 1 = vendedor, 3 = comprador
         user_id = session['pending_user']
 
         db = get_db_connection()
@@ -180,7 +179,7 @@ def catalogo():
     return render_template('catalogo.html', productos=productos, usuario=usuario)
 
 # ----------------------------
-# Vista detallada de producto
+# Producto - Detalle (CLIENTE)
 # ----------------------------
 @app.route('/producto/<int:id_producto>')
 def producto_detalle(id_producto):
@@ -368,6 +367,339 @@ def reset_password():
         return redirect(url_for('login'))
 
     return render_template('reset_password.html')
+
+# ----------------------------
+# Registrar producto
+# ----------------------------
+@app.route('/vendedor/producto/nuevo', methods=['GET', 'POST'])
+def registrar_producto():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        precio = float(request.form['precio'])
+        stock = int(request.form['stock'])
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO productos (nombre, descripcion, precio, stock, id_usuario)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (nombre, descripcion, precio, stock, usuario['id_usuario']))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for('mis_productos'))
+
+    return render_template('registrar_producto.html', usuario=usuario)
+
+
+
+# ----------------------------
+# Ver mis productos
+# ----------------------------
+@app.route('/vendedor/productos')
+def mis_productos():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos WHERE id_usuario = %s", (usuario['id_usuario'],))
+    productos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('mis_productos.html', usuario=usuario, productos=productos)
+
+
+# ----------------------------
+# Estadísticas de ventas (dummy de momento)
+# ----------------------------
+@app.route('/vendedor/estadisticas')
+def estadisticas():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    # TODO: más adelante consultar ventas reales
+    data = {
+        "total_ventas": 25,
+        "ingresos": 1200000,
+        "producto_mas_vendido": "Anillo de oro"
+    }
+
+    return render_template('estadisticas.html', usuario=usuario, data=data)
+
+
+# ----------------------------
+# Gestionar pedidos (dummy)
+# ----------------------------
+@app.route('/vendedor/pedidos')
+def gestionar_pedidos():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    # TODO: conectar con tabla de pedidos
+    pedidos = [
+        {"id": 1, "cliente": "Carlos Pérez", "producto": "Anillo Plata", "estado": "Pendiente"},
+        {"id": 2, "cliente": "Ana Torres", "producto": "Collar Oro", "estado": "Enviado"},
+    ]
+
+    return render_template('pedidos.html', usuario=usuario, pedidos=pedidos)
+
+# ----------------------------
+# Producto - Detalle (VENDEDOR)
+# ----------------------------
+@app.route('/vendedor/producto/<int:id_producto>')
+def producto_detalle_vendedor(id_producto):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos WHERE id_producto = %s AND id_usuario = %s",
+                   (id_producto, usuario['id_usuario']))
+    producto = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not producto:
+        return "Producto no encontrado o no autorizado", 404
+
+    return render_template('producto_detalle_vendedor.html', producto=producto, usuario=usuario)
+
+
+# ----------------------------
+# Producto - Editar
+# ----------------------------
+@app.route('/producto/<int:id_producto>/editar', methods=['GET', 'POST'])
+def editar_producto(id_producto):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos WHERE id_producto = %s", (id_producto,))
+    producto = cursor.fetchone()
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        precio = request.form['precio']
+        stock = request.form['stock']
+        cursor.execute("""
+            UPDATE productos 
+            SET nombre=%s, descripcion=%s, precio=%s, stock=%s
+            WHERE id_producto=%s
+        """, (nombre, descripcion, precio, stock, id_producto))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for('mis_productos'))
+
+    cursor.close()
+    conn.close()
+    return render_template('editar_producto.html', producto=producto)
+
+
+# ----------------------------
+# Producto - Eliminar
+# ----------------------------
+@app.route('/producto/<int:id_producto>/eliminar', methods=['POST'])
+def eliminar_producto(id_producto):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM productos WHERE id_producto = %s", (id_producto,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('mis_productos'))
+
+# ----------------------------
+# Registrar Pago
+# ----------------------------
+@app.route('/pedido/<int:id_pedido>/pago', methods=['GET', 'POST'])
+def registrar_pago(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # Solo clientes pueden pagar
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 🚨 IMPORTANTE: aquí supongo que tienes tabla pedidos con total
+    cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s", (id_pedido,))
+    pedido = cursor.fetchone()
+
+    if not pedido:
+        cursor.close()
+        conn.close()
+        return "Pedido no encontrado", 404
+
+    if request.method == 'POST':
+        metodo = request.form['metodo']
+        monto = float(request.form['monto'])
+        estado = "Pagado"
+
+        cursor.execute("""
+            INSERT INTO pagos (id_pedido, monto, metodo, estado, fecha)
+            VALUES (%s, %s, %s, %s, NOW())
+        """, (id_pedido, monto, metodo, estado))
+        conn.commit()
+        id_pago = cursor.lastrowid
+
+        cursor.close()
+        conn.close()
+        return redirect(url_for('pago_exito', id_pago=id_pago))
+
+    cursor.close()
+    conn.close()
+    return render_template('pago_form.html', usuario=usuario, pedido=pedido)
+
+
+# ----------------------------
+# Confirmación de Pago
+# ----------------------------
+@app.route('/pago/<int:id_pago>/exito')
+def pago_exito(id_pago):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM pagos WHERE id_pago = %s", (id_pago,))
+    pago = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not pago:
+        return "Pago no encontrado", 404
+
+    return render_template('pago_exito.html', usuario=usuario, pago=pago)
+
+
+# ----------------------------
+# Historial de Pagos
+# ----------------------------
+@app.route('/mis_pagos')
+def mis_pagos():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 🚨 IMPORTANTE: asumo que la tabla pedidos tiene id_usuario
+    cursor.execute("""
+        SELECT pa.*, pe.total 
+        FROM pagos pa
+        INNER JOIN pedidos pe ON pa.id_pedido = pe.id_pedido
+        WHERE pe.id_usuario = %s
+        ORDER BY pa.fecha DESC
+    """, (usuario['id_usuario'],))
+    pagos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('mis_pagos.html', usuario=usuario, pagos=pagos)
+
+# ----------------------------
+# Crear pedido (desde el carrito)
+# ----------------------------
+@app.route('/crear_pedido', methods=['POST'])
+def crear_pedido():
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+
+    carrito = session.get('carrito', [])
+    if not carrito:
+        return redirect(url_for('carrito'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # 1. Insertamos el pedido
+    cursor.execute("""
+        INSERT INTO pedidos (id_usuario, fecha, estado)
+        VALUES (%s, NOW(), 'Pendiente')
+    """, (usuario['id_usuario'],))
+    id_pedido = cursor.lastrowid
+
+    # 2. Insertamos cada producto en la tabla detalle_pedido
+    for item in carrito:
+        cursor.execute("""
+            INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
+            VALUES (%s, %s, %s, %s)
+        """, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    # Limpiamos el carrito
+    session['carrito'] = []
+
+    # Redirigir a la vista de pago
+    return redirect(url_for('registrar_pago', id_pedido=id_pedido))
+
+
+# ----------------------------
+# Registrar entrada de stock
+# ----------------------------
+@app.route('/vendedor/stock/entrada/<int:id_producto>', methods=['GET', 'POST'])
+def registrar_entrada_stock(id_producto):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 1:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos WHERE id_producto = %s", (id_producto,))
+    producto = cursor.fetchone()
+
+    if not producto:
+        cursor.close()
+        conn.close()
+        return "Producto no encontrado", 404
+
+    if request.method == 'POST':
+        cantidad = int(request.form['cantidad'])
+        observacion = request.form.get('observacion', '')
+
+        # 1. Insertar en movimientos_inventario
+        cursor.execute("""
+            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, observacion)
+            VALUES (%s, 'entrada', %s, %s)
+        """, (id_producto, cantidad, observacion))
+
+        # 2. Actualizar stock en la tabla productos
+        cursor.execute("""
+            UPDATE productos
+            SET stock = stock + %s
+            WHERE id_producto = %s
+        """, (cantidad, id_producto))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for('mis_productos'))
+
+    cursor.close()
+    conn.close()
+    return render_template('registrar_entrada_stock.html', producto=producto, usuario=usuario)
+
+
+
 
 # ----------------------------
 # Run app

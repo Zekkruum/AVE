@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Panel de Vendedor - AVE Joyas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendedor.css') }}">
 </head>
+
 <body>
     <header>
-        <h1>Bienvenido {{ usuario.nombre_completo }}</h1>
-        <p>Este es tu panel de vendedor</p>
+        <h1>Bienvenido/a {{ usuario.nombre_completo }}</h1>
+        <p>Rol: Vendedor</p>
         <nav class="nav-links">
             <a href="{{ url_for('catalogo') }}" class="btn">Ir al catálogo</a>
             <a href="{{ url_for('logout') }}" class="logout">Cerrar Sesión</a>
@@ -19,12 +21,14 @@
         <section class="acciones">
             <h2>Acciones principales</h2>
             <div class="acciones-grid">
-                <a href="#" class="card">➕ Registrar nuevo producto</a>
-                <a href="#" class="card">📦 Ver mis productos</a>
-                <a href="#" class="card">📊 Ver estadísticas de ventas</a>
-                <a href="#" class="card">🛠️ Gestionar pedidos</a>
+                <a href="{{ url_for('registrar_producto') }}" class="card">➕ Registrar nuevo producto</a>
+                <a href="{{ url_for('mis_productos') }}" class="card">📦 Ver mis productos</a>
+                <a href="{{ url_for('estadisticas') }}" class="card">📊 Ver estadísticas de ventas</a>
+                <a href="{{ url_for('gestionar_pedidos') }}" class="card">🛠️ Gestionar pedidos</a>
             </div>
+
         </section>
     </main>
 </body>
+
 </html>

@@ -1,0 +1,109 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url("../img/fondo-joyas.png") no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+}
+
+/* ---------- Header de estadísticas ---------- */
+header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid #ddd;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+header .logo {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #222;
+}
+
+.header-right {
+    display: flex;
+    gap: 12px;
+}
+
+/* ---------- Main (contenedor de estadísticas) ---------- */
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+/* ---------- Botones reutilizados ---------- */
+.btn-ghost {
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    border: 2px solid #ccc;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-ghost:hover {
+    border-color: #000;
+    background: linear-gradient(135deg, #6d6d6c, #afafae);
+    color: #000;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #6d6d6c, #afafae);
+    transform: translateY(-2px);
+    color: #000;
+
+}
+
+footer {
+    text-align: center;
+    background: rgba(0,0,0,0.85);   /* Fondo oscuro semi-transparente */
+    color: #fff;
+    padding: 18px 10px;
+    margin-top: 40px;
+    font-size: 0.9rem;
+    border-top: 2px solid #000000;
+}
+
+footer p {
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}

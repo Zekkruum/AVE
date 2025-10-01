@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Mis Productos - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/productos1.css') }}">
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE" class="logo">
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('vendedor_panel') }}" class="btn-ghost">⬅ Volver al Panel</a>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Cerrar sesión</a>
+
+        </div>
+    </header>
+
+    <main class="container">
+        <p class="subtitle">Aquí gestionas los productos que vendes</p>
+
+        <!-- Acciones principales -->
+        <div class="actions">
+            <button id="btn-toggle-form" class="btn small">➕ Nuevo producto</button>
+        </div>
+
+        <!-- Formulario: oculto por defecto -->
+        <div id="form-panel" class="form-panel">
+    <form action="{{ url_for('registrar_producto') }}" method="POST" enctype="multipart/form-data">
+
+        <!-- Nombre -->
+        <div class="form-group">
+            <label for="nombre">Nombre del producto</label>
+            <input type="text" name="nombre" id="nombre" required>
+        </div>
+
+        <!-- Precio y Stock -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="precio">Precio (USD)</label>
+                <input type="number" step="0.01" name="precio" id="precio" required>
+            </div>
+
+            <div class="form-group">
+                <label for="stock">Stock</label>
+                <input type="number" name="stock" id="stock" required>
+            </div>
+        </div>
+
+        <!-- Categoría -->
+        <div class="form-group">
+            <label for="categoria">Categoría</label>
+            <input type="text" name="categoria" id="categoria" placeholder="Opcional">
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea name="descripcion" id="descripcion"></textarea>
+        </div>
+
+        <!-- Imagen -->
+        <div class="form-group upload-row">
+            <div class="upload-input">
+                <label for="imagen">Imagen</label>
+                <input type="file" name="imagen" id="imagen" accept="image/*">
+            </div>
+            <div class="img-preview" id="img-preview">
+                <span>Previsualización</span>
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="form-actions">
+            <button type="button" id="btn-cancel" class="btn ghost">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar producto</button>
+        </div>
+    </form>
+</div>
+
+
+            
+            </form>
+        </div>
+
+        <!-- Lista de productos -->
+        <div class="product-grid">
+            {% if productos %}
+                {% for producto in productos %}
+                <article class="product-card">
+                    <div class="product-media">
+                        {% if producto.imagen %}
+                            {%- set img = producto.imagen -%}
+                            {% if img.startswith('http') %}
+                                <img src="{{ img }}" alt="{{ producto.nombre }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ img) }}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default-product.png') }}" alt="sin imagen">
+                        {% endif %}
+                    </div>
+
+                    <h3 class="product-title">{{ producto.nombre }}</h3>
+                    <p class="product-desc">{{ producto.descripcion }}</p>
+
+                    <div class="product-meta">
+                        <div class="price">${{ '%.2f'|format(producto.precio|float) }}</div>
+                        <div class="stock">Stock: {{ producto.stock }}</div>
+                    </div>
+
+                    <div class="card-actions">
+                        <a href="{{ url_for('producto_detalle_vendedor', id_producto=producto.id_producto) }}">Ver Detalle</a>
+                        <a href="{{ url_for('editar_producto', id_producto=producto.id_producto) }}" class="btn ghost small">Editar</a>
+                        <a href="{{ url_for('eliminar_producto', id_producto=producto.id_producto) }}" class="btn ghost small" onclick="return confirm('Eliminar producto?')">Eliminar</a>
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <p>No tienes productos registrados todavía.</p>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+        // Toggle formulario
+        const btnToggle = document.getElementById('btn-toggle-form');
+        const panel = document.getElementById('form-panel');
+        const btnCancel = document.getElementById('btn-cancel');
+        btnToggle.addEventListener('click', () => panel.classList.add('open'));
+        btnCancel.addEventListener('click', () => panel.classList.remove('open'));
+
+        // Preview imagen
+        const inputImg = document.getElementById('imagen');
+        const preview = document.getElementById('img-preview');
+        inputImg.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) {
+                preview.innerHTML = '<span>Previsualización</span>';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                preview.innerHTML = '<img src="' + ev.target.result + '" style="width:100%; height:100%; object-fit:cover;">';
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

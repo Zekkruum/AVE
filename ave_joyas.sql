@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-08-2025 a las 16:57:17
+-- Tiempo de generación: 16-09-2025 a las 07:58:18
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -307,11 +307,11 @@ CREATE TABLE `bitacora` (
 --
 
 INSERT INTO `bitacora` (`id_log`, `id_usuario`, `accion`, `modulo`, `fecha`) VALUES
-(1, 1, 'Creó nuevo usuario', 'usuarios', '2024-05-01 09:00:00'),
-(2, 2, 'Editó producto', 'productos', '2024-05-02 10:15:00'),
-(3, 3, 'Registró venta', 'pedidos', '2024-05-03 11:30:00'),
-(4, 4, 'Generó reporte de ventas', 'reportes', '2024-05-04 12:45:00'),
-(5, 5, 'Aprobó devolución', 'devoluciones', '2024-05-05 14:00:00');
+(1, 1, 'Cre? nuevo usuario', 'usuarios', '2024-05-01 09:00:00'),
+(2, 2, 'Edit? producto', 'productos', '2024-05-02 10:15:00'),
+(3, 3, 'Registr? venta', 'pedidos', '2024-05-03 11:30:00'),
+(4, 4, 'Gener? reporte de ventas', 'reportes', '2024-05-04 12:45:00'),
+(5, 5, 'Aprob? devoluci?n', 'devoluciones', '2024-05-05 14:00:00');
 
 -- --------------------------------------------------------
 
@@ -358,7 +358,7 @@ INSERT INTO `detalle_orden` (`id_detalle`, `id_orden`, `producto_descripcion`, `
 (2, 1, 'Lote de plata ley 925 - 100 piezas', 100, 250000.00),
 (3, 2, 'Bobinas de acero inoxidable - 200m', 200, 10000.00),
 (4, 3, 'Cuentas de piedra natural - 500 unidades', 500, 2000.00),
-(5, 5, 'Material ecológico en rollos - 300m', 300, 1500.00);
+(5, 5, 'Material ecol?gico en rollos - 300m', 300, 1500.00);
 
 -- --------------------------------------------------------
 
@@ -384,7 +384,15 @@ INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `id_tall
 (2, 2, 2, 2, 1, 120000.00),
 (3, 3, 3, 4, 1, 95000.00),
 (4, 4, 4, 3, 2, 235000.00),
-(5, 5, 5, 5, 1, 80000.00);
+(5, 5, 5, 5, 1, 80000.00),
+(6, 6, 3, NULL, 2, 95000.00),
+(7, 7, 3, NULL, 1, 95000.00),
+(8, 8, 3, NULL, 1, 95000.00),
+(9, 9, 2, NULL, 1, 120000.00),
+(10, 9, 3, NULL, 1, 95000.00),
+(11, 10, 2, NULL, 1, 120000.00),
+(12, 10, 3, NULL, 1, 95000.00),
+(13, 11, 2, NULL, 1, 120000.00);
 
 -- --------------------------------------------------------
 
@@ -403,11 +411,11 @@ CREATE TABLE `imagenes` (
 --
 
 INSERT INTO `imagenes` (`id_imagen`, `id_producto`, `url`) VALUES
-(1, 1, 'img/anillo_oro.jpg'),
-(2, 2, 'img/collar_plata.jpg'),
-(3, 3, 'img/pulsera_acero.jpg'),
-(4, 4, 'img/aretes_rubi.jpg'),
-(5, 5, 'img/broche_hoja.jpg');
+(2, 2, 'https://nomadajoyas.com/wp-content/uploads/2022/07/collar-corazon-plata.jpg'),
+(3, 3, 'https://finagarcia.com/cdn/shop/files/ACPU00593.jpg?v=1729505395'),
+(4, 4, 'https://cdn-media.glamira.com/media/product/newgeneration/view/1/sku/G100735/diamond/ruby_AA/alloycolour/white.jpg'),
+(5, 5, 'https://taller-cruz.es/wp-content/uploads/broche-hoja-grande-1.jpg'),
+(6, 1, 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcQXtt5brPXaB6awQSeRp2WLWcpFKznoQ2p3slXxHdIvkbGeuwu5Xe9qmN5DxidjbRb6eM-hQ5XDjEVrnW0l52QlsoIUasnhUITT-Wu6GzJvKKyJ-0Y');
 
 -- --------------------------------------------------------
 
@@ -459,6 +467,30 @@ INSERT INTO `ordenes_compra` (`id_orden`, `id_proveedor`, `fecha`, `estado`, `ob
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `pagos`
+--
+
+CREATE TABLE `pagos` (
+  `id_pago` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `metodo_pago` varchar(50) NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `metodo` varchar(50) NOT NULL,
+  `estado` varchar(30) DEFAULT 'Pendiente',
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
+  `referencia_pago` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pagos`
+--
+
+INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `metodo`, `estado`, `fecha`, `referencia_pago`) VALUES
+(1, 7, '', 95000.00, 'tarjeta', 'Pagado', '2025-09-16 00:36:29', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pedidos`
 --
 
@@ -469,19 +501,27 @@ CREATE TABLE `pedidos` (
   `estado` varchar(30) DEFAULT NULL,
   `metodo_envio` varchar(50) DEFAULT NULL,
   `metodo_pago` varchar(50) DEFAULT NULL,
-  `total` decimal(10,2) DEFAULT NULL
+  `total` decimal(10,2) DEFAULT NULL,
+  `estado_pago` enum('pendiente','pagado','cancelado') DEFAULT 'pendiente',
+  `id_usuario` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`) VALUES
-(1, 1, '2024-06-01', 'Enviado', 'Mensajería', 'Tarjeta', 350000.00),
-(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00),
-(3, 3, '2024-06-03', 'Entregado', 'Mensajería', 'Nequi', 95000.00),
-(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00),
-(5, 5, '2024-06-05', 'Pendiente', 'Mensajería', 'Transferencia', 80000.00);
+INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`) VALUES
+(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL),
+(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL),
+(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL),
+(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL),
+(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL),
+(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11),
+(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11),
+(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23),
+(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23),
+(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23),
+(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23);
 
 -- --------------------------------------------------------
 
@@ -499,19 +539,20 @@ CREATE TABLE `productos` (
   `referencia` varchar(50) DEFAULT NULL,
   `stock` int(11) DEFAULT NULL,
   `id_tipo` int(11) DEFAULT NULL,
-  `id_material` int(11) DEFAULT NULL
+  `id_material` int(11) DEFAULT NULL,
+  `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `dimensiones`, `referencia`, `stock`, `id_tipo`, `id_material`) VALUES
-(1, 'Anillo Clásico Oro', 'Anillo elegante de oro 18k', 350000.00, 0.05, '2x2x2cm', 'AOR001', 10, 1, 1),
-(2, 'Collar Corazón Plata', 'Collar con dije en forma de corazón', 120000.00, 0.1, '5x5x1cm', 'CPL002', 5, 2, 2),
-(3, 'Pulsera Acero Fina', 'Pulsera unisex en acero inoxidable', 95000.00, 0.08, '4x4x2cm', 'PAC003', 20, 3, 3),
-(4, 'Aretes Rubí', 'Aretes con incrustaciones de rubí', 470000.00, 0.03, '2x2x1cm', 'ARU004', 7, 4, 4),
-(5, 'Broche Hoja', 'Broche de hoja con material ecológico', 80000.00, 0.02, '3x3x1cm', 'BHO005', 12, 5, 5);
+INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `dimensiones`, `referencia`, `stock`, `id_tipo`, `id_material`, `id_usuario`) VALUES
+(1, 'Anillo Clásico Oro', 'Anillo elegante de oro 18k', 350000.00, 0.05, '2x2x2cm', 'AOR001', 10, 1, 1, 1),
+(2, 'Collar Corazón Plata', 'Collar con dije en forma de corazón', 120000.00, 0.1, '5x5x1cm', 'CPL002', 5, 2, 2, 1),
+(3, 'Pulsera Acero Fina', 'Pulsera unisex en acero inoxidable', 95000.00, 0.08, '4x4x2cm', 'PAC003', 20, 3, 3, 1),
+(4, 'Aretes Rubí', 'Aretes con incrustaciones de rubí', 470000.00, 0.03, '2x2x1cm', 'ARU004', 7, 4, 4, 1),
+(5, 'Broche Hoja', 'Broche de hoja con material ecológico', 80000.00, 0.02, '3x3x1cm', 'BHO005', 12, 5, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -582,11 +623,11 @@ CREATE TABLE `promociones` (
 --
 
 INSERT INTO `promociones` (`id_promocion`, `titulo`, `descripcion`, `fecha_inicio`, `fecha_fin`, `activa`) VALUES
-(1, 'Día de la Madre', '10% de descuento en anillos y collares', '2024-05-01', '2024-05-10', 1),
+(1, 'D?a de la Madre', '10% de descuento en anillos y collares', '2024-05-01', '2024-05-10', 1),
 (2, 'Semana del Oro', '15% descuento en todos los productos de oro', '2024-06-01', '2024-06-07', 1),
 (3, 'Black Friday', 'Hasta 50% en joyas seleccionadas', '2024-11-25', '2024-11-30', 1),
 (4, 'Navidad Especial', '20% en colecciones de invierno', '2024-12-15', '2024-12-31', 1),
-(5, 'Año Nuevo', '5% de descuento adicional', '2025-01-01', '2025-01-05', 1);
+(5, 'A?o Nuevo', '5% de descuento adicional', '2025-01-01', '2025-01-05', 1);
 
 -- --------------------------------------------------------
 
@@ -608,7 +649,7 @@ CREATE TABLE `proveedores` (
 --
 
 INSERT INTO `proveedores` (`id_proveedor`, `nombre`, `nit`, `telefono`, `correo`, `direccion`) VALUES
-(1, 'Joyas Medellín Ltda.', '800123456', '6044448899', 'contacto@joyamedellin.com', 'Calle 30 #70-15'),
+(1, 'Joyas Medell?n Ltda.', '800123456', '6044448899', 'contacto@joyamedellin.com', 'Calle 30 #70-15'),
 (2, 'Insumos Joya S.A.S.', '900876543', '6019998899', 'ventas@insujoyas.com', 'Carrera 40 #10-20'),
 (3, 'Metales del Norte', '830112233', '6051112233', 'info@metalesnorte.com', 'Av. Norte #10-10'),
 (4, 'Piedras Preciosas Co.', '820332211', '6023332211', 'pedidos@piedrasco.com', 'Calle de las Piedras #5'),
@@ -683,6 +724,29 @@ INSERT INTO `tipos_joya` (`id_tipo`, `nombre_tipo`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tokens_recuperacion`
+--
+
+CREATE TABLE `tokens_recuperacion` (
+  `id` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `token` varchar(20) NOT NULL,
+  `expira` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tokens_recuperacion`
+--
+
+INSERT INTO `tokens_recuperacion` (`id`, `id_usuario`, `token`, `expira`) VALUES
+(5, 13, '6fdcaa33', '2025-09-07 21:54:58'),
+(9, 15, '148fa6cb', '2025-09-08 06:56:38'),
+(10, 16, 'e2ca1dc7', '2025-09-08 07:01:33'),
+(12, 18, 'e17e96e1', '2025-09-09 16:32:44');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `usuarios`
 --
 
@@ -702,11 +766,24 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre_completo`, `correo`, `telefono_contacto`, `contrasena`, `direccion`, `estado`, `id_rol`) VALUES
-(1, 'Juan Pérez', 'juan@ave.com', '3001112233', 'clave123', 'Calle 123', 1, 1),
-(2, 'Ana Gómez', 'ana@ave.com', '3000000000', 'clave123', 'Carrera 45', 0, 2),
+(1, 'Juan P?rez', 'juan@ave.com', '3001112233', 'clave123', 'Calle 123', 1, 1),
+(2, 'Ana G?mez', 'ana@ave.com', '3000000000', 'clave123', 'Carrera 45', 0, 2),
 (3, 'Luis Rojas', 'luis@ave.com', '3003334455', 'clave123', 'Av. Norte 9', 0, 3),
-(4, 'Lucía Díaz', 'lucia@ave.com', '3004445566', 'clave123', 'Nueva Dirección 456', 1, 3),
-(5, 'Soporte AVE', 'soporte@ave.com', '3005556677', 'clave123', 'Oficina 5', 1, 4);
+(4, 'Luc?a D?az', 'lucia@ave.com', '3004445566', 'clave123', 'Nueva Direcci?n 456', 1, 3),
+(5, 'Soporte AVE', 'soporte@ave.com', '3005556677', 'clave123', 'Oficina 5', 1, 4),
+(9, 'Keinner Santiago', 'keinner@ave.com', '1234567890', 'scrypt:32768:8:1$RSHF9SWKA5uBgcju$399aeb09899861ac8d72917a892afac9373455001f1449e9d345520410a3c60b0305adcad23e411fb332a8da4c58d09a6b36652bd3943c5324d81417d8246a13', 'su casa ', 0, 2),
+(10, 'Esteban Espitia', 'esteban@ave.com', '0987654321', 'scrypt:32768:8:1$HUuf65it9zjSZUUB$d8fee9e6d6ea1b27f9f634005a31cf2f8b063ae14c7f62e06043e1e79351c3178b609f7b1c44fc9e95e8d2b97a9938fe20018dfd465bce476c0e0397551c9d4d', 'Suba (Es un Cerro)', 0, 1),
+(11, 'Uldarico Andrade', 'uldarico@gmail.com', '7890123456', 'scrypt:32768:8:1$UVX3mRSPAJ0qlwpq$8ed58f7e3f51eebb0a0bae844f9f90017a05969e8deea64a33c823ab4810a43b7ea914985d3e9a6a71a6704a9b008fbeaa024c3eec0ced58299c1c8c6894318d', 'carrera del amorch', 0, 3),
+(12, 'Danna Gabriela', 'dannagb@gmail.com', '1234567890', 'scrypt:32768:8:1$Zkl79IRpzx4UV2q2$65b9399dbda0e5d9ff880f88b14c8c0509d14c3be7d66b7bfcdcb17f474c168fc7bd5621f4bac88fb9104c9edcb627e3358f64d392790233b8982bd0700cabb6', 'Cerru', 0, 2),
+(13, 'Maria Teresa', 'juancamilogarciabonilla54@gmail.com', '+573194988478', 'scrypt:32768:8:1$Jx3ubUv7XhrfxUgh$cb4dffe8b7ad00a5901f1c1ac54f006eb5698e5bfe09872582b9546a3eddbbfe3537f5f8dd3d2a6be2aa5372ea10534aa1a1e7e0575146e8c4cc1f0423a2b5aa', 'Suba (En la falda del Cerro)', 0, 1),
+(15, 'Keinner Perez', 'keinnerrodriguez0916@gmail.com', '+573245019909', 'scrypt:32768:8:1$sykbyu6lLeIf8Ip8$27a7fd82e4bdb70bce32d64c58a0365bc5ff2a98d46b78f61ea38100ec9ccbe51e2963b5206e94f3d909d666c54a600518862380eb62bd8e3a6683ed6942f209', 'Portal 80', 0, 2),
+(16, 'Samuel Mari?o', 'samuel.e.marino@hotmail.com', '+573212136560', 'scrypt:32768:8:1$zCFvMCLKDsOKc6j3$a22b2dac2a4757647bb6ee408082ac9f373253b4ed9d094bf9e9ccdb55b9eefe9b40e35098f478265f3ddc94669a0aa636969f39098f85042b02ac211bcfdf8e', 'Bosa', 0, 1),
+(17, 'Luis Garcia', 'luis.garcia@gmail.com', '+5712340987654', 'scrypt:32768:8:1$9m3QskmkdBnF2v16$ed669e720f10627a9ecb6ad25a770167c2ee812efccdb37e99250e4bedc14ac21b560657784c3c9cbf0e36102d7ca56f70859429505b7218e9c56ad70387e425', 'Casa', 0, 1),
+(18, 'Maria Bonilla', 'matebojejuda123@gmail.com', '+57097327647', 'scrypt:32768:8:1$wd1GIWxJNcZAXUy7$64ae89d9d7a160750c02296b4edbc64d72a7387c1a6961edc20b5a27e4d411ec67d19d1f58a1a45328ebdb2fcd5c926f23a180864773ae9a108b1837e84c6245', 'Casa', 0, 1),
+(20, 'jhon', 'jhon@ave.com', '+573506257556', 'scrypt:32768:8:1$ORAZ1tBwMtgF8UP8$7e95fe4eae0acdab5d34d19fc33996bfc0c1265aedb59ef76b7291aa498d8e5b8ad769d9d4c5ed3af2066cd52cf4b3ed752f3f3e17dd8641ed7e92443963cca8', 'xd', 0, 2),
+(21, 'Nicole Quiroga', 'paolakimoficial@gmail.com', '+573007151138', 'scrypt:32768:8:1$a8N2mO0IJVSvMlhU$22521088b02de3e4516418e69c8066b7e9bb2513fd08e40de70329f0d1a63f5cbcac94a7336fda2712fab1774f62c7b96fa35e0b536eadc32dc8432f8b878779', 'casa xd', 0, 1),
+(22, 'Juan Garcia', 'juancgb2007@gmail.com', '+573194988478', 'scrypt:32768:8:1$QCFlm3rymKtIJdGf$08ebc944ddea26d65b106266d7bbaac04a81bc62bc638a29bbb15afe85bc6b98edc7c44ce8e64d9ad5c7908451d1f5f9643f1f0636c463f7dcde72ceb414eea6', 'Cerru Premium', 0, 2),
+(23, 'esteban espitia ', 'estebanof2005@gmail.com', '+573506257556', 'scrypt:32768:8:1$SQM6CMvBpHOeHEpq$70f7b559b8abc1ad805816b59b53a7b6e9748798986845f63ec181c23043538464f61e24757d7824c4dc08137f79d46e14d6c77b7038b10732fc52086189a409', 'suba (cerro)', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -985,11 +1062,19 @@ ALTER TABLE `ordenes_compra`
   ADD KEY `id_proveedor` (`id_proveedor`);
 
 --
+-- Indices de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD PRIMARY KEY (`id_pago`),
+  ADD KEY `id_pedido` (`id_pedido`);
+
+--
 -- Indices de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
   ADD PRIMARY KEY (`id_pedido`),
-  ADD KEY `id_cliente` (`id_cliente`);
+  ADD KEY `id_cliente` (`id_cliente`),
+  ADD KEY `fk_pedido_usuario` (`id_usuario`);
 
 --
 -- Indices de la tabla `productos`
@@ -997,7 +1082,8 @@ ALTER TABLE `pedidos`
 ALTER TABLE `productos`
   ADD PRIMARY KEY (`id_producto`),
   ADD KEY `id_tipo` (`id_tipo`),
-  ADD KEY `id_material` (`id_material`);
+  ADD KEY `id_material` (`id_material`),
+  ADD KEY `fk_producto_usuario` (`id_usuario`);
 
 --
 -- Indices de la tabla `producto_promocion`
@@ -1044,6 +1130,13 @@ ALTER TABLE `tipos_joya`
   ADD PRIMARY KEY (`id_tipo`);
 
 --
+-- Indices de la tabla `tokens_recuperacion`
+--
+ALTER TABLE `tokens_recuperacion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -1076,13 +1169,13 @@ ALTER TABLE `detalle_orden`
 -- AUTO_INCREMENT de la tabla `detalle_pedido`
 --
 ALTER TABLE `detalle_pedido`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `imagenes`
 --
 ALTER TABLE `imagenes`
-  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `materiales`
@@ -1097,10 +1190,16 @@ ALTER TABLE `ordenes_compra`
   MODIFY `id_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -1139,10 +1238,16 @@ ALTER TABLE `tipos_joya`
   MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `tokens_recuperacion`
+--
+ALTER TABLE `tokens_recuperacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Restricciones para tablas volcadas
@@ -1187,15 +1292,23 @@ ALTER TABLE `ordenes_compra`
   ADD CONSTRAINT `ordenes_compra_ibfk_1` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedores` (`id_proveedor`);
 
 --
+-- Filtros para la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
+  ADD CONSTRAINT `fk_pedido_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
 
 --
 -- Filtros para la tabla `productos`
 --
 ALTER TABLE `productos`
+  ADD CONSTRAINT `fk_producto_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_tipo`) REFERENCES `tipos_joya` (`id_tipo`),
   ADD CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_material`) REFERENCES `materiales` (`id_material`);
 
@@ -1212,6 +1325,12 @@ ALTER TABLE `producto_promocion`
 ALTER TABLE `producto_talla`
   ADD CONSTRAINT `producto_talla_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
   ADD CONSTRAINT `producto_talla_ibfk_2` FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`);
+
+--
+-- Filtros para la tabla `tokens_recuperacion`
+--
+ALTER TABLE `tokens_recuperacion`
+  ADD CONSTRAINT `tokens_recuperacion_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `usuarios`
