@@ -526,33 +526,42 @@ def eliminar_producto(id_producto):
 @app.route('/pedido/<int:id_pedido>/pago', methods=['GET', 'POST'])
 def registrar_pago(id_pedido):
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:  # Solo clientes pueden pagar
+    if not usuario or usuario['id_rol'] != 3:  # Solo clientes
         return redirect(url_for('login'))
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 🚨 IMPORTANTE: aquí supongo que tienes tabla pedidos con total
-    cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s", (id_pedido,))
+    # 1. Traer pedido y total
+    cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s AND id_usuario = %s",
+                   (id_pedido, usuario['id_usuario']))
     pedido = cursor.fetchone()
 
     if not pedido:
         cursor.close()
         conn.close()
-        return "Pedido no encontrado", 404
+        return "Pedido no encontrado o no autorizado", 404
 
     if request.method == 'POST':
         metodo = request.form['metodo']
-        monto = float(request.form['monto'])
+
+        # 2. Usar el total real del pedido, no lo que mande el usuario
+        monto = pedido['total']
         estado = "Pagado"
 
+        # 3. Insertar pago
         cursor.execute("""
-            INSERT INTO pagos (id_pedido, monto, metodo, estado, fecha)
+            INSERT INTO pagos (id_pedido, monto, metodo_pago, estado, fecha)
             VALUES (%s, %s, %s, %s, NOW())
         """, (id_pedido, monto, metodo, estado))
-        conn.commit()
         id_pago = cursor.lastrowid
 
+        # 4. Actualizar estado del pedido
+        cursor.execute("""
+            UPDATE pedidos SET estado = 'Pagado' WHERE id_pedido = %s
+        """, (id_pedido,))
+
+        conn.commit()
         cursor.close()
         conn.close()
         return redirect(url_for('pago_exito', id_pago=id_pago))
@@ -584,6 +593,7 @@ def pago_exito(id_pago):
     return render_template('pago_exito.html', usuario=usuario, pago=pago)
 
 
+
 # ----------------------------
 # Historial de Pagos
 # ----------------------------
@@ -596,9 +606,8 @@ def mis_pagos():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 🚨 IMPORTANTE: asumo que la tabla pedidos tiene id_usuario
     cursor.execute("""
-        SELECT pa.*, pe.total 
+        SELECT pa.*, pe.total, pe.fecha AS fecha_pedido
         FROM pagos pa
         INNER JOIN pedidos pe ON pa.id_pedido = pe.id_pedido
         WHERE pe.id_usuario = %s
@@ -617,7 +626,7 @@ def mis_pagos():
 @app.route('/crear_pedido', methods=['POST'])
 def crear_pedido():
     usuario = obtener_usuario()
-    if not usuario:
+    if not usuario or usuario['id_rol'] != 3:  # Solo clientes
         return redirect(url_for('login'))
 
     carrito = session.get('carrito', [])
@@ -627,19 +636,27 @@ def crear_pedido():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. Insertamos el pedido
+    # 1. Calcular total del pedido
+    total_pedido = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
+
+    # 2. Insertamos el pedido con total
     cursor.execute("""
-        INSERT INTO pedidos (id_usuario, fecha, estado)
-        VALUES (%s, NOW(), 'Pendiente')
-    """, (usuario['id_usuario'],))
+        INSERT INTO pedidos (id_usuario, fecha, estado, total)
+        VALUES (%s, NOW(), 'Pendiente', %s)
+    """, (usuario['id_usuario'], total_pedido))
     id_pedido = cursor.lastrowid
 
-    # 2. Insertamos cada producto en la tabla detalle_pedido
+    # 3. Insertamos cada producto en la tabla detalle_pedido y descontamos stock
     for item in carrito:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
             VALUES (%s, %s, %s, %s)
         """, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
+
+        # Descontar stock del producto
+        cursor.execute("""
+            UPDATE productos SET stock = stock - %s WHERE id_producto = %s
+        """, (item['cantidad'], item['id_producto']))
 
     conn.commit()
     cursor.close()
@@ -650,7 +667,6 @@ def crear_pedido():
 
     # Redirigir a la vista de pago
     return redirect(url_for('registrar_pago', id_pedido=id_pedido))
-
 
 # ----------------------------
 # Registrar entrada de stock
@@ -784,9 +800,10 @@ def reportes_ventas():
             INNER JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
             INNER JOIN productos pr ON dp.id_producto = pr.id_producto
             WHERE DATE(p.fecha) BETWEEN %s AND %s
+              AND pr.id_usuario = %s
             GROUP BY p.id_pedido, p.fecha, u.nombre_completo, p.estado
             ORDER BY p.fecha ASC
-        """, (fecha_inicio, fecha_fin))
+        """, (fecha_inicio, fecha_fin, usuario['id_usuario']))
 
         reportes = cursor.fetchall()
         cursor.close()
@@ -797,7 +814,6 @@ def reportes_ventas():
                            reportes=reportes,
                            fecha_inicio=fecha_inicio,
                            fecha_fin=fecha_fin)
-
 
 
 
