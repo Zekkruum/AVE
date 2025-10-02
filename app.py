@@ -393,59 +393,88 @@ def reset_password():
 
     return render_template('reset_password.html')
 
-# ----------------------------
-# Registrar producto
-# ----------------------------
-import os
-from werkzeug.utils import secure_filename
-
-UPLOAD_FOLDER = os.path.join("static", "uploads")
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route('/registrar_producto', methods=['POST'])
+# --------------------------------------
+# 📌 Registrar Producto (con validaciones y atributos extra)
+# --------------------------------------
+@app.route('/registrar_producto', methods=['GET','POST'])
 def registrar_producto():
     usuario = obtener_usuario()
-    if not usuario:
-        return redirect(url_for('login'))  # seguridad: solo logueados pueden registrar
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
 
-    id_usuario = usuario['id_usuario']
-
-    nombre = request.form['nombre']
-    precio = request.form['precio']
-    stock = request.form['stock']
-    categoria = request.form.get('categoria')
-    descripcion = request.form.get('descripcion')
-
-    archivo = request.files.get('imagen')
-    imagen_nombre = None
-
-    if archivo and archivo.filename != '' and allowed_file(archivo.filename):
-        imagen_nombre = secure_filename(archivo.filename)
-        archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], imagen_nombre))
-
-    # Guardar en la BD (incluyendo id_usuario)
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO productos (nombre, descripcion, precio, stock, categoria, imagen, id_usuario)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, (nombre, descripcion, precio, stock, categoria, imagen_nombre, id_usuario))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM colores")
+    lista_colores = cursor.fetchall()
+    cursor.execute("SELECT * FROM piedras")
+    lista_piedras = cursor.fetchall()
+    cursor.close(); conn.close()
 
-    return redirect(url_for('mis_productos'))
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        precio = float(request.form['precio'])
+        stock = int(request.form['stock'])
+        categoria = request.form.get('categoria')
+        umbral_alerta = int(request.form.get('umbral_alerta', 5))
+        peso = float(request.form.get('peso', 0))
+        alto = float(request.form.get('alto', 0))
+        ancho = float(request.form.get('ancho', 0))
+        largo = float(request.form.get('largo', 0))
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO productos (nombre, descripcion, precio, stock, categoria, 
+                                   umbral_alerta, peso, alto, ancho, largo, id_usuario)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (nombre, descripcion, precio, stock, categoria, umbral_alerta, 
+              peso, alto, ancho, largo, usuario['id_usuario']))
+        id_producto = cursor.lastrowid
+
+        # Colores
+        for id_color in request.form.getlist('colores'):
+            cursor.execute("INSERT INTO producto_colores (id_producto,id_color) VALUES (%s,%s)", (id_producto,id_color))
+        # Piedras
+        for id_piedra in request.form.getlist('piedras'):
+            cursor.execute("INSERT INTO producto_piedras (id_producto,id_piedra) VALUES (%s,%s)", (id_producto,id_piedra))
+
+        # Imágenes múltiples
+        if 'imagenes' in request.files:
+            for file in request.files.getlist('imagenes'):
+                if file and allowed_file(file.filename):
+                    img = Image.open(file)# type: ignore
+                    if img.width < MIN_WIDTH or img.height < MIN_HEIGHT:# type: ignore
+                        flash("❌ Imagen mínima 600x600px", "error")
+                        continue
+                    file.seek(0, os.SEEK_END)
+                    size_mb = file.tell()/(1024*1024)
+                    file.seek(0)
+                    if size_mb > MAX_FILE_SIZE_MB:# type: ignore
+                        flash("❌ Imagen >2MB", "error")
+                        continue
+
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    cursor.execute("INSERT INTO imagenes (id_producto,url) VALUES (%s,%s)", (id_producto, filepath))
+
+        conn.commit()
+        cursor.close(); conn.close()
+        flash("✅ Producto registrado con éxito", "success")
+        return redirect(url_for('mis_productos'))
+
+    return render_template("registrar_producto.html", usuario=usuario, colores=lista_colores, piedras=lista_piedras)
+
 
 
 
 # ----------------------------
 # Ver mis productos
 # ----------------------------
+# --------------------------------------
+# 📌 Mis Productos (alerta stock bajo)
+# --------------------------------------
 @app.route('/vendedor/productos')
 def mis_productos():
     usuario = obtener_usuario()
@@ -454,12 +483,43 @@ def mis_productos():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM productos WHERE id_usuario = %s", (usuario['id_usuario'],))
+    cursor.execute("""
+        SELECT *, CASE WHEN stock <= umbral_alerta THEN 1 ELSE 0 END AS alerta
+        FROM productos WHERE id_usuario=%s
+    """, (usuario['id_usuario'],))
     productos = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
+    cursor.close(); conn.close()
     return render_template('mis_productos.html', usuario=usuario, productos=productos)
+
+
+# --------------------------------------
+# 📌 Exportar Inventario a Excel
+# --------------------------------------
+@app.route('/vendedor/reporte_inventario')
+def reporte_inventario():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT nombre, descripcion, precio, stock, umbral_alerta, peso, alto, ancho, largo
+        FROM productos WHERE id_usuario=%s
+    """, (usuario['id_usuario'],))
+    productos = cursor.fetchall()
+    cursor.close(); conn.close()
+
+    wb = openpyxl.Workbook()# type: ignore
+    ws = wb.active; ws.title = "Inventario"
+    ws.append(["Nombre","Descripción","Precio","Stock","Umbral","Peso","Alto","Ancho","Largo"])
+    for p in productos:
+        ws.append([p['nombre'], p['descripcion'], p['precio'], p['stock'],
+                   p['umbral_alerta'], p['peso'], p['alto'], p['ancho'], p['largo']])
+    output = io.BytesIO() # type: ignore
+    wb.save(output); output.seek(0)
+    return send_file(output, as_attachment=True, download_name="reporte_inventario.xlsx", # type: ignore
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
 # ----------------------------
@@ -1293,6 +1353,18 @@ def actualizar_pedido_personalizado(id_pedido):
             enviar_correo(destinatario=pedido['correo'], asunto=asunto, mensaje=mensaje)
 
     return redirect(url_for('pedidos_recibidos'))
+
+# ----------------------------
+# Configuración subida imágenes
+# ----------------------------
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 # ----------------------------
 # Run app
