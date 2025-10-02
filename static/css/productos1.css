@@ -291,3 +291,22 @@ footer {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ejemplo en productos1.css */
+.img-preview {
+    width: 150px;
+    height: 150px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #fafafa;
+    margin-top: 10px;
+}
+.img-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

@@ -1,0 +1,111 @@
+/* --- Estilos generales del formulario de pago --- */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('../static/img/fondo_pago.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+}
+
+/* Contenedor principal */
+.pago-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Caja estilo vidrio (glassmorphism) */
+.pago-form {
+    width: 100%;
+    max-width: 500px;
+    padding: 30px 25px;
+    background: rgba(20, 20, 20, 0.6); /* fondo oscuro transparente */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Título */
+.pago-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+/* Labels */
+.pago-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    color: #ddd;
+}
+
+/* Inputs y select */
+.pago-form input,
+.pago-form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: #000;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.pago-form input:focus,
+.pago-form select:focus {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Botón */
+.pago-form button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #111, #333);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+}
+
+.pago-form button:hover {
+    background: linear-gradient(135deg, #333, #555);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Botón cancelar */
+.pago-form .cancelar-btn {
+    display: inline-block;
+    text-align: center;
+    margin-top: 12px;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: #bbb;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pago-form .cancelar-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}

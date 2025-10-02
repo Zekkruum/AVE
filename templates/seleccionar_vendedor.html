@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pedidos_2.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="vendedores-container">
+    <h2>✨ Elige un vendedor para tu pedido personalizado</h2>
+    <p class="subtitle">Selecciona al artesano con quien quieres trabajar</p>
+
+    <div class="vendedores-grid">
+        {% for v in vendedores %}
+        <div class="vendedor-card">
+            <div class="avatar">👩‍💼</div>
+            <h3>{{ v.nombre_completo }}</h3>
+            <p class="correo">📧 {{ v.correo }}</p>
+            <a href="{{ url_for('pedido_personalizado', id_vendedor=v.id_usuario) }}" class="btn-seleccionar">
+                Pedir a este vendedor ✨
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

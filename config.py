@@ -8,6 +8,12 @@ DB_CONFIG = {
     "database": "ave_joyas"  # nombre de la base de datos
 }
 
+#-----------------------------
+# Comando para iniciar MariaDB
+#-----------------------------
+
+# sudo service mariadb start
+
 # ----------------------------
 # Configuración de correo
 # ----------------------------

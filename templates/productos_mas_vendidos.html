@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/productos_mas_vendidos.css') }}">
+
+<main class="productos-mas-vendidos">
+    <h2>🔥 Productos Más Vendidos</h2>
+
+    <!-- Filtro por fechas -->
+    <form method="post" class="filtro-fechas">
+        <label for="fecha_inicio">Desde:</label>
+        <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}">
+        <label for="fecha_fin">Hasta:</label>
+        <input type="date" name="fecha_fin" value="{{ fecha_fin }}">
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <!-- Tabla de productos -->
+    <table class="tabla-productos">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad Vendida</th>
+                <th>Total Facturado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.producto }}</td>
+                <td>{{ p.cantidad_vendida }}</td>
+                <td>${{ "%.2f"|format(p.total_facturado) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No se encontraron ventas en el rango seleccionado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Gráfico -->
+    <section class="grafico">
+        <h3>Visualización de Ventas</h3>
+        <canvas id="graficoProductos"></canvas>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {{ productos | map(attribute='producto') | list | tojson }};
+    const dataCantidad = {{ productos | map(attribute='cantidad_vendida') | list | tojson }};
+    const dataFacturado = {{ productos | map(attribute='total_facturado') | list | tojson }};
+
+    new Chart(document.getElementById('graficoProductos'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Cantidad Vendida',
+                    data: dataCantidad,
+                    backgroundColor: 'rgba(34, 150, 243, 0.7)'
+                },
+                {
+                    label: 'Total Facturado ($)',
+                    data: dataFacturado,
+                    backgroundColor: 'rgba(243, 111, 34, 0.7)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#222' } }
+            },
+            scales: {
+                x: { ticks: { color: '#222' } },
+                y: { ticks: { color: '#222' } }
+            }
+        }
+    });
+</script>
+{% endblock %}

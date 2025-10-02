@@ -1,36 +1,27 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Realizar Pago</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/acciones.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Realizar Pago</h1>
-        <nav>
-            <a href="{{ url_for('catalogo') }}">⬅ Volver al Catálogo</a>
-            <a href="{{ url_for('logout') }}">Cerrar sesión</a>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pagos.css') }}">
 
-    <main>
-        <form action="{{ url_for('registrar_pago', id_pedido=pedido.id_pedido) }}" method="POST" class="form-card">
-            <p><strong>Pedido:</strong> #{{ pedido.id_pedido }}</p>
-            <p><strong>Total a pagar:</strong> ${{ pedido.total }}</p>
+<main class="pago-container">
+  <div class="pago-form">
+    <h2>Registrar Pago</h2>
+    <form method="POST">
+        <label for="metodo">Método de Pago:</label>
+        <select id="metodo" name="metodo" required>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+        </select>
 
-            <label for="metodo">Método de Pago</label>
-            <select name="metodo" id="metodo" required>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="transferencia">Transferencia</option>
-                <option value="contraentrega">Contraentrega</option>
-            </select>
+        <label for="monto">Monto:</label>
+        <input type="number" step="0.01" id="monto" name="monto" value="{{ pedido.total }}" required>
 
-            <label for="monto">Monto</label>
-            <input type="number" step="0.01" name="monto" id="monto" value="{{ pedido.total }}" required>
+        <button type="submit">Confirmar Pago</button>
+    </form>
 
-            <button type="submit" class="btn">Pagar</button>
-        </form>
-    </main>
-</body>
-</html>
+    <!-- Botón de cancelar -->
+    <a href="{{ url_for('carrito') }}" class="cancelar-btn">Cancelar</a>
+  </div>
+</main>
+
+{% endblock %}

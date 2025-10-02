@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pedidos_personalizados.css') }}">
+
+<div class="pedido-container">
+    <h1>📋 Mis Pedidos Personalizados</h1>
+
+    {% if pedidos %}
+    <table class="pedidos-tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Materiales</th>
+                <th>Presupuesto</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr>
+                <td>{{ p.id_pedido }}</td>
+                <td>{{ p.tipo_producto }}</td>
+                <td>{{ p.materiales }}</td>
+                <td>${{ p.presupuesto }}</td>
+                <td>
+                    <span class="estado {{ p.estado|lower }}">{{ p.estado }}</span>
+                </td>
+                <td>{{ p.fecha.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('detalle_pedido_personalizado', id_pedido=p.id_pedido) }}" class="btn-tabla">🔎 Ver Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No tienes pedidos personalizados aún.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+/* Contenedor principal */
+.success-container {
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 40px;
+    text-align: center;
+
+    /* Glassmorphism */
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+
+    font-family: "Segoe UI", sans-serif;
+    color: #fff;
+}
+
+/* Ícono de éxito */
+.success-icon {
+    font-size: 70px;
+    color: #4CAF50;
+    margin-bottom: 15px;
+}
+
+/* Título */
+.success-container h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #fff;
+    border-bottom: 2px solid #4CAF50;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Texto */
+.success-container p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    color: #252525;
+}
+
+/* Botón */
+.btn-volver {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: #4CAF50;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: 0.3s ease;
+}
+
+.btn-volver:hover {
+    background: #43a047;
+}

@@ -690,3 +690,11 @@ nav {
     object-fit: cover;
     border-radius: 8px;
 }
+
+.menu li a[href*="pedido_personalizado"] {
+    color: #444;
+}
+.menu li a[href*="pedido_personalizado"]:hover {
+    color: #c49b3f;
+    text-decoration: none;
+}

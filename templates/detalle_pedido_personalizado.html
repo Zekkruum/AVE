@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pedidos_personalizados.css') }}">
+
+<div class="pedido-container">
+    <h2>📦 Detalle del Pedido Personalizado</h2>
+
+    <p><strong>Tipo:</strong> {{ pedido.tipo_producto }}</p>
+    <p><strong>Materiales:</strong> {{ pedido.materiales }}</p>
+    <p><strong>Diseño:</strong> {{ pedido.diseno }}</p>
+    <p><strong>Presupuesto:</strong> ${{ pedido.presupuesto }}</p>
+    <p><strong>Estado:</strong>
+        <span class="estado {{ pedido.estado|lower }}">{{ pedido.estado }}</span>
+    </p>
+
+    {% if pedido.archivo %}
+    <div>
+        <h3>📎 Boceto / Imagen adjunta:</h3>
+        {% if pedido.archivo.endswith(('.png','.jpg','.jpeg','.webp')) %}
+        <img src="{{ url_for('static', filename='uploads/' ~ pedido.archivo) }}" alt="Boceto"
+            style="max-width:400px; border:1px solid #ccc; border-radius:8px;">
+        {% else %}
+        <a href="{{ url_for('static', filename='uploads/' ~ pedido.archivo) }}" target="_blank" class="btn-tabla">
+            📄 Ver archivo adjunto
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

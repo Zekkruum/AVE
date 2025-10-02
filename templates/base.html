@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>AVE Joyas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <!-- Header -->
     <header>
@@ -18,11 +20,11 @@
             <!-- Accesos -->
             <div class="acceso">
                 {% if usuario %}
-                    <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
-                    <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}">Iniciar sesión</a>
-                    <a href="{{ url_for('signin') }}">Registrarse</a>
+                <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('signin') }}">Registrarse</a>
                 {% endif %}
             </div>
         </div>
@@ -34,9 +36,19 @@
             <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            {% if session.get('rol') == 3 %}
+            <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
+            {% endif %}
+            {% if session.get('rol') == 3 %}
+            <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
+            <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado ✨</a></li>
+            {% endif %}
             {% if session.get('rol') == 2 %}
             <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            <li><a href="{{ url_for('pedidos_recibidos') }}">📩 Pedidos Recibidos</a></li>
+
             {% endif %}
+
         </ul>
     </nav>
 
@@ -50,4 +62,5 @@
         <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
     </footer>
 </body>
+
 </html>

@@ -66,3 +66,48 @@ table th, table td {
 table tbody tr:nth-child(even) {
     background: #f2f2f2;
 }
+
+/* Botón para estadísticas visuales */
+.acciones-extra {
+    text-align: right;
+    margin: 15px 0;
+}
+
+.btn-visual {
+    display: inline-block;
+    background: linear-gradient(135deg, #222, #444);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-visual:hover {
+    background: linear-gradient(135deg, #444, #666);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.extra-opciones {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.btn-extra {
+    display: inline-block;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
+    color: #fff;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-extra:hover {
+    background: linear-gradient(135deg, #ff4757, #e84118);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}

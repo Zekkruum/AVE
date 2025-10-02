@@ -1,0 +1,51 @@
+.pedido-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 25px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.pedido-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #222;
+}
+
+form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+form button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #111, #444);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+form button:hover {
+    background: linear-gradient(135deg, #333, #666);
+}

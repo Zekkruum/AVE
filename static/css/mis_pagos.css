@@ -1,0 +1,44 @@
+.pagos-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.pagos-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: #222;
+}
+
+.tabla-pagos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.tabla-pagos th, 
+.tabla-pagos td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.tabla-pagos th {
+    background: #222;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.tabla-pagos tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.tabla-pagos tr:hover {
+    background: #f1f1f1;
+}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estadisticas_visual.css') }}">
+
+<main class="estadisticas-container">
+    <h2>📊 Estadísticas de Ventas</h2>
+
+    <section class="grafico">
+        <h3>Ingresos por Mes</h3>
+        <canvas id="ventasMensuales"></canvas>
+    </section>
+
+    <section class="grafico">
+        <h3>Top 5 Productos Más Vendidos</h3>
+        <canvas id="productosVendidos"></canvas>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 📌 Datos para ventas mensuales
+    const labelsMes = {{ ventas_mensuales | map(attribute='mes') | list | tojson }};
+    const dataMes = {{ ventas_mensuales | map(attribute='total') | list | tojson }};
+
+    new Chart(document.getElementById('ventasMensuales').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labelsMes,
+            datasets: [{
+                label: 'Ingresos ($)',
+                data: dataMes,
+                borderColor: '#222',
+                backgroundColor: 'rgba(34,34,34,0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#222' } }
+            },
+            scales: {
+                x: { ticks: { color: '#222' } },
+                y: { ticks: { color: '#222' } }
+            }
+        }
+    });
+
+    // 📌 Datos para productos más vendidos
+    const labelsProd = {{ productos_vendidos | map(attribute='nombre') | list | tojson }};
+    const dataProd = {{ productos_vendidos | map(attribute='total_vendidos') | list | tojson }};
+
+    new Chart(document.getElementById('productosVendidos').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labelsProd,
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: dataProd,
+                backgroundColor: ['#222', '#444', '#666', '#888', '#aaa']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#222' } }
+            },
+            scales: {
+                x: { ticks: { color: '#222' } },
+                y: { ticks: { color: '#222' } }
+            }
+        }
+    });
+</script>
+{% endblock %}

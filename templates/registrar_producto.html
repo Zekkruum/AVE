@@ -20,16 +20,16 @@
                 <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
             </div>
         </div>
-
-        <!-- Slogan -->
     </header>
+    
     <center><p class="slogan">Registrar un nuevo producto en la tienda</p></center>
 
     <!-- Contenido principal -->
     <main>
         <div class="form-container">
             <h1>Nuevo Producto</h1>
-            <form action="{{ url_for('registrar_producto') }}" method="POST">
+            <!-- 👇 Importante: enctype para subir archivos -->
+            <form action="{{ url_for('registrar_producto') }}" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="nombre">Nombre del producto</label>
                     <input type="text" id="nombre" name="nombre" required>
@@ -50,16 +50,16 @@
                     <input type="number" id="stock" name="stock" required>
                 </div>
 
+                <!-- 🔹 Campo de subida de imagen -->
                 <div class="form-group">
-                    <label for="imagen">URL de la imagen</label>
-                    <input type="url" id="imagen" name="imagen">
+                    <label for="imagen">Imagen del producto</label>
+                    <input type="file" id="imagen" name="imagen" accept="image/*">
                 </div>
 
                 <div class="form-actions">
-    <a href="{{ url_for('vendedor_panel') }}" class="btn btn-secondary">Cancelar</a>
-    <button type="submit" class="btn btn-primary">Registrar</button>
-</div>
-
+                    <a href="{{ url_for('vendedor_panel') }}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </div>
             </form>
         </div>
     </main>

@@ -1,0 +1,65 @@
+/* Solo afecta dentro del contenedor de pedidos personalizados */
+.pedido-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 20px auto;
+    max-width: 1000px;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Títulos */
+.pedido-container h1,
+.pedido-container h2 {
+    text-align: center;
+    color: #222;
+}
+
+/* Tabla de pedidos */
+.pedidos-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.pedidos-tabla th,
+.pedidos-tabla td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.pedidos-tabla th {
+    background: #000;
+    color: #fff;
+}
+
+.pedidos-tabla tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+/* Estado */
+.estado {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+.estado.pendiente { background: #ffe08a; color: #6b4f00; }
+.estado.aceptado { background: #b8f7c6; color: #106b2f; }
+.estado.rechazado { background: #f7b8b8; color: #6b1010; }
+
+/* Botones */
+.btn-tabla {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #000, #333);
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.btn-tabla:hover {
+    background: linear-gradient(135deg, #666, #aaa);
+    color: #000;
+}

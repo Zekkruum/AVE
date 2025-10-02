@@ -1,9 +1,21 @@
-from flask import Flask, request, redirect, url_for, session, render_template
+from flask import Flask, flash, request, redirect, url_for, session, render_template
 from werkzeug.security import check_password_hash, generate_password_hash
 from utils import get_db_connection, enviar_correo, generar_token
 
 app = Flask(__name__)
 app.secret_key = 'clave_super_secreta'
+
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = "static/uploads_productos"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # ----------------------------
 # Página inicial
@@ -167,9 +179,10 @@ def catalogo():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, i.url AS imagen
+        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, 
+        p.imagen AS imagen_local, i.url AS imagen_url
         FROM productos p
-        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        LEFT JOIN imagenes i ON p.id_producto = i.id_producto;
     """)
     productos = cursor.fetchall()
 
@@ -259,7 +272,7 @@ def agregar_carrito(id_producto):
         })
 
     session['carrito'] = carrito
-    return redirect(url_for('carrito'))
+    return redirect(url_for('catalogo'))
 
 @app.route('/carrito/eliminar/<int:id_producto>')
 def eliminar_carrito(id_producto):
@@ -294,10 +307,22 @@ def recuperar():
         cursor.close()
         conn.close()
 
-        enviar_correo(correo, token)
+        # ✅ Armar asunto y mensaje con HTML
+        asunto = "Recuperación de contraseña - AVE Joyas"
+        mensaje = f"""
+            <p>Hola,</p>
+            <p>Tu código de recuperación es:</p>
+            <h2>{token}</h2>
+            <p>Este código expira en 10 minutos.</p>
+        """
+
+        # ✅ Llamada con los parámetros correctos
+        enviar_correo(destinatario=correo, asunto=asunto, mensaje=mensaje)
+
         return redirect(url_for('verificar_token'))
 
     return render_template('recuperar.html')
+
 
 # ----------------------------
 # Verificar token
@@ -371,31 +396,50 @@ def reset_password():
 # ----------------------------
 # Registrar producto
 # ----------------------------
-@app.route('/vendedor/producto/nuevo', methods=['GET', 'POST'])
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/registrar_producto', methods=['POST'])
 def registrar_producto():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
-        return redirect(url_for('login'))
+    if not usuario:
+        return redirect(url_for('login'))  # seguridad: solo logueados pueden registrar
 
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        descripcion = request.form['descripcion']
-        precio = float(request.form['precio'])
-        stock = int(request.form['stock'])
+    id_usuario = usuario['id_usuario']
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO productos (nombre, descripcion, precio, stock, id_usuario)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (nombre, descripcion, precio, stock, usuario['id_usuario']))
-        conn.commit()
-        cursor.close()
-        conn.close()
+    nombre = request.form['nombre']
+    precio = request.form['precio']
+    stock = request.form['stock']
+    categoria = request.form.get('categoria')
+    descripcion = request.form.get('descripcion')
 
-        return redirect(url_for('mis_productos'))
+    archivo = request.files.get('imagen')
+    imagen_nombre = None
 
-    return render_template('registrar_producto.html', usuario=usuario)
+    if archivo and archivo.filename != '' and allowed_file(archivo.filename):
+        imagen_nombre = secure_filename(archivo.filename)
+        archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], imagen_nombre))
+
+    # Guardar en la BD (incluyendo id_usuario)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO productos (nombre, descripcion, precio, stock, categoria, imagen, id_usuario)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (nombre, descripcion, precio, stock, categoria, imagen_nombre, id_usuario))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('mis_productos'))
 
 
 
@@ -815,8 +859,440 @@ def reportes_ventas():
                            fecha_inicio=fecha_inicio,
                            fecha_fin=fecha_fin)
 
+# ----------------------------
+# Estadísticas visuales (RF025)
+# ----------------------------
+@app.route('/vendedor/estadisticas_visual')
+def estadisticas_visual():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 1. Ventas agrupadas por mes
+    cursor.execute("""
+        SELECT DATE_FORMAT(p.fecha, '%Y-%m') AS mes,
+               SUM(dp.cantidad * dp.precio_unitario) AS total
+        FROM pedidos p
+        INNER JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+        INNER JOIN productos pr ON dp.id_producto = pr.id_producto
+        WHERE pr.id_usuario = %s
+        GROUP BY mes
+        ORDER BY mes ASC
+    """, (usuario['id_usuario'],))
+    ventas_mensuales = cursor.fetchall()
+
+    # 2. Productos más vendidos
+    cursor.execute("""
+        SELECT pr.nombre, SUM(dp.cantidad) AS total_vendidos
+        FROM detalle_pedido dp
+        INNER JOIN productos pr ON dp.id_producto = pr.id_producto
+        WHERE pr.id_usuario = %s
+        GROUP BY pr.nombre
+        ORDER BY total_vendidos DESC
+        LIMIT 5
+    """, (usuario['id_usuario'],))
+    productos_vendidos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("estadisticas_visual.html",
+                           usuario=usuario,
+                           ventas_mensuales=ventas_mensuales,
+                           productos_vendidos=productos_vendidos)
+
+# ----------------------------
+# RF026 - Productos más vendidos
+# ----------------------------
+@app.route('/vendedor/productos_mas_vendidos', methods=['GET', 'POST'])
+def productos_mas_vendidos():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # solo vendedores
+        return redirect(url_for('login'))
+
+    fecha_inicio = request.form.get('fecha_inicio')
+    fecha_fin = request.form.get('fecha_fin')
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Si no se define rango, usamos el último mes
+    if not fecha_inicio or not fecha_fin:
+        cursor.execute("""
+            SELECT MIN(DATE(p.fecha)) AS inicio, MAX(DATE(p.fecha)) AS fin
+            FROM pedidos p
+        """)
+        rango = cursor.fetchone()
+        fecha_inicio = rango['inicio']
+        fecha_fin = rango['fin']
+
+    # Consulta: productos más vendidos del vendedor
+    cursor.execute("""
+        SELECT 
+            pr.nombre AS producto,
+            SUM(dp.cantidad) AS cantidad_vendida,
+            SUM(dp.cantidad * dp.precio_unitario) AS total_facturado
+        FROM detalle_pedido dp
+        INNER JOIN productos pr ON dp.id_producto = pr.id_producto
+        INNER JOIN pedidos p ON dp.id_pedido = p.id_pedido
+        WHERE pr.id_usuario = %s
+          AND DATE(p.fecha) BETWEEN %s AND %s
+        GROUP BY pr.id_producto, pr.nombre
+        ORDER BY cantidad_vendida DESC
+        LIMIT 10
+    """, (usuario['id_usuario'], fecha_inicio, fecha_fin))
+
+    productos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("productos_mas_vendidos.html",
+                           usuario=usuario,
+                           productos=productos,
+                           fecha_inicio=fecha_inicio,
+                           fecha_fin=fecha_fin)
+
+# --------------------------------------
+# RF027 - Seleccionar a un vendedor para los pedidos personalizados
+# --------------------------------------
+
+@app.route('/pedido_personalizado')
+def seleccionar_vendedor():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # solo clientes
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id_usuario, nombre_completo, correo FROM usuarios WHERE id_rol = 2")
+    vendedores = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("seleccionar_vendedor.html", usuario=usuario, vendedores=vendedores)
+
+# --------------------------------------
+#  Realizar el pedido personalizado 
+# --------------------------------------
+
+@app.route('/pedido_personalizado/<int:id_vendedor>', methods=['GET', 'POST'])
+def pedido_personalizado(id_vendedor):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # solo clientes
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        tipo_producto = request.form['tipo_producto']
+        materiales = request.form['materiales']
+        diseno = request.form['diseno']
+        presupuesto = request.form['presupuesto']
+        archivo = request.files.get('archivo')
+
+        archivo_nombre = None
+        if archivo and archivo.filename != "":
+            archivo_nombre = secure_filename(archivo.filename)
+            upload_path = os.path.join("static", "uploads")
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+            archivo.save(os.path.join(upload_path, archivo_nombre))
+
+        # Guardar en BD
+        cursor.execute("""
+            INSERT INTO pedidos_personalizados 
+            (id_usuario, id_vendedor, tipo_producto, materiales, diseno, presupuesto, archivo, estado, fecha)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Pendiente', NOW())
+        """, (usuario['id_usuario'], id_vendedor, tipo_producto, materiales, diseno, presupuesto, archivo_nombre))
+        conn.commit()
+
+        # Obtener correo del vendedor
+        cursor.execute("SELECT nombre_completo, correo FROM usuarios WHERE id_usuario = %s", (id_vendedor,))
+        vendedor = cursor.fetchone()
+
+        if vendedor:
+            asunto = "📩 Nuevo Pedido Personalizado"
+            mensaje = f"""
+                <p>Hola <b>{vendedor['nombre_completo']}</b>,</p>
+                <p>Has recibido un nuevo pedido personalizado de <b>{usuario['nombre_completo']}</b>.</p>
+
+                <ul>
+                    <li>🛠 <b>Tipo de producto:</b> {tipo_producto}</li>
+                    <li>💎 <b>Materiales:</b> {materiales}</li>
+                    <li>🎨 <b>Diseño:</b> {diseno}</li>
+                    <li>💰 <b>Presupuesto:</b> ${presupuesto}</li>
+                </ul>
+            """
+
+            ruta_archivo = os.path.join("static", "uploads", archivo_nombre) if archivo_nombre else None
+
+            if archivo_nombre and archivo_nombre.lower().endswith(('.png', '.jpg', '.jpeg')):
+                enviar_correo(vendedor['correo'], asunto, mensaje, imagen_inline=ruta_archivo)
+            elif archivo_nombre and archivo_nombre.lower().endswith('.pdf'):
+                enviar_correo(vendedor['correo'], asunto, mensaje, archivo_adjunto=ruta_archivo)
+            else:
+                enviar_correo(vendedor['correo'], asunto, mensaje)
+
+        cursor.close()
+        conn.close()
+        return redirect(url_for('mis_pedidos_personalizados'))
+
+    cursor.close()
+    conn.close()
+    return render_template("pedido_personalizado.html", usuario=usuario, id_vendedor=id_vendedor)
 
 
+# --------------------------------------
+# Ver mis pedidos personalizados
+# --------------------------------------
+@app.route('/mis_pedidos_personalizados')
+def mis_pedidos_personalizados():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # Solo clientes
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Solo pedidos del usuario en sesión
+    cursor.execute("""
+    SELECT 
+        id_pedido_personalizado AS id_pedido, 
+        tipo_producto, materiales, diseno, presupuesto, archivo, estado, fecha
+    FROM pedidos_personalizados
+    WHERE id_usuario = %s
+    ORDER BY fecha DESC""", 
+    (usuario['id_usuario'],))
+    pedidos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("mis_pedidos_personalizados.html", usuario=usuario, pedidos=pedidos)
+
+# --------------------------------------
+# Ver detalle de pedido personalizado
+# --------------------------------------
+@app.route('/detalle_pedido_personalizado/<int:id_pedido>')
+def detalle_pedido_personalizado(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # solo clientes
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT pp.id_pedido_personalizado,
+               pp.tipo_producto,
+               pp.materiales,
+               pp.diseno,
+               pp.presupuesto,
+               pp.archivo,
+               pp.estado,
+               pp.fecha,
+               u.nombre_completo AS vendedor
+        FROM pedidos_personalizados pp
+        INNER JOIN usuarios u ON pp.id_vendedor = u.id_usuario
+        WHERE pp.id_pedido_personalizado = %s AND pp.id_usuario = %s
+    """, (id_pedido, usuario['id_usuario']))
+    pedido = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not pedido:
+        return "Pedido no encontrado o no autorizado", 404
+
+    return render_template("detalle_pedido_personalizado.html", usuario=usuario, pedido=pedido)
+
+# ----------------------------
+# Pedidos recibidos por vendedor
+# ----------------------------
+from datetime import date
+
+@app.route('/pedidos_recibidos')
+def pedidos_recibidos():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT p.id_pedido_personalizado, p.tipo_producto, p.materiales, p.diseno, 
+               p.presupuesto, p.archivo, p.estado, u.nombre_completo AS nombre_cliente
+        FROM pedidos_personalizados p
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE p.id_vendedor = %s
+    """, (usuario['id_usuario'],))
+    pedidos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("pedidos_recibidos.html", usuario=usuario, pedidos=pedidos, fecha_hoy=date.today().isoformat())
+#-----------------------------
+# Cambiar estado de pedido
+#-----------------------------
+@app.route("/pedido_personalizado/<int:id_pedido>/estado", methods=["POST"])
+def cambiar_estado_pedido(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario["id_rol"] != 2:
+        return redirect(url_for("login"))
+
+    estado = request.form["estado"]
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        UPDATE pedidos_personalizados
+        SET estado=%s
+        WHERE id_pedido_personalizado=%s
+    """, (estado, id_pedido))
+    conn.commit()
+
+    cursor.execute("""
+        SELECT u.correo, u.nombre_completo
+        FROM pedidos_personalizados p
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE p.id_pedido_personalizado = %s
+    """, (id_pedido,))
+    cliente = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if cliente:
+        enviar_correo(
+            destinatario=cliente["correo"],
+            asunto="✅ Tu pedido personalizado fue aceptado",
+            mensaje=f"""
+                <p>Hola <b>{cliente['nombre_completo']}</b>,</p>
+                <p>Nos alegra informarte que tu pedido personalizado fue <b>aceptado</b>.</p>
+                <p>Pronto el vendedor se pondrá en contacto contigo para coordinar detalles.</p>
+                <p>Saludos,<br><b>AVE Joyas</b></p>
+            """
+        )
+
+    return redirect(url_for("pedidos_recibidos"))
+
+@app.route("/pedido_personalizado/<int:id_pedido>/rechazar", methods=["POST"])
+def rechazar_pedido(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario["id_rol"] != 2:
+        return redirect(url_for("login"))
+
+    motivo = request.form["motivo"]
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        UPDATE pedidos_personalizados
+        SET estado=%s, motivo_rechazo=%s
+        WHERE id_pedido_personalizado=%s
+    """, ("Rechazado", motivo, id_pedido))
+    conn.commit()
+
+    cursor.execute("""
+        SELECT u.correo, u.nombre_completo
+        FROM pedidos_personalizados p
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE p.id_pedido_personalizado = %s
+    """, (id_pedido,))
+    cliente = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if cliente:
+        enviar_correo(
+            destinatario=cliente["correo"],
+            asunto="❌ Tu pedido personalizado fue rechazado",
+            mensaje=f"""
+                <p>Hola <b>{cliente['nombre_completo']}</b>,</p>
+                <p>Lamentamos informarte que tu pedido personalizado fue <b>rechazado</b>.</p>
+                <p><b>Motivo:</b> {motivo}</p>
+                <p>Te invitamos a realizar otro pedido con diferentes condiciones.</p>
+                <p>Saludos,<br><b>AVE Joyas</b></p>
+            """
+        )
+
+    return redirect(url_for("pedidos_recibidos"))
+
+
+#-----------------------------
+#
+#------------------------------
+
+from datetime import date
+
+@app.route('/pedido_personalizado/<int:id_pedido>/actualizar', methods=['POST'])
+def actualizar_pedido_personalizado(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # solo vendedores
+        return redirect(url_for('login'))
+
+    estado = request.form['estado']
+    comentario_rechazo = request.form.get('comentario_rechazo')
+    fecha_entrega = request.form.get('fecha_entrega')
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Validar fecha si se envía
+    if fecha_entrega:
+        fecha_entrega = date.fromisoformat(fecha_entrega)
+        if fecha_entrega <= date.today():
+            flash("La fecha estimada de entrega debe ser posterior al día de hoy.", "error")
+            return redirect(url_for('pedidos_recibidos'))
+
+    # Actualizar pedido
+    cursor.execute("""
+        UPDATE pedidos_personalizados
+        SET estado = %s, fecha_entrega_estimada = %s
+        WHERE id_pedido_personalizado = %s
+    """, (estado, fecha_entrega, id_pedido))
+
+    conn.commit()
+
+    # 🔹 Obtener datos del cliente
+    cursor.execute("""
+        SELECT u.correo, u.nombre_completo, p.tipo_producto
+        FROM pedidos_personalizados p
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE p.id_pedido_personalizado = %s
+    """, (id_pedido,))
+    pedido = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    # 🔹 Enviar correo según estado
+    if pedido:
+        if estado == "Aceptado":
+            asunto = "✅ Tu pedido personalizado fue aceptado"
+            mensaje = f"""
+            <p>Hola <b>{pedido['nombre_completo']}</b>,</p>
+            <p>Tu pedido de <b>{pedido['tipo_producto']}</b> fue <b>aceptado</b>.</p>
+            <p>📅 Fecha estimada de entrega: <b>{fecha_entrega.strftime("%d/%m/%Y")}</b></p>
+            <p>Gracias por confiar en AVE Joyas ✨</p>
+            """
+            enviar_correo(destinatario=pedido['correo'], asunto=asunto, mensaje=mensaje)
+
+        elif estado == "Rechazado":
+            asunto = "❌ Tu pedido personalizado fue rechazado"
+            mensaje = f"""
+            <p>Hola <b>{pedido['nombre_completo']}</b>,</p>
+            <p>Lamentamos informarte que tu pedido fue rechazado.</p>
+            <p>Motivo: <i>{comentario_rechazo}</i></p>
+            <p>Si lo deseas, puedes intentarlo de nuevo con otra solicitud.</p>
+            """
+            enviar_correo(destinatario=pedido['correo'], asunto=asunto, mensaje=mensaje)
+
+    return redirect(url_for('pedidos_recibidos'))
 
 # ----------------------------
 # Run app

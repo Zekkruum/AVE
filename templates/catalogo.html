@@ -6,7 +6,20 @@
         {% for producto in productos %}
         <div class="producto-card">
             <a href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">
-                <img src="{{ producto.imagen or url_for('static', filename='img/no-image.png') }}" alt="{{ producto.nombre }}">
+
+                {% if producto.imagen_local %}
+                <!-- Imagen subida por vendedor -->
+                <img src="{{ url_for('static', filename='uploads/' ~ producto.imagen_local) }}"
+                    alt="{{ producto.nombre }}">
+                {% elif producto.imagen_url %}
+                <!-- Imagen de la tabla imagenes (link) -->
+                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
+                {% else %}
+                <!-- Imagen por defecto -->
+                <img src="{{ url_for('static', filename='img/no-image.png') }}" alt="sin imagen">
+                {% endif %}
+
+
                 <h3>{{ producto.nombre }}</h3>
                 <p class="descripcion">{{ producto.descripcion[:80] }}...</p>
                 <p class="precio">${{ producto.precio }}</p>

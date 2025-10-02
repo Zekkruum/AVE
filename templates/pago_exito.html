@@ -1,26 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Pago Exitoso</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/acciones.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Pago Realizado</h1>
-        <nav>
-            <a href="{{ url_for('catalogo') }}">Ir al Catálogo</a>
-            <a href="{{ url_for('carrito') }}">Ver Carrito</a>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pago_exitoso.css') }}">
 
-    <main>
-        <div class="card">
-            <h2>¡Gracias por tu compra!</h2>
-            <p>Tu pago por el pedido <strong>#{{ pago.id_pedido }}</strong> se registró como <strong>{{ pago.estado }}</strong>.</p>
-            <p>Monto: ${{ pago.monto }}</p>
-            <p>Método: {{ pago.metodo }}</p>
-        </div>
-    </main>
-</body>
-</html>
+<main class="success-container">
+    <div class="success-icon">✔</div>
+    <h2>¡Pago Exitoso!</h2>
+    <p>Tu pago #{{ pago.id_pago }} ha sido registrado correctamente.</p>
+    <p>Monto: ${{ pago.monto }}</p>
+    <p>Método: {{ pago.metodo_pago }}</p>
+    <p>Fecha: {{ pago.fecha }}</p>
+    <a href="{{ url_for('mis_pagos') }}" class="btn-volver">Ver historial de pagos</a>
+</main>
+{% endblock %}

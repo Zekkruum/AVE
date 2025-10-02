@@ -1,0 +1,48 @@
+.productos-mas-vendidos {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    color: #222;
+}
+
+.productos-mas-vendidos h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.filtro-fechas {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filtro-fechas input, .filtro-fechas button {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.tabla-productos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+}
+
+.tabla-productos th, .tabla-productos td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-productos th {
+    background: #222;
+    color: #fff;
+}
+
+.grafico {
+    margin-top: 20px;
+}
