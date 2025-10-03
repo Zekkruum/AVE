@@ -244,7 +244,7 @@ main h2 {
 
 .modal-close {
     position: absolute;
-    right: 20px;
+    right: 19px;
     top: 20px;
     background: rgba(0,0,0,0.6);
     color: #fff;

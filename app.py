@@ -946,7 +946,7 @@ def crear_pedido():
 
     # Calcular subtotal, impuesto y total
     subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
-    impuesto = round(subtotal * 0.19, 2)  # ejemplo 19%
+    impuesto = round(subtotal * 0.19, 2)  
     total = subtotal + impuesto
 
     # Insertar pedido

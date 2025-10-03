@@ -42,7 +42,7 @@
             <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
             {% endif %}
             {% if session.get('rol') == 3 %}
-            <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
+            <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizads</a></li>
             <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado </a></li>
             {% endif %}
             {% if session.get('rol') == 2 %}
