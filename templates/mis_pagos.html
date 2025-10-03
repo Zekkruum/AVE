@@ -1,37 +1,90 @@
-{% extends "base.html" %}
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/mis_pagos.css') }}">
+<!DOCTYPE html>
+<html lang="es">
 
-<main class="pagos-container">
-    <h2>Historial de Pagos</h2>
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Pagos - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
 
-    {% if pagos %}
-    <table class="tabla-pagos">
-        <thead>
-            <tr>
-                <th>ID Pago</th>
-                <th>Pedido</th>
-                <th>Monto</th>
-                <th>Método</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pago in pagos %}
-            <tr>
-                <td>{{ pago.id_pago }}</td>
-                <td>#{{ pago.id_pedido }}</td>
-                <td>${{ pago.monto }}</td>
-                <td>{{ pago.metodo }}</td>
-                <td>{{ pago.estado }}</td>
-                <td>{{ pago.fecha }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No tienes pagos registrados todavía.</p>
-    {% endif %}
-</main>
-{% endblock %}
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logo AVE Joyas">
+            </div>
+
+            <!-- Accesos -->
+            <div class="acceso">
+                {% if usuario %}
+                <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                {% else %}
+                <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('signin') }}">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegación -->
+    <nav>
+        <ul class="menu">
+            <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+            {% if session.get('rol') == 2 %}
+            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Main -->
+    <main class="container">
+        <h1 class="page-title">💳 Historial de Pagos</h1>
+        <p class="subtitle">Consulta aquí todos los pagos realizados en tu cuenta</p>
+        <a href="{{ url_for('exportar_pedidos') }}" class="btn btn-primary">📥 Exportar Pedidos</a>
+
+
+        {% if pagos %}
+        <div class="table-container">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>ID Pago</th>
+                        <th>ID Pedido</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos %}
+                    <tr>
+                        <td>{{ pago.id_pago }}</td>
+                        <td>{{ pago.id_pedido }}</td>
+                        <td>${{ '%.2f'|format(pago.monto|float) }}</td>
+                        <td>{{ pago.metodo }}</td>
+                        <td>{{ pago.estado }}</td>
+                        <td>{{ pago.fecha }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="empty-msg">No tienes pagos registrados todavía.</p>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+</body>
+
+</html>

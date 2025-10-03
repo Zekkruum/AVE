@@ -36,6 +36,8 @@
             <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+
             {% if session.get('rol') == 3 %}
             <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
             {% endif %}
@@ -46,7 +48,9 @@
             {% if session.get('rol') == 2 %}
             <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
             <li><a href="{{ url_for('pedidos_recibidos') }}">📩 Pedidos Recibidos</a></li>
-
+            {% endif %}
+            {% if session.get('rol') in [1, 2] %}
+            <li><a href="{{ url_for('listar_usuarios') }}">Usuarios</a></li>
             {% endif %}
 
         </ul>
@@ -61,6 +65,11 @@
     <footer>
         <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
     </footer>
+
+    <!-- Botón flotante de WhatsApp -->
+    <a href="https://wa.me/573506257556?text=Hola%20quiero%20más%20información" target="_blank" class="whatsapp-float">
+        <img src="{{ url_for('static', filename='img/whatsapp-icon.png') }}" alt="WhatsApp">
+    </a>
 </body>
 
 </html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pago.css') }}">
+</head>
+<body>
+    <header>
+    <div class="header-container">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE Joyas">
+        </div>
+
+
+        <!-- Accesos -->
+        <div class="acceso">
+            {% if usuario %}
+                <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('signin') }}">Registrarse</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Navegación -->
+    <nav>
+        <ul class="menu">
+            <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+            {% if session.get('rol') == 2 %}
+            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            <li><a href="{{ url_for('listar_usuarios') }}">Usuarios</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+
+
+
+    <main class="container">
+        {% if usuarios %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in usuarios %}
+                <tr>
+                    <td>{{ user.id_usuario }}</td>
+                    <td>{{ user.nombre_completo }}</td>
+                    <td>{{ user.correo }}</td>
+
+
+                    <!-- Formulario en la misma tabla -->
+                    <td>
+                        <form method="POST" action="{{ url_for('editar_rol_usuario', id_usuario=user.id_usuario) }}">
+                            <select name="rol">
+                                <option value="2" {% if user.id_rol == 2 %}selected{% endif %}>Vendedor</option>
+                                <option value="3" {% if user.id_rol == 3 %}selected{% endif %}>Cliente</option>
+                            </select>
+                    </td>
+                    <td>
+                            <button type="submit" class="btn btn-primary small">Guardar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No hay usuarios registrados.</p>
+        {% endif %}
+    </main>
+
+
+    <footer>
+        <p>&copy; 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>

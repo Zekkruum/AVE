@@ -1,3 +1,5 @@
+import csv
+from flask import Response
 from flask import Flask, flash, request, redirect, url_for, session, render_template
 from werkzeug.security import check_password_hash, generate_password_hash
 from utils import get_db_connection, enviar_correo, generar_token
@@ -178,18 +180,69 @@ def catalogo():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+    # Usamos un separador raro '||' para evitar problemas si el filename tiene comas
     cursor.execute("""
-        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, 
-        p.imagen AS imagen_local, i.url AS imagen_url
+        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock,
+               p.imagen AS imagen_local,
+               GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
         FROM productos p
-        LEFT JOIN imagenes i ON p.id_producto = i.id_producto;
+        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        GROUP BY p.id_producto
     """)
     productos = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
+    # Normalizamos la lista de imágenes y generamos imagen_src listo para <img src="...">
+    for p in productos:
+        # 1) convertir concat -> lista
+        imgs = []
+        if p.get('imagenes_concat'):
+            imgs = [s for s in p['imagenes_concat'].split('||') if s]
+
+        # 2) prioridad: imagen_local (columna producto), luego imagenes (tabla), luego fallback
+        imagen_src = None
+
+        # Helper para decidir url_for o dejar absoluto
+        def normalize(src):
+            # si ya es URL absoluta
+            if not src:
+                return None
+            if src.startswith('http://') or src.startswith('https://'):
+                return src
+            # si el valor llega como 'static/...' -> quitar 'static/' y usar url_for
+            if src.startswith('static/'):
+                return url_for('static', filename=src.replace('static/', '', 1))
+            # si viene como 'uploads/...' -> relativo dentro de static
+            if src.startswith('uploads/'):
+                return url_for('static', filename=src)
+            # si es sólo nombre de archivo -> lo buscamos en uploads/
+            return url_for('static', filename='uploads/' + src)
+
+        # Prioridad 1: la columna imagen (productos.imagen)
+        if p.get('imagen_local'):
+            imagen_src = normalize(p['imagen_local'])
+
+        # Prioridad 2: la lista de imagenes de la tabla imagenes
+        if not imagen_src and imgs:
+            imagen_src = normalize(imgs[0])
+
+        # Fallback 3: imagen por defecto
+        if not imagen_src:
+            imagen_src = url_for('static', filename='img/no-image.png')  # ajusta ruta si tu imagen default está en otra carpeta
+
+        p['imagen_src'] = imagen_src
+
+        # DEBUG en consola para ver lo que estamos generando
+        try:
+            app.logger.debug(f"product {p['id_producto']} -> imagen_src = {p['imagen_src']}")
+        except Exception:
+            pass
+
     return render_template('catalogo.html', productos=productos, usuario=usuario)
+
+
+
 
 # ----------------------------
 # Producto - Detalle (CLIENTE)
@@ -202,11 +255,16 @@ def producto_detalle(id_producto):
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
+    # Traer datos + lista de imágenes
     cursor.execute("""
-        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, i.url AS imagen
+        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, 
+               p.imagen AS imagen_local,
+               GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
         FROM productos p
         LEFT JOIN imagenes i ON p.id_producto = i.id_producto
         WHERE p.id_producto = %s
+        GROUP BY p.id_producto
     """, (id_producto,))
     producto = cursor.fetchone()
     cursor.close()
@@ -215,7 +273,32 @@ def producto_detalle(id_producto):
     if not producto:
         return redirect(url_for('catalogo'))
 
-    return render_template('producto_detalle.html', producto=producto, usuario=usuario)
+    # Normalizar imágenes (igual que en catalogo)
+    def normalize(src):
+        if not src:
+            return None
+        if src.startswith('http://') or src.startswith('https://'):
+            return src
+        if src.startswith('static/'):
+            return url_for('static', filename=src.replace('static/', '', 1))
+        if src.startswith('uploads/'):
+            return url_for('static', filename=src)
+        return url_for('static', filename='uploads/' + src)
+
+    imagenes = []
+    if producto.get("imagenes_concat"):
+        imagenes = [normalize(s) for s in producto["imagenes_concat"].split("||") if s]
+
+    if producto.get("imagen_local"):
+        imagenes.insert(0, normalize(producto["imagen_local"]))
+
+    if not imagenes:
+        imagenes = [url_for('static', filename='img/no-image.png')]
+
+    producto["imagenes"] = imagenes
+
+    return render_template("producto_detalle.html", usuario=usuario, producto=producto)
+
 
 # ----------------------------
 # Carrito de compras
@@ -396,6 +479,21 @@ def reset_password():
 # --------------------------------------
 # 📌 Registrar Producto (con validaciones y atributos extra)
 # --------------------------------------
+from PIL import Image
+import os
+from werkzeug.utils import secure_filename
+
+# Configuración
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+MAX_FILE_SIZE_MB = 2
+MIN_WIDTH, MIN_HEIGHT = 600, 600
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/registrar_producto', methods=['GET','POST'])
 def registrar_producto():
     usuario = obtener_usuario()
@@ -411,6 +509,7 @@ def registrar_producto():
     cursor.close(); conn.close()
 
     if request.method == 'POST':
+        # Datos del form
         nombre = request.form['nombre']
         descripcion = request.form['descripcion']
         precio = float(request.form['precio'])
@@ -424,47 +523,50 @@ def registrar_producto():
 
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Insertar producto sin imagen primero
         cursor.execute("""
-            INSERT INTO productos (nombre, descripcion, precio, stock, categoria, 
-                                   umbral_alerta, peso, alto, ancho, largo, id_usuario)
+            INSERT INTO productos 
+                (nombre, descripcion, precio, stock, categoria, umbral_alerta,
+                 peso, alto, ancho, largo, id_usuario)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """, (nombre, descripcion, precio, stock, categoria, umbral_alerta, 
+        """, (nombre, descripcion, precio, stock, categoria, umbral_alerta,
               peso, alto, ancho, largo, usuario['id_usuario']))
         id_producto = cursor.lastrowid
 
-        # Colores
-        for id_color in request.form.getlist('colores'):
-            cursor.execute("INSERT INTO producto_colores (id_producto,id_color) VALUES (%s,%s)", (id_producto,id_color))
-        # Piedras
-        for id_piedra in request.form.getlist('piedras'):
-            cursor.execute("INSERT INTO producto_piedras (id_producto,id_piedra) VALUES (%s,%s)", (id_producto,id_piedra))
-
-        # Imágenes múltiples
+        # Procesar imagen
         if 'imagenes' in request.files:
-            for file in request.files.getlist('imagenes'):
-                if file and allowed_file(file.filename):
-                    img = Image.open(file)# type: ignore
-                    if img.width < MIN_WIDTH or img.height < MIN_HEIGHT:# type: ignore
-                        flash("❌ Imagen mínima 600x600px", "error")
-                        continue
-                    file.seek(0, os.SEEK_END)
-                    size_mb = file.tell()/(1024*1024)
-                    file.seek(0)
-                    if size_mb > MAX_FILE_SIZE_MB:# type: ignore
-                        flash("❌ Imagen >2MB", "error")
-                        continue
+            file = request.files['imagenes']
+            if file and allowed_file(file.filename):
+                img = Image.open(file)
+                if img.width < MIN_WIDTH or img.height < MIN_HEIGHT:
+                    flash("❌ Imagen mínima 600x600px", "error")
+                    return redirect(url_for('registrar_producto'))
 
-                    filename = secure_filename(file.filename)
-                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    file.save(filepath)
-                    cursor.execute("INSERT INTO imagenes (id_producto,url) VALUES (%s,%s)", (id_producto, filepath))
+                file.seek(0, os.SEEK_END)
+                size_mb = file.tell() / (1024 * 1024)
+                file.seek(0)
+                if size_mb > MAX_FILE_SIZE_MB:
+                    flash("❌ Imagen >2MB", "error")
+                    return redirect(url_for('registrar_producto'))
+
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+
+                # Actualizar producto con el nombre de archivo
+                cursor.execute(
+                    "UPDATE productos SET imagen=%s WHERE id_producto=%s",
+                    (filename, id_producto)
+                )
 
         conn.commit()
         cursor.close(); conn.close()
         flash("✅ Producto registrado con éxito", "success")
         return redirect(url_for('mis_productos'))
 
-    return render_template("registrar_producto.html", usuario=usuario, colores=lista_colores, piedras=lista_piedras)
+    return render_template("registrar_producto.html", 
+                           usuario=usuario, colores=lista_colores, piedras=lista_piedras)
 
 
 
@@ -495,6 +597,9 @@ def mis_productos():
 # --------------------------------------
 # 📌 Exportar Inventario a Excel
 # --------------------------------------
+
+
+
 @app.route('/vendedor/reporte_inventario')
 def reporte_inventario():
     usuario = obtener_usuario()
@@ -630,45 +735,44 @@ def eliminar_producto(id_producto):
 @app.route('/pedido/<int:id_pedido>/pago', methods=['GET', 'POST'])
 def registrar_pago(id_pedido):
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:  # Solo clientes
+    # ✅ Ahora permitimos clientes (3) y vendedores (2)
+    if not usuario or usuario['id_rol'] not in [2, 3]:
         return redirect(url_for('login'))
+
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 1. Traer pedido y total
-    cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s AND id_usuario = %s",
-                   (id_pedido, usuario['id_usuario']))
+
+    # 🚨 IMPORTANTE: aquí supongo que tienes tabla pedidos con total
+    cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s", (id_pedido,))
     pedido = cursor.fetchone()
+
 
     if not pedido:
         cursor.close()
         conn.close()
-        return "Pedido no encontrado o no autorizado", 404
+        return "Pedido no encontrado", 404
+
 
     if request.method == 'POST':
         metodo = request.form['metodo']
-
-        # 2. Usar el total real del pedido, no lo que mande el usuario
-        monto = pedido['total']
+        monto = float(request.form['monto'])
         estado = "Pagado"
 
-        # 3. Insertar pago
+
         cursor.execute("""
             INSERT INTO pagos (id_pedido, monto, metodo_pago, estado, fecha)
             VALUES (%s, %s, %s, %s, NOW())
         """, (id_pedido, monto, metodo, estado))
+        conn.commit()
         id_pago = cursor.lastrowid
 
-        # 4. Actualizar estado del pedido
-        cursor.execute("""
-            UPDATE pedidos SET estado = 'Pagado' WHERE id_pedido = %s
-        """, (id_pedido,))
 
-        conn.commit()
         cursor.close()
         conn.close()
         return redirect(url_for('pago_exito', id_pago=id_pago))
+
 
     cursor.close()
     conn.close()
@@ -681,8 +785,10 @@ def registrar_pago(id_pedido):
 @app.route('/pago/<int:id_pago>/exito')
 def pago_exito(id_pago):
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:
+    # ✅ Ahora permitimos clientes (3) y vendedores (2)
+    if not usuario or usuario['id_rol'] not in [2, 3]:
         return redirect(url_for('login'))
+
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -691,10 +797,13 @@ def pago_exito(id_pago):
     cursor.close()
     conn.close()
 
+
     if not pago:
         return "Pago no encontrado", 404
 
+
     return render_template('pago_exito.html', usuario=usuario, pago=pago)
+
 
 
 
@@ -704,14 +813,18 @@ def pago_exito(id_pago):
 @app.route('/mis_pagos')
 def mis_pagos():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:
+    # ✅ Ahora permitimos tanto clientes (3) como vendedores (2)
+    if not usuario or usuario['id_rol'] not in [2, 3]:
         return redirect(url_for('login'))
+
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+
+    # 🚨 asumo que pedidos.id_usuario guarda al dueño del pedido
     cursor.execute("""
-        SELECT pa.*, pe.total, pe.fecha AS fecha_pedido
+        SELECT pa.*, pe.total
         FROM pagos pa
         INNER JOIN pedidos pe ON pa.id_pedido = pe.id_pedido
         WHERE pe.id_usuario = %s
@@ -719,8 +832,10 @@ def mis_pagos():
     """, (usuario['id_usuario'],))
     pagos = cursor.fetchall()
 
+
     cursor.close()
     conn.close()
+
 
     return render_template('mis_pagos.html', usuario=usuario, pagos=pagos)
 
@@ -730,46 +845,52 @@ def mis_pagos():
 @app.route('/crear_pedido', methods=['POST'])
 def crear_pedido():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:  # Solo clientes
+    if not usuario:
         return redirect(url_for('login'))
+
 
     carrito = session.get('carrito', [])
     if not carrito:
         return redirect(url_for('carrito'))
 
+
+    # Total sin impuestos
+    subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
+
+
+    # Calcular impuesto (ejemplo 19%)
+    impuesto = round(subtotal * 0.19, 2)
+    total = subtotal + impuesto
+
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. Calcular total del pedido
-    total_pedido = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
 
-    # 2. Insertamos el pedido con total
+    # Insertar pedido con total e impuesto
     cursor.execute("""
-        INSERT INTO pedidos (id_usuario, fecha, estado, total)
-        VALUES (%s, NOW(), 'Pendiente', %s)
-    """, (usuario['id_usuario'], total_pedido))
+        INSERT INTO pedidos (id_usuario, fecha, estado, subtotal, impuesto, total)
+        VALUES (%s, NOW(), 'Pendiente', %s, %s, %s)
+    """, (usuario['id_usuario'], subtotal, impuesto, total))
     id_pedido = cursor.lastrowid
 
-    # 3. Insertamos cada producto en la tabla detalle_pedido y descontamos stock
+
+    # Insertar detalles
     for item in carrito:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
             VALUES (%s, %s, %s, %s)
         """, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
 
-        # Descontar stock del producto
-        cursor.execute("""
-            UPDATE productos SET stock = stock - %s WHERE id_producto = %s
-        """, (item['cantidad'], item['id_producto']))
 
     conn.commit()
     cursor.close()
     conn.close()
 
-    # Limpiamos el carrito
+
     session['carrito'] = []
 
-    # Redirigir a la vista de pago
+
     return redirect(url_for('registrar_pago', id_pedido=id_pedido))
 
 # ----------------------------
@@ -1246,7 +1367,11 @@ def rechazar_pedido(id_pedido):
     if not usuario or usuario["id_rol"] != 2:
         return redirect(url_for("login"))
 
-    motivo = request.form["motivo"]
+    motivo = request.form.get("motivo", "").strip()  # 👈 evita error si falta
+
+    if not motivo:
+        flash("Debes ingresar un motivo de rechazo.", "error")
+        return redirect(url_for("pedidos_recibidos"))
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -1359,12 +1484,94 @@ def actualizar_pedido_personalizado(id_pedido):
 # ----------------------------
 UPLOAD_FOLDER = os.path.join("static", "uploads")
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+MAX_FILE_SIZE_MB = 2  # máximo 2MB por imagen
+MIN_WIDTH, MIN_HEIGHT = 600, 600  # resolución mínima
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route('/usuarios/<int:id_usuario>/editar', methods=['POST'])
+def editar_rol_usuario(id_usuario):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores/admin
+        return redirect(url_for('login'))
 
+
+    nuevo_rol = request.form.get('rol')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE usuarios SET id_rol = %s WHERE id_usuario = %s", (nuevo_rol, id_usuario))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+    return redirect(url_for('listar_usuarios'))
+
+@app.route('/exportar_pedidos')
+def exportar_pedidos():
+    usuario = obtener_usuario()
+    # Solo vendedores pueden exportar
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT pe.id_pedido, pe.fecha, pe.estado, pe.total, u.nombre_completo AS cliente
+        FROM pedidos pe
+        INNER JOIN usuarios u ON pe.id_usuario = u.id_usuario
+    """)
+    pedidos = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+
+    # Crear CSV en memoria
+    def generate():
+        data = csv.StringIO()
+        writer = csv.writer(data)
+
+
+        # Cabecera
+        writer.writerow(["ID Pedido", "Fecha", "Cliente", "Estado", "Total"])
+        yield data.getvalue()
+        data.seek(0)
+        data.truncate(0)
+
+
+        # Filas
+        for pedido in pedidos:
+            writer.writerow([
+                pedido['id_pedido'],
+                pedido['fecha'],
+                pedido['cliente'],
+                pedido['estado'],
+                pedido['total']
+            ])
+            yield data.getvalue()
+            data.seek(0)
+            data.truncate(0)
+
+
+    return Response(generate(), mimetype='text/csv',
+                    headers={"Content-Disposition": "attachment; filename=pedidos.csv"})
+
+@app.route('/usuarios')
+def listar_usuarios():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] not in [1, 2]:  # Solo admin o vendedor
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id_usuario, nombre_completo, correo, id_rol, estado FROM usuarios")
+    usuarios = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template('usuarios.html', usuarios=usuarios, usuario=usuario)
 
 # ----------------------------
 # Run app

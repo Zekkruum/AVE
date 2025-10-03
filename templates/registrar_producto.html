@@ -1,72 +1,103 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registrar Producto</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/registrar.css') }}">
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <div class="header-container">
-            <!-- Logo + título -->
-            <div class="logo">
-                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logo AVE Joyas">
-            </div>
+{% extends "base.html" %}
 
-            <!-- Accesos -->
-            <div class="acceso">
-                <a href="{{ url_for('vendedor_panel') }}">⬅ Volver al Panel</a>
-                <a href="{{ url_for('logout') }}" class="logout">Cerrar sesión</a>
-            </div>
-        </div>
-    </header>
-    
-    <center><p class="slogan">Registrar un nuevo producto en la tienda</p></center>
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registrar.css') }}">
+{% endblock %}
 
-    <!-- Contenido principal -->
-    <main>
-        <div class="form-container">
-            <h1>Nuevo Producto</h1>
-            <!-- 👇 Importante: enctype para subir archivos -->
-            <form action="{{ url_for('registrar_producto') }}" method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="nombre">Nombre del producto</label>
-                    <input type="text" id="nombre" name="nombre" required>
-                </div>
+{% block content %}
+<div class="form-container">
+  <h2>🛍️ Registrar Producto</h2>
+  <form method="post" enctype="multipart/form-data">
 
-                <div class="form-group">
-                    <label for="descripcion">Descripción</label>
-                    <textarea id="descripcion" name="descripcion" required></textarea>
-                </div>
+    <!-- Nombre -->
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
 
-                <div class="form-group">
-                    <label for="precio">Precio</label>
-                    <input type="number" id="precio" name="precio" step="0.01" required>
-                </div>
+    <!-- Descripción -->
+    <label for="descripcion">Descripción:</label>
+    <textarea id="descripcion" name="descripcion"></textarea>
 
-                <div class="form-group">
-                    <label for="stock">Stock</label>
-                    <input type="number" id="stock" name="stock" required>
-                </div>
+    <!-- Precio -->
+    <label for="precio">Precio:</label>
+    <input type="number" id="precio" step="0.01" name="precio">
 
-                <!-- 🔹 Campo de subida de imagen -->
-                <div class="form-group">
-                    <label for="imagen">Imagen del producto</label>
-                    <input type="file" id="imagen" name="imagen" accept="image/*">
-                </div>
+    <!-- Stock -->
+    <label for="stock">Stock:</label>
+    <input type="number" id="stock" name="stock">
 
-                <div class="form-actions">
-                    <a href="{{ url_for('vendedor_panel') }}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">Registrar</button>
-                </div>
-            </form>
-        </div>
-    </main>
+    <!-- Umbral de alerta -->
+    <label for="umbral_alerta">Umbral de alerta:</label>
+    <input type="number" id="umbral_alerta" name="umbral_alerta" value="5">
 
-    <!-- Footer -->
-    <footer>
-        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
-    </footer>
-</body>
-</html>
+    <!-- Peso -->
+    <label for="peso">Peso (g):</label>
+    <input type="number" id="peso" step="0.01" name="peso">
+
+    <!-- Alto -->
+    <label for="alto">Alto (cm):</label>
+    <input type="number" id="alto" step="0.01" name="alto">
+
+    <!-- Ancho -->
+    <label for="ancho">Ancho (cm):</label>
+    <input type="number" id="ancho" step="0.01" name="ancho">
+
+    <!-- Largo -->
+    <label for="largo">Largo (cm):</label>
+    <input type="number" id="largo" step="0.01" name="largo">
+
+    <!-- Colores -->
+    <label>Colores:</label>
+    <div class="checkbox-group">
+      {% for color in colores %}
+        <label>
+          <input type="checkbox" name="colores" value="{{ color.id_color }}">
+          {{ color.nombre }}
+        </label>
+      {% endfor %}
+    </div>
+
+    <!-- Piedras -->
+    <label>Piedras:</label>
+    <div class="checkbox-group">
+      {% for piedra in piedras %}
+        <label>
+          <input type="checkbox" name="piedras" value="{{ piedra.id_piedra }}">
+          {{ piedra.nombre }}
+        </label>
+      {% endfor %}
+    </div>
+
+    <!-- Imágenes -->
+    <label for="imagenes">Imágenes:</label>
+    <input type="file" id="imagenes" name="imagenes" multiple onchange="previewImages()">
+
+    <!-- Preview de imágenes -->
+    <div id="preview" class="image-preview"></div>
+
+    <!-- Botón -->
+    <button type="submit" class="btn-submit">💾 Guardar</button>
+  </form>
+</div>
+
+<!-- JS para preview -->
+<script>
+  function previewImages() {
+    const preview = document.getElementById("preview");
+    preview.innerHTML = "";
+    const files = document.getElementById("imagenes").files;
+
+    if (files) {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("preview-img");
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+</script>
+{% endblock %}

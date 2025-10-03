@@ -1,14 +1,73 @@
-{% extends "base.html" %}
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pago_exitoso.css') }}">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pago Exitoso - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pago.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE Joyas">
+            </div>
 
-<main class="success-container">
-    <div class="success-icon">✔</div>
-    <h2>¡Pago Exitoso!</h2>
-    <p>Tu pago #{{ pago.id_pago }} ha sido registrado correctamente.</p>
-    <p>Monto: ${{ pago.monto }}</p>
-    <p>Método: {{ pago.metodo_pago }}</p>
-    <p>Fecha: {{ pago.fecha }}</p>
-    <a href="{{ url_for('mis_pagos') }}" class="btn-volver">Ver historial de pagos</a>
-</main>
-{% endblock %}
+
+            <!-- Accesos -->
+            <div class="acceso">
+                {% if usuario %}
+                    <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                    <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                    <a href="{{ url_for('signin') }}">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Navegación -->
+    <nav>
+        <ul class="menu">
+            <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+            {% if session.get('rol') == 2 %}
+            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+
+    <!-- Contenido principal -->
+    <main class="container">
+        <div class="form-card">
+            <h2>¡Gracias por tu compra!</h2>
+
+
+            <p><strong>Pedido:</strong> #{{ pago.id_pedido }}</p>
+            <p><strong>Estado:</strong> {{ pago.estado }}</p>
+            <p><strong>Monto:</strong> ${{ '%.2f'|format(pago.monto|float) }}</p>
+            <p><strong>Método:</strong> {{ pago.metodo }}</p>
+
+
+            <div class="form-actions" style="margin-top:20px; gap:12px;">
+                <a href="{{ url_for('catalogo') }}" class="btn btn-primary">Seguir comprando</a>
+                <a href="{{ url_for('mis_pagos') }}" class="btn" style="background:#fff;color:#333;border:1px solid #ccc;">Ver historial</a>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>
+
+

@@ -1,3 +1,13 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -87,15 +97,14 @@
             <article class="product-card">
                 <div class="product-media">
                     {% if producto.imagen %}
-                    {%- set img = producto.imagen -%}
-                    {% if img.startswith('http') %}
-                    <img src="{{ img }}" alt="{{ producto.nombre }}">
-                    {% else %}
-                    <img src="{{ url_for('static', filename='uploads/' ~ img) }}" alt="{{ producto.nombre }}">
-                    {% endif %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ producto.imagen) }}"
+                        alt="{{ producto.nombre }}">
                     {% else %}
                     <img src="{{ url_for('static', filename='images/default-product.png') }}" alt="sin imagen">
                     {% endif %}
+
+
+
                 </div>
 
                 <h3 class="product-title">{{ producto.nombre }}</h3>

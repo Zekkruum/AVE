@@ -82,6 +82,29 @@ INSERT INTO `clientes` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `colores`
+--
+
+DROP TABLE IF EXISTS `colores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `colores` (
+  `id_color` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  PRIMARY KEY (`id_color`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `colores`
+--
+
+LOCK TABLES `colores` WRITE;
+/*!40000 ALTER TABLE `colores` DISABLE KEYS */;
+/*!40000 ALTER TABLE `colores` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `detalle_orden`
 --
 
@@ -136,7 +159,7 @@ CREATE TABLE `detalle_pedido` (
   CONSTRAINT `detalle_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
   CONSTRAINT `detalle_pedido_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
   CONSTRAINT `detalle_pedido_ibfk_3` FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -158,8 +181,61 @@ INSERT INTO `detalle_pedido` VALUES
 (10,9,3,NULL,1,95000.00),
 (11,10,2,NULL,1,120000.00),
 (12,10,3,NULL,1,95000.00),
-(13,11,2,NULL,1,120000.00);
+(13,11,2,NULL,1,120000.00),
+(14,12,6,NULL,1,98000.00),
+(15,13,6,NULL,1,98000.00),
+(16,14,6,NULL,1,98000.00),
+(17,15,6,NULL,1,98000.00),
+(18,16,4,NULL,1,470000.00),
+(19,17,5,NULL,1,80000.00),
+(20,18,2,NULL,1,120000.00),
+(21,19,4,NULL,1,470000.00),
+(22,20,3,NULL,1,95000.00),
+(23,21,10,NULL,1,90000.00),
+(24,22,3,NULL,1,95000.00),
+(25,23,2,NULL,1,120000.00),
+(26,23,7,NULL,5,120000.00),
+(27,24,6,NULL,1,98000.00),
+(28,25,6,NULL,1,98000.00),
+(29,26,2,NULL,1,120000.00),
+(30,27,2,NULL,1,120000.00),
+(31,27,10,NULL,1,90000.00),
+(32,28,3,NULL,1,95000.00),
+(33,28,4,NULL,1,470000.00),
+(34,28,7,NULL,1,120000.00);
 /*!40000 ALTER TABLE `detalle_pedido` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `devoluciones`
+--
+
+DROP TABLE IF EXISTS `devoluciones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `devoluciones` (
+  `id_devolucion` int(11) NOT NULL AUTO_INCREMENT,
+  `id_pedido` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `motivo` text DEFAULT NULL,
+  `fecha` timestamp NULL DEFAULT current_timestamp(),
+  `estado` varchar(50) DEFAULT 'Pendiente',
+  PRIMARY KEY (`id_devolucion`),
+  KEY `id_pedido` (`id_pedido`),
+  KEY `id_producto` (`id_producto`),
+  CONSTRAINT `devoluciones_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
+  CONSTRAINT `devoluciones_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `devoluciones`
+--
+
+LOCK TABLES `devoluciones` WRITE;
+/*!40000 ALTER TABLE `devoluciones` DISABLE KEYS */;
+/*!40000 ALTER TABLE `devoluciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -308,14 +384,13 @@ CREATE TABLE `pagos` (
   `id_pedido` int(11) NOT NULL,
   `metodo_pago` varchar(50) NOT NULL,
   `monto` decimal(10,2) NOT NULL,
-  `metodo` varchar(50) NOT NULL,
   `estado` varchar(30) DEFAULT 'Pendiente',
   `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
   `referencia_pago` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_pago`),
   KEY `id_pedido` (`id_pedido`),
   CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -325,7 +400,21 @@ CREATE TABLE `pagos` (
 LOCK TABLES `pagos` WRITE;
 /*!40000 ALTER TABLE `pagos` DISABLE KEYS */;
 INSERT INTO `pagos` VALUES
-(1,7,'',95000.00,'tarjeta','Pagado','2025-09-16 00:36:29',NULL);
+(1,7,'',95000.00,'Pagado','2025-09-16 00:36:29',NULL),
+(2,13,'Efectivo',98000.00,'Pagado','2025-10-01 22:48:24',NULL),
+(3,14,'Transferencia',98000.00,'Pagado','2025-10-01 22:48:52',NULL),
+(4,15,'Tarjeta',98000.00,'Pagado','2025-10-01 22:54:56',NULL),
+(5,16,'efectivo',470000.00,'Pagado','2025-10-01 23:07:51',NULL),
+(6,19,'efectivo',470000.00,'Pagado','2025-10-01 23:27:15',NULL),
+(7,20,'transferencia',95000.00,'Pagado','2025-10-02 02:15:22',NULL),
+(8,21,'tarjeta',90000.00,'Pagado','2025-10-02 03:54:36',NULL),
+(9,22,'tarjeta',95000.00,'Pagado','2025-10-02 03:54:51',NULL),
+(10,23,'tarjeta',720000.00,'Pagado','2025-10-02 13:20:36',NULL),
+(11,24,'transferencia',116620.00,'Pagado','2025-10-02 15:56:34',NULL),
+(12,25,'contraentrega',116620.00,'Pagado','2025-10-02 16:01:01',NULL),
+(13,26,'tarjeta',142800.00,'Pagado','2025-10-02 16:16:09',NULL),
+(14,27,'tarjeta',249900.00,'Pagado','2025-10-02 16:31:39',NULL),
+(15,28,'tarjeta',815150.00,'Pagado','2025-10-02 16:32:20',NULL);
 /*!40000 ALTER TABLE `pagos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -346,12 +435,14 @@ CREATE TABLE `pedidos` (
   `total` decimal(10,2) DEFAULT NULL,
   `estado_pago` enum('pendiente','pagado','cancelado') DEFAULT 'pendiente',
   `id_usuario` int(11) DEFAULT NULL,
+  `subtotal` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `impuesto` decimal(10,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`id_pedido`),
   KEY `id_cliente` (`id_cliente`),
   KEY `fk_pedido_usuario` (`id_usuario`),
   CONSTRAINT `fk_pedido_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -361,18 +452,157 @@ CREATE TABLE `pedidos` (
 LOCK TABLES `pedidos` WRITE;
 /*!40000 ALTER TABLE `pedidos` DISABLE KEYS */;
 INSERT INTO `pedidos` VALUES
-(1,1,'2024-06-01','Enviado','Mensajer?a','Tarjeta',350000.00,'pendiente',NULL),
-(2,2,'2024-06-02','Preparando','Contra entrega','Efectivo',120000.00,'pendiente',NULL),
-(3,3,'2024-06-03','Entregado','Mensajer?a','Nequi',95000.00,'pendiente',NULL),
-(4,4,'2024-06-04','Enviado','Domicilio','Tarjeta',470000.00,'pendiente',NULL),
-(5,5,'2024-06-05','Pendiente','Mensajer?a','Transferencia',80000.00,'pendiente',NULL),
-(6,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',11),
-(7,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',11),
-(8,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',23),
-(9,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',23),
-(10,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',23),
-(11,NULL,'2025-09-16','Pendiente',NULL,NULL,NULL,'pendiente',23);
+(1,1,'2024-06-01','Enviado','Mensajer?a','Tarjeta',350000.00,'pendiente',NULL,0.00,0.00),
+(2,2,'2024-06-02','Preparando','Contra entrega','Efectivo',120000.00,'pendiente',NULL,0.00,0.00),
+(3,3,'2024-06-03','Entregado','Mensajer?a','Nequi',95000.00,'pendiente',NULL,0.00,0.00),
+(4,4,'2024-06-04','Enviado','Domicilio','Tarjeta',470000.00,'pendiente',NULL,0.00,0.00),
+(5,5,'2024-06-05','Pendiente','Mensajer?a','Transferencia',80000.00,'pendiente',NULL,0.00,0.00),
+(6,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',11,0.00,0.00),
+(7,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',11,0.00,0.00),
+(8,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',23,0.00,0.00),
+(9,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',23,0.00,0.00),
+(10,NULL,'2025-09-15','Pendiente',NULL,NULL,NULL,'pendiente',23,0.00,0.00),
+(11,NULL,'2025-09-16','Pendiente',NULL,NULL,NULL,'pendiente',23,0.00,0.00),
+(12,NULL,'2025-10-01','Pendiente',NULL,NULL,NULL,'pendiente',25,0.00,0.00),
+(13,NULL,'2025-10-01','Pagado',NULL,NULL,98000.00,'pendiente',25,0.00,0.00),
+(14,NULL,'2025-10-01','Pagado',NULL,NULL,98000.00,'pendiente',25,0.00,0.00),
+(15,NULL,'2025-10-01','Pagado',NULL,NULL,98000.00,'pendiente',25,0.00,0.00),
+(16,NULL,'2025-10-01','Pagado',NULL,NULL,470000.00,'pendiente',25,0.00,0.00),
+(17,NULL,'2025-10-01','Pendiente',NULL,NULL,80000.00,'pendiente',25,0.00,0.00),
+(18,NULL,'2025-10-01','Pendiente',NULL,NULL,120000.00,'pendiente',25,0.00,0.00),
+(19,NULL,'2025-10-01','Pagado',NULL,NULL,470000.00,'pendiente',25,0.00,0.00),
+(20,NULL,'2025-10-02','Pagado',NULL,NULL,95000.00,'pendiente',25,0.00,0.00),
+(21,NULL,'2025-10-02','Pagado',NULL,NULL,90000.00,'pendiente',25,0.00,0.00),
+(22,NULL,'2025-10-02','Pagado',NULL,NULL,95000.00,'pendiente',25,0.00,0.00),
+(23,NULL,'2025-10-02','Pagado',NULL,NULL,720000.00,'pendiente',25,0.00,0.00),
+(24,NULL,'2025-10-02','Pendiente',NULL,NULL,116620.00,'pendiente',25,98000.00,18620.00),
+(25,NULL,'2025-10-02','Pendiente',NULL,NULL,116620.00,'pendiente',25,98000.00,18620.00),
+(26,NULL,'2025-10-02','Pendiente',NULL,NULL,142800.00,'pendiente',24,120000.00,22800.00),
+(27,NULL,'2025-10-02','Pendiente',NULL,NULL,249900.00,'pendiente',25,210000.00,39900.00),
+(28,NULL,'2025-10-02','Pendiente',NULL,NULL,815150.00,'pendiente',25,685000.00,130150.00);
 /*!40000 ALTER TABLE `pedidos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `pedidos_personalizados`
+--
+
+DROP TABLE IF EXISTS `pedidos_personalizados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pedidos_personalizados` (
+  `id_pedido_personalizado` int(11) NOT NULL AUTO_INCREMENT,
+  `id_usuario` int(11) NOT NULL,
+  `id_vendedor` int(11) NOT NULL,
+  `tipo_producto` varchar(100) NOT NULL,
+  `materiales` text NOT NULL,
+  `diseno` text NOT NULL,
+  `presupuesto` decimal(10,2) NOT NULL,
+  `archivo` varchar(255) DEFAULT NULL,
+  `estado` varchar(30) DEFAULT 'Pendiente',
+  `motivo_rechazo` text DEFAULT NULL,
+  `fecha` timestamp NULL DEFAULT current_timestamp(),
+  `fecha_entrega_estimada` date DEFAULT NULL,
+  PRIMARY KEY (`id_pedido_personalizado`),
+  KEY `id_usuario` (`id_usuario`),
+  KEY `id_vendedor` (`id_vendedor`),
+  CONSTRAINT `pedidos_personalizados_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+  CONSTRAINT `pedidos_personalizados_ibfk_2` FOREIGN KEY (`id_vendedor`) REFERENCES `usuarios` (`id_usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pedidos_personalizados`
+--
+
+LOCK TABLES `pedidos_personalizados` WRITE;
+/*!40000 ALTER TABLE `pedidos_personalizados` DISABLE KEYS */;
+INSERT INTO `pedidos_personalizados` VALUES
+(1,25,24,'Manilla','Oro','Quiero que la manilla tenga un colgante con el personaje de Hornet del videojuego titulado Hollow Knight Silksong',120000.00,'Hornet_Idle.jpg','Rechazado','NMMS WE MUY DIFICIL WE','2025-10-02 00:51:44',NULL),
+(2,25,24,'Manilla','Oro','Quiero que esta manilla tenga un adorno con la figura de Hornet del videojuego titulado Hollow Knight Silksong',120000.00,'Hornet_Idle.jpg','Aceptado',NULL,'2025-10-02 01:11:34',NULL),
+(3,25,24,'Manilla','Oro','Quiero que esta manilla tenga un adorno con la figura de Hornet del videojuego titulado Hollow Knight Silksong',120000.00,'Hornet_Idle.jpg','Aceptado',NULL,'2025-10-02 01:21:05','2025-10-17'),
+(4,25,24,'Collar','Plata y un dije','Quiero que este collar sea algo unico pero sin ser algo tan llamativo, lo quiero algo delgado y que el dije sea un nombre algo similar a la imagen adjunta',90000.00,'DNP-06.jpg','Rechazado','eso no fue muy so so 🗣️','2025-10-02 01:44:49',NULL),
+(5,25,24,'Manilla','plata','Quiero que esta manilla sea sencilla pero con un nombre en el centro de ella, el nombre tiene que ser niyireth',80000.00,'ejemplo.jpg','Rechazado','Bro, no tengo manos XD','2025-10-02 01:59:52',NULL),
+(6,25,24,'Cadena','Acero','Quiero que esta cadena tenga un estilo vikingo/nordico',100000.00,'71kXKyBRLlL._UF8941000_QL80_.jpg','Aceptado',NULL,'2025-10-02 02:03:51','2025-10-09'),
+(7,25,23,'Seas Mamon','Mineral Palido 🗣️','Para entender la historia de Five Nights at Freddy\'s hay que olvidarse que estos son juegos y quiero que tomen realmente a esta saga como lo que es. ¿Terror? Sí, pero sobre todo, ciencia ficción. Antes de comenzar, quiero decir que esta cronología la realizamos entre 3 youtubers conocidos de Five Nights at Freddy\'s y yo. Por lo tanto, agradecería que si les gusta el contenido de este juego vayan a visitar sus canales. Ahora sí, empecemos. ¿Qué pasaría si dos amigos se abren una pizzería? Esa es la primera pregunta que hay que plantearnos. Lo normal sería que todo vaya medianamente bien con algún tipo de problemas, pero nada saldría más allá de eso. La pregunta cambia completamente si nos preguntamos ¿Qué pasaría si Henry y William abren una pizzería? ¿Quienes son estos personajes? En un principio, grandes amigos. Henry, por un lado, era un ferviente y talentoso mecánico que cuidaba a su única hija, Charlie. No sabemos nada de su esposa, ni siquiera si tiene a alguien más en su familia. Y por el otro lado, William Afton. La familia de Afton estaba compuesta por 5 miembros. William, una persona con mucho dinero y con buena capacidad para la mecánica. Su hija menor, Elizabeth. Este pendejo que no sabemos el nombre, pero llora todo el tiempo, así que vamos a ponerle Crying Child. Michael Afton, su hijo mayor y su esposa, de quien no se sabe nada. Estos dos personajes unieron sus capacidades de mecánicos y con el buen capital que tenía William ahorrado, entre los dos abrieron un restaurante. Así fue como entre los años 1980 a 1982, supuestamente, Fredbear Family Dinner abrió sus puertas. La principal atracción de este lugar eran los animatrónicos. ¿Que Son? Bueno, básicamente eran robots que podrían ser controlados tanto por ellos mismos como por personas o por almas. Estos animatrónicos habían sido desarrollados por los dueños del restaurante, pero Henry destacó un poco más debido a que hizo un complejo sistema de recursos que permitía a la persona usar estos trajes. Solamente que tenía que ser extremadamente cuidadosa, ya que de lo contrario el mecanismo del mismo se activaría y la persona que esté dentro seguramente quedaría lastimada. Estos trajes híbridos darían a luz en un principio a su principal éxito, Fredbear y Spring Bonnie. Dos animatrónicos que durante esos años 80 habían hecho furor y tan bien les estaba yendo a estos dos amigos que la competencia empezó a llegar. Y es por eso que a unos pocos meses de la salida de Fredbear Family Dinner llegaría su competencia, Fazbear Entertainment, pero que esta no sería relevante hasta en un futuro. En paralelo a estos hechos, empezaban a haber roces entre la dupla principal, ya que William no solamente había abierto el restaurante para comer, sino que detrás de sus intenciones de matar había algo mucho más oscuro, gente. Es por eso que en una fecha que desconocemos, William creó un nuevo local, Circus Baby Pizza World, y es en este donde presentaría sus nuevos animatrónicos, los Funtime. Estos animatrónicos estarían hechos bajo la empresa Afton Robotics, que como podrán imaginar, esta empresa era de William. Aunque los Funtime no eran animatrónicos normales, si tenían buenas características muy innovadoras con respecto a los primeros trajes híbridos, estos Funtime estarían creados específicamente para matar. Una inteligencia artificial muy avanzada, poder abrir diferentes partes de su cuerpo y la posibilidad de hablar. Claramente no tenían una buena intención, pero a William se le volvería todo en contra cuando el mismo día de la inauguración de su local, a pesar de sus advertencias a Elizabeth, esta entró igual al cuarto donde estaban los animatrónicos para ver si estaba su robot. favorito, bebé. Y luego de que este animatrónico le ofrece un helado para hacer que se acercara a ella, la mata. O bueno, no tanto. Mientras a todo esto, recordamos que William pensaba que ya todos los niños estaban capturados dentro de los animatrónicos, debido a que la apertura de su local había sido completamente exitosa. Entonces alerta a toda la gente de una fuga de gas para que así tengan que evacuar el local y él poder ir a ver su recompensa. Cuando William va a ver si sus animatrónicos habían capturado niños, sí, así es, habían capturado niños. Que eso lo sabemos debido a que en los planos de los animatrónicos aparecen cuerpos dentro de estos robots. Pero también William se daría cuenta de que su animatrónico principal había matado a Elizabeth. O en realidad, su hija estaba tomando el control de Baby debido a que los ojos del animatrónico pasarían de ser azules a como los tenía su hijita, verdes. Por supuesto que William al enterarse de todo esto no sabe qué hacer y es por eso que decide encerrarla en Circus Baby Entertainment, un lugar ubicado debajo de Circus Baby. Tras el cierre de Circus Baby y la incertidumbre de lo ocurrido con su hija menor, estas cosas empezarían a afectar a William Afton, dando comienzo a su declive. Por eso, luego del fracaso de Circus Baby, éste vuelve a pedirle ayuda y trabajo a Henry, que a pesar de todos los problemas que había tenido con su anterior socio, le da trabajo de administrador o mecánico, por eso se lo puede ver colocándole. la cabeza de Fredbear a uno de los empleados de Fredbear Family Dinner. Durante estos meses, de un año que suponemos que es 1883, Henry creó y anunció otros animatrónicos por la televisión, que serían Freddy, Foxy, Chica y Bonnie. Por supuesto que William, al ver que había creado más animatrónicos, crecería la tensión con su nuevo jefe, pero lo que realmente llevaría a William a ponerse de un tono violeta sería la muerte de su hijo menor, el pendejo que llora, Crying Child. . ¿Se acuerdan de Mike, el hijo mayor de William? Bueno, este personaje asustaba de manera sobre medida a Crying Child y mientras ésta atormentaba a su único hermano chico, William protegía de sobre manera a su hijo menor, poniendo cámaras por toda la casa y dándole un peluche creado por él mismo para que pueda hablarle y sentirse cómodo. Todo esto, a pesar del comportamiento psicópata de William, serviría para vigilar a su hijo menor y así que no se escapara a ver a los animatrónicos debido a que a Crying Child le fascinaban. Pero William, al haber creado con Henry los dos primeros trajes sabían lo que podían hacer y lo danino que eran, por eso las medidas de sobreprotección. Pero ahora vamos a remontarnos a una teoría entre Five Nights at Freddy\'s 4 y The Twisted Ones, el primer libro. Supuestamente, Five Nights at Freddy\'s 4 ocurriría en las pesadillas de Crying Child, pero la verdad es que no, las pesadillas esas que ve son reales y no un mal sueño de este niño, ya que son parte de un plan muy macabro de su padre. . Verán, en la novela de The Twisted Ones, William crea un disco que hace tener alucinaciones con animatrónicos, exagerando su forma, su tamaño, etc. Algo así como la película de Batman donde el espantapájaros tiene un spray que te hace sobredimensionar tus miedos. ¿Y cómo se relaciona esto con el juego? El tema de las alucinaciones, no Batman, no tiene nada que ver Batman acá. Bueno, tenemos que remontarnos a Five Nights at Freddy\'s Ultimate Custom Night, en donde los animatrónicos Nightmares aparecen en este juego, pero en este juego controlamos a William, entonces es imposible que William logre saber con exactitud cómo son estos animatrónicos si es que en realidad son las pesadillas de su hijo menor. En otras palabras, ¿cómo sabes exactamente las pesadillas de otras personas? Con lo cual, si volvemos al primer libro, nos presentamos que William creó discos ilusorios para hacer creer a la gente cosas que realmente no hay, y esto lo utilizaría con Crying Child para hacer que se aleje definitivamente de los animatrónicos. Por eso es que tampoco nunca lo vemos regañar a su hijo mayor por maltratar a su hermanito, debido a que este le estaba generando un trauma con los animatrónicos, cosa que a William le sirvió, aunque el error de William fue confiar demasiado en Michael, porque este no sabía dónde estaba el límite de la broma, ya que Mike asustaba a su hermano solamente por diversión, y el problema se desataría en ese año 83, en el lugar donde había comenzado y terminado todo, Fredbear Family Dinner. Mike y sus amigos llevan a Crying Child por la fuerza al restaurante para seguir molestándolos con los animatrónicos en el día de su cumpleaños, y siguiendo con la broma, lo ponen en la boca de Fredbear simulando que se lo iba a comer, y desgraciadamente no. solo simulo eso. Como había dicho en un principio, el sistema de recurso de Henry era sensato, por lo que al introducir un niño dentro de la boca, el traje se cerró en la cabeza de Crying Child, que luego de eso, el mini Afton entra en un estado de coma donde están todos los animatrónicos que él conoció y el peluche que le había regalado William, donde en esta pantalla se da a entender como que su padre le está dedicando las últimas palabras a su hijo, pidiéndole que lo perdone, y diciendo dos frases que quedarían para muchísimas teorías. Vos estás roto, yo te reconstruiré. Por supuesto que esto lo dice debido a que a partir de la muerte de Elizabeth, él sabía que de alguna forma los animatrónicos lograban tomar el alma de la persona y adaptarla a su cuerpo, o por lo menos ahí alma y animatrónico convivían en un solo. cuerpo. Una curiosidad de esta parte de la historia es que como estamos en 1983, si recorremos la casa de los Afton, nos vamos a encontrar con un cuarto que da a entender que es de una niña, y quién era la única niña que tenía la familia. Afton, Elizabeth Afton. Por lo tanto, antes de ese 1983, la hija de William ya estaba dentro del cuerpo de Baby.',1.00,'Troleador_cara.jpg','Pendiente',NULL,'2025-10-02 02:08:27',NULL),
+(8,25,15,'Seas Mamon','Mineral Palido 🗣️','Para entender la historia de Five Nights at Freddy\'s hay que olvidarse que estos son juegos y quiero que tomen realmente a esta saga como lo que es. ¿Terror? Sí, pero sobre todo, ciencia ficción. Antes de comenzar, quiero decir que esta cronología la realizamos entre 3 youtubers conocidos de Five Nights at Freddy\'s y yo. Por lo tanto, agradecería que si les gusta el contenido de este juego vayan a visitar sus canales. Ahora sí, empecemos. ¿Qué pasaría si dos amigos se abren una pizzería? Esa es la primera pregunta que hay que plantearnos. Lo normal sería que todo vaya medianamente bien con algún tipo de problemas, pero nada saldría más allá de eso. La pregunta cambia completamente si nos preguntamos ¿Qué pasaría si Henry y William abren una pizzería? ¿Quienes son estos personajes? En un principio, grandes amigos. Henry, por un lado, era un ferviente y talentoso mecánico que cuidaba a su única hija, Charlie. No sabemos nada de su esposa, ni siquiera si tiene a alguien más en su familia. Y por el otro lado, William Afton. La familia de Afton estaba compuesta por 5 miembros. William, una persona con mucho dinero y con buena capacidad para la mecánica. Su hija menor, Elizabeth. Este pendejo que no sabemos el nombre, pero llora todo el tiempo, así que vamos a ponerle Crying Child. Michael Afton, su hijo mayor y su esposa, de quien no se sabe nada. Estos dos personajes unieron sus capacidades de mecánicos y con el buen capital que tenía William ahorrado, entre los dos abrieron un restaurante. Así fue como entre los años 1980 a 1982, supuestamente, Fredbear Family Dinner abrió sus puertas. La principal atracción de este lugar eran los animatrónicos. ¿Que Son? Bueno, básicamente eran robots que podrían ser controlados tanto por ellos mismos como por personas o por almas. Estos animatrónicos habían sido desarrollados por los dueños del restaurante, pero Henry destacó un poco más debido a que hizo un complejo sistema de recursos que permitía a la persona usar estos trajes. Solamente que tenía que ser extremadamente cuidadosa, ya que de lo contrario el mecanismo del mismo se activaría y la persona que esté dentro seguramente quedaría lastimada. Estos trajes híbridos darían a luz en un principio a su principal éxito, Fredbear y Spring Bonnie. Dos animatrónicos que durante esos años 80 habían hecho furor y tan bien les estaba yendo a estos dos amigos que la competencia empezó a llegar. Y es por eso que a unos pocos meses de la salida de Fredbear Family Dinner llegaría su competencia, Fazbear Entertainment, pero que esta no sería relevante hasta en un futuro. En paralelo a estos hechos, empezaban a haber roces entre la dupla principal, ya que William no solamente había abierto el restaurante para comer, sino que detrás de sus intenciones de matar había algo mucho más oscuro, gente. Es por eso que en una fecha que desconocemos, William creó un nuevo local, Circus Baby Pizza World, y es en este donde presentaría sus nuevos animatrónicos, los Funtime. Estos animatrónicos estarían hechos bajo la empresa Afton Robotics, que como podrán imaginar, esta empresa era de William. Aunque los Funtime no eran animatrónicos normales, si tenían buenas características muy innovadoras con respecto a los primeros trajes híbridos, estos Funtime estarían creados específicamente para matar. Una inteligencia artificial muy avanzada, poder abrir diferentes partes de su cuerpo y la posibilidad de hablar. Claramente no tenían una buena intención, pero a William se le volvería todo en contra cuando el mismo día de la inauguración de su local, a pesar de sus advertencias a Elizabeth, esta entró igual al cuarto donde estaban los animatrónicos para ver si estaba su robot. favorito, bebé. Y luego de que este animatrónico le ofrece un helado para hacer que se acercara a ella, la mata. O bueno, no tanto. Mientras a todo esto, recordamos que William pensaba que ya todos los niños estaban capturados dentro de los animatrónicos, debido a que la apertura de su local había sido completamente exitosa. Entonces alerta a toda la gente de una fuga de gas para que así tengan que evacuar el local y él poder ir a ver su recompensa. Cuando William va a ver si sus animatrónicos habían capturado niños, sí, así es, habían capturado niños. Que eso lo sabemos debido a que en los planos de los animatrónicos aparecen cuerpos dentro de estos robots. Pero también William se daría cuenta de que su animatrónico principal había matado a Elizabeth. O en realidad, su hija estaba tomando el control de Baby debido a que los ojos del animatrónico pasarían de ser azules a como los tenía su hijita, verdes. Por supuesto que William al enterarse de todo esto no sabe qué hacer y es por eso que decide encerrarla en Circus Baby Entertainment, un lugar ubicado debajo de Circus Baby. Tras el cierre de Circus Baby y la incertidumbre de lo ocurrido con su hija menor, estas cosas empezarían a afectar a William Afton, dando comienzo a su declive. Por eso, luego del fracaso de Circus Baby, éste vuelve a pedirle ayuda y trabajo a Henry, que a pesar de todos los problemas que había tenido con su anterior socio, le da trabajo de administrador o mecánico, por eso se lo puede ver colocándole. la cabeza de Fredbear a uno de los empleados de Fredbear Family Dinner. Durante estos meses, de un año que suponemos que es 1883, Henry creó y anunció otros animatrónicos por la televisión, que serían Freddy, Foxy, Chica y Bonnie. Por supuesto que William, al ver que había creado más animatrónicos, crecería la tensión con su nuevo jefe, pero lo que realmente llevaría a William a ponerse de un tono violeta sería la muerte de su hijo menor, el pendejo que llora, Crying Child. . ¿Se acuerdan de Mike, el hijo mayor de William? Bueno, este personaje asustaba de manera sobre medida a Crying Child y mientras ésta atormentaba a su único hermano chico, William protegía de sobre manera a su hijo menor, poniendo cámaras por toda la casa y dándole un peluche creado por él mismo para que pueda hablarle y sentirse cómodo. Todo esto, a pesar del comportamiento psicópata de William, serviría para vigilar a su hijo menor y así que no se escapara a ver a los animatrónicos debido a que a Crying Child le fascinaban. Pero William, al haber creado con Henry los dos primeros trajes sabían lo que podían hacer y lo danino que eran, por eso las medidas de sobreprotección. Pero ahora vamos a remontarnos a una teoría entre Five Nights at Freddy\'s 4 y The Twisted Ones, el primer libro. Supuestamente, Five Nights at Freddy\'s 4 ocurriría en las pesadillas de Crying Child, pero la verdad es que no, las pesadillas esas que ve son reales y no un mal sueño de este niño, ya que son parte de un plan muy macabro de su padre. . Verán, en la novela de The Twisted Ones, William crea un disco que hace tener alucinaciones con animatrónicos, exagerando su forma, su tamaño, etc. Algo así como la película de Batman donde el espantapájaros tiene un spray que te hace sobredimensionar tus miedos. ¿Y cómo se relaciona esto con el juego? El tema de las alucinaciones, no Batman, no tiene nada que ver Batman acá. Bueno, tenemos que remontarnos a Five Nights at Freddy\'s Ultimate Custom Night, en donde los animatrónicos Nightmares aparecen en este juego, pero en este juego controlamos a William, entonces es imposible que William logre saber con exactitud cómo son estos animatrónicos si es que en realidad son las pesadillas de su hijo menor. En otras palabras, ¿cómo sabes exactamente las pesadillas de otras personas? Con lo cual, si volvemos al primer libro, nos presentamos que William creó discos ilusorios para hacer creer a la gente cosas que realmente no hay, y esto lo utilizaría con Crying Child para hacer que se aleje definitivamente de los animatrónicos. Por eso es que tampoco nunca lo vemos regañar a su hijo mayor por maltratar a su hermanito, debido a que este le estaba generando un trauma con los animatrónicos, cosa que a William le sirvió, aunque el error de William fue confiar demasiado en Michael, porque este no sabía dónde estaba el límite de la broma, ya que Mike asustaba a su hermano solamente por diversión, y el problema se desataría en ese año 83, en el lugar donde había comenzado y terminado todo, Fredbear Family Dinner. Mike y sus amigos llevan a Crying Child por la fuerza al restaurante para seguir molestándolos con los animatrónicos en el día de su cumpleaños, y siguiendo con la broma, lo ponen en la boca de Fredbear simulando que se lo iba a comer, y desgraciadamente no. solo simulo eso. Como había dicho en un principio, el sistema de recurso de Henry era sensato, por lo que al introducir un niño dentro de la boca, el traje se cerró en la cabeza de Crying Child, que luego de eso, el mini Afton entra en un estado de coma donde están todos los animatrónicos que él conoció y el peluche que le había regalado William, donde en esta pantalla se da a entender como que su padre le está dedicando las últimas palabras a su hijo, pidiéndole que lo perdone, y diciendo dos frases que quedarían para muchísimas teorías. Vos estás roto, yo te reconstruiré. Por supuesto que esto lo dice debido a que a partir de la muerte de Elizabeth, él sabía que de alguna forma los animatrónicos lograban tomar el alma de la persona y adaptarla a su cuerpo, o por lo menos ahí alma y animatrónico convivían en un solo. cuerpo. Una curiosidad de esta parte de la historia es que como estamos en 1983, si recorremos la casa de los Afton, nos vamos a encontrar con un cuarto que da a entender que es de una niña, y quién era la única niña que tenía la familia. Afton, Elizabeth Afton. Por lo tanto, antes de ese 1983, la hija de William ya estaba dentro del cuerpo de Baby.',1.00,'Troleador_cara.jpg','Pendiente',NULL,'2025-10-02 04:10:25',NULL),
+(9,25,22,'Cadena','Oro','Quiero que esta cadena cuente con eslabones ',3000000.00,'images.png','Pendiente',NULL,'2025-10-02 16:34:35',NULL);
+/*!40000 ALTER TABLE `pedidos_personalizados` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `piedras`
+--
+
+DROP TABLE IF EXISTS `piedras`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `piedras` (
+  `id_piedra` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  PRIMARY KEY (`id_piedra`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `piedras`
+--
+
+LOCK TABLES `piedras` WRITE;
+/*!40000 ALTER TABLE `piedras` DISABLE KEYS */;
+/*!40000 ALTER TABLE `piedras` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `producto_colores`
+--
+
+DROP TABLE IF EXISTS `producto_colores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `producto_colores` (
+  `id_producto` int(11) NOT NULL,
+  `id_color` int(11) NOT NULL,
+  PRIMARY KEY (`id_producto`,`id_color`),
+  KEY `id_color` (`id_color`),
+  CONSTRAINT `producto_colores_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
+  CONSTRAINT `producto_colores_ibfk_2` FOREIGN KEY (`id_color`) REFERENCES `colores` (`id_color`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `producto_colores`
+--
+
+LOCK TABLES `producto_colores` WRITE;
+/*!40000 ALTER TABLE `producto_colores` DISABLE KEYS */;
+/*!40000 ALTER TABLE `producto_colores` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `producto_piedras`
+--
+
+DROP TABLE IF EXISTS `producto_piedras`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `producto_piedras` (
+  `id_producto` int(11) NOT NULL,
+  `id_piedra` int(11) NOT NULL,
+  PRIMARY KEY (`id_producto`,`id_piedra`),
+  KEY `id_piedra` (`id_piedra`),
+  CONSTRAINT `producto_piedras_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
+  CONSTRAINT `producto_piedras_ibfk_2` FOREIGN KEY (`id_piedra`) REFERENCES `piedras` (`id_piedra`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `producto_piedras`
+--
+
+LOCK TABLES `producto_piedras` WRITE;
+/*!40000 ALTER TABLE `producto_piedras` DISABLE KEYS */;
+/*!40000 ALTER TABLE `producto_piedras` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -457,12 +687,18 @@ CREATE TABLE `productos` (
   `descripcion` text DEFAULT NULL,
   `precio` decimal(10,2) DEFAULT NULL,
   `peso` float DEFAULT NULL,
+  `alto` decimal(10,2) DEFAULT 0.00,
+  `ancho` decimal(10,2) DEFAULT 0.00,
+  `largo` decimal(10,2) DEFAULT 0.00,
   `dimensiones` varchar(100) DEFAULT NULL,
   `referencia` varchar(50) DEFAULT NULL,
   `stock` int(11) DEFAULT NULL,
+  `umbral_alerta` int(11) DEFAULT 5,
   `id_tipo` int(11) DEFAULT NULL,
   `id_material` int(11) DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
+  `imagen` varchar(255) DEFAULT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id_producto`),
   KEY `id_tipo` (`id_tipo`),
   KEY `id_material` (`id_material`),
@@ -470,7 +706,7 @@ CREATE TABLE `productos` (
   CONSTRAINT `fk_producto_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_tipo`) REFERENCES `tipos_joya` (`id_tipo`),
   CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_material`) REFERENCES `materiales` (`id_material`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -480,12 +716,14 @@ CREATE TABLE `productos` (
 LOCK TABLES `productos` WRITE;
 /*!40000 ALTER TABLE `productos` DISABLE KEYS */;
 INSERT INTO `productos` VALUES
-(1,'Anillo Clásico Oro','Anillo elegante de oro 18k',350000.00,0.05,'2x2x2cm','AOR001',10,1,1,1),
-(2,'Collar Corazón Plata','Collar con dije en forma de corazón',120000.00,0.1,'5x5x1cm','CPL002',5,2,2,1),
-(3,'Pulsera Acero Fina','Pulsera unisex en acero inoxidable',95000.00,0.08,'4x4x2cm','PAC003',20,3,3,1),
-(4,'Aretes Rubí','Aretes con incrustaciones de rubí',470000.00,0.03,'2x2x1cm','ARU004',7,4,4,1),
-(5,'Broche Hoja','Broche de hoja con material ecológico',80000.00,0.02,'3x3x1cm','BHO005',12,5,5,1),
-(6,'Cadenita','SHAW',98000.00,NULL,NULL,NULL,35,NULL,NULL,24);
+(1,'Anillo Clásico Oro','Anillo elegante de oro 18k',350000.00,0.05,0.00,0.00,0.00,'2x2x2cm','AOR001',10,5,1,1,1,NULL,NULL),
+(2,'Collar Corazón Plata','Collar con dije en forma de corazón',120000.00,0.1,0.00,0.00,0.00,'5x5x1cm','CPL002',3,5,2,2,1,NULL,NULL),
+(3,'Pulsera Acero Fina','Pulsera unisex en acero inoxidable',95000.00,0.08,0.00,0.00,0.00,'4x4x2cm','PAC003',18,5,3,3,1,NULL,NULL),
+(4,'Aretes Rubí','Aretes con incrustaciones de rubí',470000.00,0.03,0.00,0.00,0.00,'2x2x1cm','ARU004',5,5,4,4,1,NULL,NULL),
+(5,'Broche Hoja','Broche de hoja con material ecológico',80000.00,0.02,0.00,0.00,0.00,'3x3x1cm','BHO005',11,5,5,5,1,NULL,NULL),
+(6,'Cadenita','SHAW',98000.00,NULL,0.00,0.00,0.00,NULL,NULL,32,5,NULL,NULL,24,NULL,NULL),
+(7,'Cadena ','Cadena nordica asi bien aqui asi bien chavalona',120000.00,NULL,0.00,0.00,0.00,NULL,NULL,7,5,NULL,NULL,24,'71kXKyBRLlL._UF8941000_QL80_.jpg',NULL),
+(10,'Cadena ','Una cadena de la SHAW',90000.00,NULL,0.00,0.00,0.00,NULL,NULL,20,5,NULL,NULL,24,'Hornet_Idle.jpg','Cadenas');
 /*!40000 ALTER TABLE `productos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -657,7 +895,7 @@ CREATE TABLE `tokens_recuperacion` (
   PRIMARY KEY (`id`),
   KEY `id_usuario` (`id_usuario`),
   CONSTRAINT `tokens_recuperacion_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -670,7 +908,9 @@ INSERT INTO `tokens_recuperacion` VALUES
 (5,13,'6fdcaa33','2025-09-07 21:54:58'),
 (9,15,'148fa6cb','2025-09-08 06:56:38'),
 (10,16,'e2ca1dc7','2025-09-08 07:01:33'),
-(12,18,'e17e96e1','2025-09-09 16:32:44');
+(12,18,'e17e96e1','2025-09-09 16:32:44'),
+(17,24,'ccde3c88','2025-10-02 01:14:18'),
+(18,24,'c2eef339','2025-10-02 01:19:04');
 /*!40000 ALTER TABLE `tokens_recuperacion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -708,7 +948,7 @@ INSERT INTO `usuarios` VALUES
 (3,'Luis Rojas','luis@ave.com','3003334455','clave123','Av. Norte 9',0,3),
 (4,'Luc?a D?az','lucia@ave.com','3004445566','clave123','Nueva Direcci?n 456',1,3),
 (5,'Soporte AVE','soporte@ave.com','3005556677','clave123','Oficina 5',1,4),
-(9,'Keinner Santiago','keinner@ave.com','1234567890','scrypt:32768:8:1$RSHF9SWKA5uBgcju$399aeb09899861ac8d72917a892afac9373455001f1449e9d345520410a3c60b0305adcad23e411fb332a8da4c58d09a6b36652bd3943c5324d81417d8246a13','su casa ',0,2),
+(9,'Keinner Santiago','keinner@ave.com','1234567890','scrypt:32768:8:1$RSHF9SWKA5uBgcju$399aeb09899861ac8d72917a892afac9373455001f1449e9d345520410a3c60b0305adcad23e411fb332a8da4c58d09a6b36652bd3943c5324d81417d8246a13','su casa ',0,3),
 (10,'Esteban Espitia','esteban@ave.com','0987654321','scrypt:32768:8:1$HUuf65it9zjSZUUB$d8fee9e6d6ea1b27f9f634005a31cf2f8b063ae14c7f62e06043e1e79351c3178b609f7b1c44fc9e95e8d2b97a9938fe20018dfd465bce476c0e0397551c9d4d','Suba (Es un Cerro)',0,1),
 (11,'Uldarico Andrade','uldarico@gmail.com','7890123456','scrypt:32768:8:1$UVX3mRSPAJ0qlwpq$8ed58f7e3f51eebb0a0bae844f9f90017a05969e8deea64a33c823ab4810a43b7ea914985d3e9a6a71a6704a9b008fbeaa024c3eec0ced58299c1c8c6894318d','carrera del amorch',0,3),
 (12,'Danna Gabriela','dannagb@gmail.com','1234567890','scrypt:32768:8:1$Zkl79IRpzx4UV2q2$65b9399dbda0e5d9ff880f88b14c8c0509d14c3be7d66b7bfcdcb17f474c168fc7bd5621f4bac88fb9104c9edcb627e3358f64d392790233b8982bd0700cabb6','Cerru',0,2),
@@ -718,7 +958,7 @@ INSERT INTO `usuarios` VALUES
 (17,'Luis Garcia','luis.garcia@gmail.com','+5712340987654','scrypt:32768:8:1$9m3QskmkdBnF2v16$ed669e720f10627a9ecb6ad25a770167c2ee812efccdb37e99250e4bedc14ac21b560657784c3c9cbf0e36102d7ca56f70859429505b7218e9c56ad70387e425','Casa',0,1),
 (18,'Maria Bonilla','matebojejuda123@gmail.com','+57097327647','scrypt:32768:8:1$wd1GIWxJNcZAXUy7$64ae89d9d7a160750c02296b4edbc64d72a7387c1a6961edc20b5a27e4d411ec67d19d1f58a1a45328ebdb2fcd5c926f23a180864773ae9a108b1837e84c6245','Casa',0,1),
 (20,'jhon','jhon@ave.com','+573506257556','scrypt:32768:8:1$ORAZ1tBwMtgF8UP8$7e95fe4eae0acdab5d34d19fc33996bfc0c1265aedb59ef76b7291aa498d8e5b8ad769d9d4c5ed3af2066cd52cf4b3ed752f3f3e17dd8641ed7e92443963cca8','xd',0,2),
-(21,'Nicole Quiroga','paolakimoficial@gmail.com','+573007151138','scrypt:32768:8:1$a8N2mO0IJVSvMlhU$22521088b02de3e4516418e69c8066b7e9bb2513fd08e40de70329f0d1a63f5cbcac94a7336fda2712fab1774f62c7b96fa35e0b536eadc32dc8432f8b878779','casa xd',0,1),
+(21,'Nicole Quiroga','paolakimoficial@gmail.com','+573007151138','scrypt:32768:8:1$a8N2mO0IJVSvMlhU$22521088b02de3e4516418e69c8066b7e9bb2513fd08e40de70329f0d1a63f5cbcac94a7336fda2712fab1774f62c7b96fa35e0b536eadc32dc8432f8b878779','casa xd',0,3),
 (22,'Juan Garcia','juancgb2007@gmail.com','+573194988478','scrypt:32768:8:1$QCFlm3rymKtIJdGf$08ebc944ddea26d65b106266d7bbaac04a81bc62bc638a29bbb15afe85bc6b98edc7c44ce8e64d9ad5c7908451d1f5f9643f1f0636c463f7dcde72ceb414eea6','Cerru Premium',0,2),
 (23,'esteban espitia ','estebanof2005@gmail.com','+573506257556','scrypt:32768:8:1$SQM6CMvBpHOeHEpq$70f7b559b8abc1ad805816b59b53a7b6e9748798986845f63ec181c23043538464f61e24757d7824c4dc08137f79d46e14d6c77b7038b10732fc52086189a409','suba (cerro)',0,2),
 (24,'Juan Garcia','juanpgr768@gmail.com','+57091234782','scrypt:32768:8:1$47dkFKyVYWgqEuTg$c9200e415aa47cb7ee2568c957fe98ac4d4011fb262e286cdcd0b4efc3e133e63884f51801fd2579691519375a4e8643f206927cdce120d9e94856dff464e22d','Cerru Premium',1,2),
@@ -1067,4 +1307,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-01 22:13:53
+-- Dump completed on 2025-10-03  1:38:16

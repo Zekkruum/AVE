@@ -1,27 +1,83 @@
-{% extends "base.html" %}
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pagos.css') }}">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Realizar Pago - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pago.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE Joyas">
+            </div>
 
-<main class="pago-container">
-  <div class="pago-form">
-    <h2>Registrar Pago</h2>
-    <form method="POST">
-        <label for="metodo">Método de Pago:</label>
-        <select id="metodo" name="metodo" required>
-            <option value="tarjeta">Tarjeta</option>
-            <option value="efectivo">Efectivo</option>
-            <option value="transferencia">Transferencia</option>
-        </select>
 
-        <label for="monto">Monto:</label>
-        <input type="number" step="0.01" id="monto" name="monto" value="{{ pedido.total }}" required>
+            <!-- Accesos -->
+            <div class="acceso">
+                {% if usuario %}
+                    <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                    <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                    <a href="{{ url_for('signin') }}">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
 
-        <button type="submit">Confirmar Pago</button>
-    </form>
 
-    <!-- Botón de cancelar -->
-    <a href="{{ url_for('carrito') }}" class="cancelar-btn">Cancelar</a>
-  </div>
-</main>
+    <!-- Navegación -->
+    <nav>
+        <ul class="menu">
+            <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+            {% if session.get('rol') == 2 %}
+            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            {% endif %}
+        </ul>
+    </nav>
 
-{% endblock %}
+
+    <!-- Contenido principal -->
+    <main class="container">
+        <form action="{{ url_for('registrar_pago', id_pedido=pedido.id_pedido) }}" method="POST" class="form-card">
+            <h2>Detalle del Pedido</h2>
+            <p><strong>Pedido:</strong> #{{ pedido.id_pedido }}</p>
+            <p><strong>Subtotal:</strong> ${{ pedido.subtotal }}</p>
+            <p><strong>Impuestos (19%):</strong> ${{ pedido.impuesto }}</p>
+            <p><strong>Total a pagar:</strong> ${{ pedido.total }}</p>
+
+
+            <label for="metodo">Método de Pago</label>
+            <select name="metodo" id="metodo" required>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="contraentrega">Contraentrega</option>
+            </select>
+
+
+            <label for="monto">Monto</label>
+<p class="monto-texto">${{ pedido.total }}</p>
+<input type="hidden" name="monto" value="{{ pedido.total }}">
+
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Pagar</button>
+            </div>
+        </form>
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+</body>
+</html>
+
+
