@@ -49,6 +49,9 @@ def login():
             session['rol'] = user['id_rol']
 
             # 👇 Aquí definimos dónde va cada rol
+            if user['id_rol'] == 1:   # admin
+                return redirect(url_for('catalogo')) 
+
             if user['id_rol'] == 2:   # vendedor
                 return redirect(url_for('vendedor_panel'))
             elif user['id_rol'] == 3: # cliente
@@ -66,7 +69,10 @@ def login():
 #----------------------------------------------------------------------------------------
 
 def obtener_usuario():
+    app.logger.debug(f"Sesión actual: {session}")  # <-- log de sesión
+
     if 'usuario_id' not in session:
+        app.logger.debug("No se encontró 'usuario_id' en la sesión.")
         return None
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -74,6 +80,8 @@ def obtener_usuario():
     usuario = cursor.fetchone()
     cursor.close()
     conn.close()
+
+    app.logger.debug(f"Usuario obtenido de BD: {usuario}")  # <-- log del usuario
     return usuario
 
 
@@ -168,78 +176,127 @@ def elegir_rol():
 
     return render_template('elegir_rol.html')
 
-# ----------------------------
-# Catálogo
-# ----------------------------
+
 @app.route('/catalogo')
 def catalogo():
     usuario = obtener_usuario()
     if not usuario:
         return redirect(url_for('login'))
 
+    # Obtener filtros
+    tipo_selected = request.args.get('tipo', type=int)
+    material_selected = request.args.get('material', type=int)
+    precio_min_selected = request.args.get('precio_min', type=float)
+    precio_max_selected = request.args.get('precio_max', type=float)
+    busqueda = request.args.get('busqueda', '')
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Usamos un separador raro '||' para evitar problemas si el filename tiene comas
-    cursor.execute("""
+    sql = """
         SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock,
                p.imagen AS imagen_local,
                GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
         FROM productos p
         LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        WHERE 1=1
+    """
+    params = []
+
+    if tipo_selected:
+        sql += " AND p.id_tipo = %s"
+        params.append(tipo_selected)
+    if material_selected:
+        sql += " AND p.id_material = %s"
+        params.append(material_selected)
+    if precio_min_selected is not None:
+        sql += " AND p.precio >= %s"
+        params.append(precio_min_selected)
+    if precio_max_selected is not None:
+        sql += " AND p.precio <= %s"
+        params.append(precio_max_selected)
+    if busqueda:
+        sql += " AND (p.nombre LIKE %s OR p.referencia LIKE %s)"
+        like_query = f"%{busqueda}%"
+        params.extend([like_query, like_query])
+
+    sql += " GROUP BY p.id_producto ORDER BY p.nombre ASC"
+    cursor.execute(sql, params)
+    productos = cursor.fetchall()
+
+    # Normalizar imágenes
+    for p in productos:
+        imgs = [s for s in (p.get('imagenes_concat') or '').split('||') if s]
+        imagen_src = p['imagen_local'] or (imgs[0] if imgs else None)
+        if imagen_src:
+            if imagen_src.startswith('static/'):
+                imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
+            elif imagen_src.startswith('uploads/'):
+                imagen_src = url_for('static', filename=imagen_src)
+        else:
+            imagen_src = url_for('static', filename='img/no-image.png')
+        p['imagen_src'] = imagen_src
+
+    # Obtener tipos y materiales para el formulario
+    cursor.execute("SELECT * FROM tipos_joya ORDER BY nombre_tipo ASC")
+    tipos = cursor.fetchall()
+    cursor.execute("SELECT * FROM materiales ORDER BY nombre_material ASC")
+    materiales = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'catalogo.html',
+        productos=productos,
+        usuario=usuario,
+        tipos=tipos,
+        materiales=materiales,
+        tipo_selected=tipo_selected,
+        material_selected=material_selected,
+        precio_min_selected=precio_min_selected or '',
+        precio_max_selected=precio_max_selected or '',
+        busqueda=busqueda
+    )
+
+@app.route('/catalogo/buscar')
+def buscar_rapido():
+    query = request.args.get('query', '').strip()
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    sql = """
+        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock,
+               p.imagen AS imagen_local,
+               GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
+        FROM productos p
+        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        WHERE p.nombre LIKE %s OR p.referencia LIKE %s
         GROUP BY p.id_producto
-    """)
+        ORDER BY p.nombre ASC
+        LIMIT 50
+    """
+    like_query = f"%{query}%"
+    cursor.execute(sql, (like_query, like_query))
     productos = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    # Normalizamos la lista de imágenes y generamos imagen_src listo para <img src="...">
     for p in productos:
-        # 1) convertir concat -> lista
-        imgs = []
-        if p.get('imagenes_concat'):
-            imgs = [s for s in p['imagenes_concat'].split('||') if s]
-
-        # 2) prioridad: imagen_local (columna producto), luego imagenes (tabla), luego fallback
-        imagen_src = None
-
-        # Helper para decidir url_for o dejar absoluto
-        def normalize(src):
-            # si ya es URL absoluta
-            if not src:
-                return None
-            if src.startswith('http://') or src.startswith('https://'):
-                return src
-            # si el valor llega como 'static/...' -> quitar 'static/' y usar url_for
-            if src.startswith('static/'):
-                return url_for('static', filename=src.replace('static/', '', 1))
-            # si viene como 'uploads/...' -> relativo dentro de static
-            if src.startswith('uploads/'):
-                return url_for('static', filename=src)
-            # si es sólo nombre de archivo -> lo buscamos en uploads/
-            return url_for('static', filename='uploads/' + src)
-
-        # Prioridad 1: la columna imagen (productos.imagen)
-        if p.get('imagen_local'):
-            imagen_src = normalize(p['imagen_local'])
-
-        # Prioridad 2: la lista de imagenes de la tabla imagenes
-        if not imagen_src and imgs:
-            imagen_src = normalize(imgs[0])
-
-        # Fallback 3: imagen por defecto
-        if not imagen_src:
-            imagen_src = url_for('static', filename='img/no-image.png')  # ajusta ruta si tu imagen default está en otra carpeta
-
+        imgs = [s for s in (p.get('imagenes_concat') or '').split('||') if s]
+        imagen_src = p['imagen_local'] or (imgs[0] if imgs else None)
+        if imagen_src:
+            if imagen_src.startswith('static/'):
+                imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
+            elif imagen_src.startswith('uploads/'):
+                imagen_src = url_for('static', filename=imagen_src)
+        else:
+            imagen_src = url_for('static', filename='img/no-image.png')
         p['imagen_src'] = imagen_src
 
-        # DEBUG en consola para ver lo que estamos generando
-        try:
-            app.logger.debug(f"product {p['id_producto']} -> imagen_src = {p['imagen_src']}")
-        except Exception:
-            pass
+    return render_template('_productos_grid.html', productos=productos)
 
-    return render_template('catalogo.html', productos=productos, usuario=usuario)
+
 
 
 
@@ -309,7 +366,20 @@ def carrito():
     if not usuario:
         return redirect(url_for('login'))
 
-    carrito = session.get('carrito', [])
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT c.id_producto, c.cantidad, p.nombre, p.precio, 
+               COALESCE(i.url, '') AS imagen
+        FROM carrito_usuario c
+        JOIN productos p ON c.id_producto = p.id_producto
+        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        WHERE c.id_usuario = %s
+    """, (usuario['id_usuario'],))
+    carrito = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
     total = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
     return render_template('carrito.html', carrito=carrito, total=total, usuario=usuario)
 
@@ -323,38 +393,32 @@ def agregar_carrito(id_producto):
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
+    # Ver si el producto ya está en el carrito del usuario
     cursor.execute("""
-        SELECT p.id_producto, p.nombre, p.precio, i.url AS imagen
-        FROM productos p
-        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
-        WHERE p.id_producto = %s
-    """, (id_producto,))
-    producto = cursor.fetchone()
+        SELECT cantidad FROM carrito_usuario
+        WHERE id_usuario=%s AND id_producto=%s
+    """, (usuario['id_usuario'], id_producto))
+    fila = cursor.fetchone()
+
+    if fila:
+        # Si existe, sumamos cantidad
+        cursor.execute("""
+            UPDATE carrito_usuario
+            SET cantidad = cantidad + %s
+            WHERE id_usuario=%s AND id_producto=%s
+        """, (cantidad, usuario['id_usuario'], id_producto))
+    else:
+        # Si no existe, insertamos nuevo
+        cursor.execute("""
+            INSERT INTO carrito_usuario (id_usuario, id_producto, cantidad)
+            VALUES (%s, %s, %s)
+        """, (usuario['id_usuario'], id_producto, cantidad))
+
+    conn.commit()
     cursor.close()
     conn.close()
 
-    if not producto:
-        return redirect(url_for('catalogo'))
-
-    if 'carrito' not in session:
-        session['carrito'] = []
-
-    carrito = session['carrito']
-
-    for item in carrito:
-        if item['id_producto'] == id_producto:
-            item['cantidad'] += int(cantidad)
-            break
-    else:
-        carrito.append({
-            'id_producto': producto['id_producto'],
-            'nombre': producto['nombre'],
-            'precio': float(producto['precio']),
-            'imagen': producto['imagen'],
-            'cantidad': int(cantidad)
-        })
-
-    session['carrito'] = carrito
     return redirect(url_for('catalogo'))
 
 @app.route('/carrito/eliminar/<int:id_producto>')
@@ -363,10 +427,18 @@ def eliminar_carrito(id_producto):
     if not usuario:
         return redirect(url_for('login'))
 
-    carrito = session.get('carrito', [])
-    carrito = [item for item in carrito if item['id_producto'] != id_producto]
-    session['carrito'] = carrito
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        DELETE FROM carrito_usuario
+        WHERE id_usuario=%s AND id_producto=%s
+    """, (usuario['id_usuario'], id_producto))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
     return redirect(url_for('carrito'))
+
 
 # ----------------------------
 # Recuperar contraseña
@@ -735,8 +807,8 @@ def eliminar_producto(id_producto):
 @app.route('/pedido/<int:id_pedido>/pago', methods=['GET', 'POST'])
 def registrar_pago(id_pedido):
     usuario = obtener_usuario()
-    # ✅ Ahora permitimos clientes (3) y vendedores (2)
-    if not usuario or usuario['id_rol'] not in [2, 3]:
+    # ✅ Ahora permitimos clientes (3) y vendedores (2) y administrador 😝
+    if not usuario or usuario['id_rol'] not in [1, 2, 3]:
         return redirect(url_for('login'))
 
 
@@ -786,7 +858,7 @@ def registrar_pago(id_pedido):
 def pago_exito(id_pago):
     usuario = obtener_usuario()
     # ✅ Ahora permitimos clientes (3) y vendedores (2)
-    if not usuario or usuario['id_rol'] not in [2, 3]:
+    if not usuario or usuario['id_rol'] not in [1, 2, 3]:
         return redirect(url_for('login'))
 
 
@@ -814,7 +886,7 @@ def pago_exito(id_pago):
 def mis_pagos():
     usuario = obtener_usuario()
     # ✅ Ahora permitimos tanto clientes (3) como vendedores (2)
-    if not usuario or usuario['id_rol'] not in [2, 3]:
+    if not usuario or usuario['id_rol'] not in [1, 2, 3]:
         return redirect(url_for('login'))
 
 
@@ -848,50 +920,65 @@ def crear_pedido():
     if not usuario:
         return redirect(url_for('login'))
 
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
-    carrito = session.get('carrito', [])
+    # Obtener el carrito desde la base de datos
+    cursor.execute("""
+        SELECT c.id_producto, c.cantidad, p.precio, p.stock
+        FROM carrito_usuario c
+        JOIN productos p ON c.id_producto = p.id_producto
+        WHERE c.id_usuario = %s
+    """, (usuario['id_usuario'],))
+    carrito = cursor.fetchall()
+
     if not carrito:
+        cursor.close()
+        conn.close()
         return redirect(url_for('carrito'))
 
+    # Verificar stock disponible
+    for item in carrito:
+        if item['cantidad'] > item['stock']:
+            cursor.close()
+            conn.close()
+            return f"Stock insuficiente para {item['id_producto']}", 400
 
-    # Total sin impuestos
+    # Calcular subtotal, impuesto y total
     subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
-
-
-    # Calcular impuesto (ejemplo 19%)
-    impuesto = round(subtotal * 0.19, 2)
+    impuesto = round(subtotal * 0.19, 2)  # ejemplo 19%
     total = subtotal + impuesto
 
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-
-    # Insertar pedido con total e impuesto
+    # Insertar pedido
     cursor.execute("""
         INSERT INTO pedidos (id_usuario, fecha, estado, subtotal, impuesto, total)
         VALUES (%s, NOW(), 'Pendiente', %s, %s, %s)
     """, (usuario['id_usuario'], subtotal, impuesto, total))
     id_pedido = cursor.lastrowid
 
-
-    # Insertar detalles
+    # Insertar detalles y descontar stock
     for item in carrito:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
             VALUES (%s, %s, %s, %s)
         """, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
 
+        # Descontar stock
+        cursor.execute("""
+            UPDATE productos
+            SET stock = stock - %s
+            WHERE id_producto = %s
+        """, (item['cantidad'], item['id_producto']))
+
+    # Limpiar carrito del usuario en DB
+    cursor.execute("DELETE FROM carrito_usuario WHERE id_usuario = %s", (usuario['id_usuario'],))
 
     conn.commit()
     cursor.close()
     conn.close()
 
-
-    session['carrito'] = []
-
-
     return redirect(url_for('registrar_pago', id_pedido=id_pedido))
+
 
 # ----------------------------
 # Registrar entrada de stock
@@ -1512,7 +1599,7 @@ def editar_rol_usuario(id_usuario):
 def exportar_pedidos():
     usuario = obtener_usuario()
     # Solo vendedores pueden exportar
-    if not usuario or usuario['id_rol'] != 2:
+    if not usuario or usuario['id_rol'] != [1, 2]:
         return redirect(url_for('login'))
 
 

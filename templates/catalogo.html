@@ -6,33 +6,92 @@
 
 {% block content %}
 <main class="catalogo-main">
-  <h2>Catálogo de productos</h2>
+    <h2>Catálogo de productos</h2>
 
-  <div class="catalogo-grid">
-    {% for producto in productos %}
-    <article class="producto-card">
-      <div class="producto-media">
-        <img class="producto-img" src="{{ producto.imagen_src }}" alt="Imagen de {{ producto.nombre }}">
-      </div>
+    <!-- BARRA DE BÚSQUEDA INDEPENDIENTE -->
+    <div class="busqueda-bar">
+        <input type="text" id="busqueda-rapida" placeholder="Buscar por nombre o referencia..." value="{{ busqueda }}">
+    </div>
 
-      <div class="producto-info">
-        <h3>{{ producto.nombre }}</h3>
-        <p class="descripcion">{{ producto.descripcion[:120] }}{% if producto.descripcion|length > 120 %}...{% endif %}</p>
-        <div class="meta">
-          <span class="precio">${{ '%.2f'|format(producto.precio|float) }}</span>
-          <span class="stock">Stock: {{ producto.stock }}</span>
-        </div>
+    <!-- BOTÓN FILTRAR -->
+    <button id="toggle-filtros" class="btn-primary">Filtrar</button>
 
-        <div class="producto-actions">
-          <a class="btn-ghost" href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">🔎 Ver detalle</a>
-          <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST" style="display:inline;">
-            <input type="hidden" name="cantidad" value="1">
-            <button class="btn-primary" type="submit">➕ Agregar</button>
-          </form>
-        </div>
-      </div>
-    </article>
-    {% endfor %}
-  </div>
+    <!-- FORMULARIO DE FILTROS -->
+    <form method="get" class="filtros-form" id="form-filtros" style="display:none; flex-wrap: wrap; gap:10px; margin-bottom:20px; align-items:center;">
+        <select name="tipo">
+            <option value="">Todos los tipos</option>
+            {% for tipo in tipos %}
+            <option value="{{ tipo.id_tipo }}" {% if tipo_selected == tipo.id_tipo %}selected{% endif %}>
+                {{ tipo.nombre_tipo }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="material">
+            <option value="">Todos los materiales</option>
+            {% for material in materiales %}
+            <option value="{{ material.id_material }}" {% if material_selected == material.id_material %}selected{% endif %}>
+                {{ material.nombre_material }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input type="number" step="0.01" name="precio_min" placeholder="Precio mínimo" value="{{ precio_min_selected }}">
+        <input type="number" step="0.01" name="precio_max" placeholder="Precio máximo" value="{{ precio_max_selected }}">
+
+        <button type="submit" class="btn-primary">Aplicar filtros</button>
+    </form>
+
+    <!-- GRID DE PRODUCTOS -->
+    <div class="catalogo-grid" id="productos-grid">
+        {% for producto in productos %}
+        <article class="producto-card">
+            <div class="producto-media">
+                <img class="producto-img" src="{{ producto.imagen_src }}" alt="Imagen de {{ producto.nombre }}">
+            </div>
+            <div class="producto-info">
+                <h3>{{ producto.nombre }}</h3>
+                <p class="descripcion">{{ producto.descripcion[:120] }}{% if producto.descripcion|length > 120 %}...{% endif %}</p>
+                <div class="meta">
+                    <span class="precio">${{ '%.2f'|format(producto.precio|float) }}</span>
+                    <span class="stock">Stock: {{ producto.stock }}</span>
+                </div>
+                <div class="producto-actions">
+                    <a class="btn-ghost" href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">Ver detalle</a>
+                    <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="cantidad" value="1">
+                        <button class="btn-primary" type="submit">Agregar</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+
+        {% if productos|length == 0 %}
+        <p>No se encontraron productos.</p>
+        {% endif %}
+    </div>
 </main>
+
+<script>
+    // Mostrar/ocultar formulario de filtros
+    document.getElementById('toggle-filtros').addEventListener('click', function() {
+        const form = document.getElementById('form-filtros');
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'flex' : 'none';
+    });
+
+    // Búsqueda en tiempo real
+    const inputBusqueda = document.getElementById('busqueda-rapida');
+    const productosGrid = document.getElementById('productos-grid');
+
+    inputBusqueda.addEventListener('input', function() {
+        const query = this.value;
+
+        fetch(`/catalogo/buscar?query=${encodeURIComponent(query)}`)
+            .then(response => response.text())
+            .then(html => {
+                productosGrid.innerHTML = html;
+            });
+    });
+</script>
 {% endblock %}

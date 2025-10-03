@@ -2,10 +2,12 @@
 # Configuración de la base de datos
 # ----------------------------
 DB_CONFIG = {
-    "host": "127.0.0.1",
-    "user": "root",          # cámbialo si usas otro usuario (ej: fluskuser)
-    "password": "NuevaClave",          # contraseña de MySQL (si definiste una)
-    "database": "ave_joyas"  # nombre de la base de datos
+    "host": "localhost",
+    "user": "root",          
+    "password": "",        
+    "database": "ave_joyas",
+    "charset" :'utf8mb4',
+    "use_unicode": True
 }
 
 #-----------------------------

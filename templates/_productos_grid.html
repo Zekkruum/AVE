@@ -1,0 +1,22 @@
+{% for producto in productos %}
+<article class="producto-card">
+    <div class="producto-media">
+        <img class="producto-img" src="{{ producto.imagen_src }}" alt="Imagen de {{ producto.nombre }}">
+    </div>
+    <div class="producto-info">
+        <h3>{{ producto.nombre }}</h3>
+        <p class="descripcion">{{ producto.descripcion[:120] }}{% if producto.descripcion|length > 120 %}...{% endif %}</p>
+        <div class="meta">
+            <span class="precio">${{ '%.2f'|format(producto.precio|float) }}</span>
+            <span class="stock">Stock: {{ producto.stock }}</span>
+        </div>
+        <div class="producto-actions">
+            <a class="btn-ghost" href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">Ver detalle</a>
+            <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST" style="display:inline;">
+                <input type="hidden" name="cantidad" value="1">
+                <button class="btn-primary" type="submit">Agregar</button>
+            </form>
+        </div>
+    </div>
+</article>
+{% endfor %}
