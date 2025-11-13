@@ -1,0 +1,91 @@
+/* Contenedor principal */
+main {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 25px 30px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+/* Título */
+main h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+/* Texto del producto */
+main p {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+/* Formulario */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Etiquetas */
+form label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Inputs */
+form input[type="number"],
+form input[type="text"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+form input[type="number"]:focus,
+form input[type="text"]:focus {
+    border-color: #222;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.15);
+}
+
+/* Botón */
+form button {
+    padding: 12px;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+form button:hover {
+    background: #444;
+}
+
+.btn-cancelar{
+    padding: 12px;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-cancelar:hover {
+    background: #444;
+}

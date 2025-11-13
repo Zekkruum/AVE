@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="faq-main">
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq-container">
+        {% for item in preguntas %}
+        <div class="faq-item">
+            <div class="faq-pregunta">
+                <span>{{ item.pregunta }}</span>
+                <span class="faq-toggle"></span>
+            </div>
+            <div class="faq-respuesta" style="display:none;">
+                {{ item.respuesta }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<script>
+document.querySelectorAll('.faq-item').forEach(item => {
+    const toggle = item.querySelector('.faq-toggle');
+    const respuesta = item.querySelector('.faq-respuesta');
+    toggle.addEventListener('click', () => {
+        respuesta.style.display = respuesta.style.display === 'none' ? 'block' : 'none';
+    });
+});
+</script>
+{% endblock %}

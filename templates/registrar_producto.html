@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registrar.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2> Registrar Producto</h2>
+  <form method="post" enctype="multipart/form-data">
+
+    <!-- Nombre -->
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
+
+    <!-- Descripción -->
+    <label for="descripcion">Descripción:</label>
+    <textarea id="descripcion" name="descripcion"></textarea>
+
+    <!-- Precio -->
+    <label for="precio">Precio:</label>
+    <input type="number" id="precio" step="0.01" name="precio">
+
+    <!-- Stock -->
+    <label for="stock">Stock:</label>
+    <input type="number" id="stock" name="stock">
+
+    <!-- Umbral de alerta -->
+    <label for="umbral_alerta">Umbral de alerta:</label>
+    <input type="number" id="umbral_alerta" name="umbral_alerta" value="5">
+
+    <!-- Peso -->
+    <label for="peso">Peso (g):</label>
+    <input type="number" id="peso" step="0.01" name="peso">
+
+    <!-- Alto -->
+    <label for="alto">Alto (cm):</label>
+    <input type="number" id="alto" step="0.01" name="alto">
+
+    <!-- Ancho -->
+    <label for="ancho">Ancho (cm):</label>
+    <input type="number" id="ancho" step="0.01" name="ancho">
+
+    <!-- Largo -->
+    <label for="largo">Largo (cm):</label>
+    <input type="number" id="largo" step="0.01" name="largo">
+
+    <!-- Tipo de joya -->
+<label for="id_tipo">Tipo de joya:</label>
+<select id="id_tipo" name="id_tipo" required>
+  <option value="">-- Selecciona un tipo --</option>
+  {% for tipo in tipos %}
+    <option value="{{ tipo.id_tipo }}">{{ tipo.nombre_tipo }}</option>
+  {% endfor %}
+</select>
+
+<!-- Material -->
+<label for="id_material">Material:</label>
+<select id="id_material" name="id_material" required>
+  <option value="">-- Selecciona un material --</option>
+  {% for material in materiales %}
+    <option value="{{ material.id_material }}">{{ material.nombre_material }}</option>
+  {% endfor %}
+</select>
+
+
+ <label for="talla" class="form-label fw-bold">Talla / Longitud</label>
+    <input type="text" class="form-control" id="talla" name="talla"
+           placeholder="Ej: 10 (anillo), 45 cm (collar), 18 cm (brazalete)">
+
+    <!-- Colores -->
+    <!-- Seleccionar color -->
+<div class="form-group">
+  <label for="id_color">Color del producto</label>
+  <select name="id_color" id="id_color" >
+    <option value="">-- Selecciona un color --</option>
+    {% for color in colores %}
+      <option value="{{ color.id_color }}">{{ color.nombre }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+
+    <!-- Piedras -->
+    <!-- Seleccionar piedra -->
+<div class="form-group">
+  <label for="id_piedra">Tipo de piedra</label>
+  <select name="id_piedra" id="id_piedra" >
+    <option value="">-- Selecciona una piedra --</option>
+    {% for piedra in piedras %}
+      <option value="{{ piedra.id_piedra }}">{{ piedra.nombre }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+
+    <!-- Imágenes -->
+    <label for="imagenes">Imágenes:</label>
+    <input type="file" id="imagenes" name="imagenes" multiple onchange="previewImages()">
+
+    <!-- Preview de imágenes -->
+    <div id="preview" class="image-preview"></div>
+
+    <!-- Botón -->
+    <button type="submit" class="btn-submit"> Guardar</button>
+  </form>
+</div>
+
+<!-- JS para preview -->
+<script>
+  function previewImages() {
+    const preview = document.getElementById("preview");
+    preview.innerHTML = "";
+    const files = document.getElementById("imagenes").files;
+
+    if (files) {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("preview-img");
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+</script>
+{% endblock %}

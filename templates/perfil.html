@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+
+<div class="perfil-container">
+  <!-- LADO IZQUIERDO -->
+  <div class="perfil-left">
+    <img 
+      src="{% if usuario.foto_perfil %}{{ url_for('static', filename='uploads/perfiles/' + usuario.foto_perfil) }}{% else %}{{ url_for('static', filename='img/default_user.png') }}{% endif %}"
+      alt="Foto de perfil">
+    <h4>{{ usuario.nombre_completo }}</h4>
+    <p>{{ usuario.correo }}</p>
+    <a href="{{ url_for('editar_perfil') }}" class="btn btn-outline-light mt-3 px-4">
+      <i class="bi bi-pencil-square"></i> Editar perfil
+    </a>
+  </div>
+
+  <!-- LADO DERECHO -->
+  <div class="perfil-right">
+    <h4>Información Personal</h4>
+
+    <div class="info-group">
+      <div class="info-item">
+        <label><i class="bi bi-telephone-fill text-gold me-2"></i>Teléfono:</label>
+        <div>{{ usuario.telefono_contacto or 'No registrado' }}</div>
+      </div>
+      <div class="info-item">
+        <label><i class="bi bi-geo-alt-fill text-gold me-2"></i>Dirección:</label>
+        <div>{{ usuario.direccion or 'No registrada' }}</div>
+      </div>
+      <div class="info-item">
+        <label><i class="bi bi-calendar-event text-gold me-2"></i>Fecha de nacimiento:</label>
+        <div>{{ usuario.fecha_nacimiento or 'No registrada' }}</div>
+      </div>
+      <div class="info-item">
+        <label><i class="bi bi-clock-history text-gold me-2"></i>Última modificación:</label>
+        <div>{{ usuario.fecha_modificacion or 'Sin cambios' }}</div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5 mb-4">
+      <button id="btn-toggle-password" class="btn btn-dark px-4 mt-3">
+        <i class="bi bi-shield-lock"></i> Cambiar contraseña
+      </button>
+    </div>
+
+    <!-- FORMULARIO OCULTO DE CONTRASEÑA -->
+    <div id="password-section" class="mt-4" style="display:none;">
+      <form action="{{ url_for('cambiar_contrasena') }}" method="POST" class="password-form">
+        <div class="mb-3">
+          <label>Contraseña actual</label>
+          <input type="password" name="contrasena_actual" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label>Nueva contraseña</label>
+          <input type="password" name="nueva_contrasena" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label>Repetir nueva contraseña</label>
+          <input type="password" name="repetir_contrasena" class="form-control" required>
+        </div>
+        <div class="text-center mt-4 mb-3">
+          <button type="submit" class="btn btn-dark px-4">Guardar</button>
+          <button type="button" id="btn-cancel-password" class="btn btn-outline-dark px-4">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('btn-toggle-password').addEventListener('click', function() {
+  const section = document.getElementById('password-section');
+  section.style.display = section.style.display === 'none' ? 'block' : 'none';
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+});
+
+document.getElementById('btn-cancel-password').addEventListener('click', function() {
+  document.getElementById('password-section').style.display = 'none';
+});
+</script>
+{% endblock %}

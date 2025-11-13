@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperar contraseña</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+    <div class="auth-body">
+        <div class="auth-container">
+            <h2>Recuperar Contraseña</h2>
+            <form method="POST">
+                <label for="correo">Correo electrónico:</label>
+                <input type="email" name="correo" id="correo" required>
+
+                {% if error %}
+                    <p class="error">{{ error }}</p>
+                {% endif %}
+
+                <button type="submit">Enviar código</button>
+            </form>
+            <div class="auth-link">
+                <a href="{{ url_for('login') }}">Volver al login</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

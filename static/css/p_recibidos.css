@@ -1,0 +1,83 @@
+.container {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.75); /* blanco con opacidad */
+    backdrop-filter: blur(12px); /* efecto difuminado */
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: rgba(255, 255, 255, 0.6); /* tabla con transparencia */
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th, td {
+    border: 1px solid rgba(200, 200, 200, 0.4);
+    padding: 12px;
+    text-align: center;
+    color: #222;
+}
+
+th {
+    background: rgba(34, 34, 34, 0.85); /* negro semitransparente */
+    color: white;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+tr:nth-child(odd) {
+    background: rgba(240, 240, 240, 0.5);
+}
+
+/* Botones */
+button {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 4px;
+    font-weight: 600;
+    transition: 0.2s ease-in-out;
+}
+
+button[value="Aceptado"] {
+    background: #28a745;
+    color: white;
+}
+
+button[value="Aceptado"]:hover {
+    background: #218838;
+}
+
+button[value="Rechazado"] {
+    background: #dc3545;
+    color: white;
+}
+
+button[value="Rechazado"]:hover {
+    background: #c82333;
+}
+
+/* Textarea para rechazo */
+textarea {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    resize: vertical;
+    background: rgba(255, 255, 255, 0.8);
+}
