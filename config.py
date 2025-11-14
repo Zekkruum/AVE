@@ -4,7 +4,7 @@
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",          
-    "password": "NuevaClave",        
+    "password": "",        
     "database": "ave_joyas",
     "charset" :'utf8mb4',
     "use_unicode": True
