@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-11-2025 a las 01:24:04
+-- Tiempo de generación: 14-11-2025 a las 05:11:07
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -332,9 +332,7 @@ CREATE TABLE `carrito_usuario` (
 --
 
 INSERT INTO `carrito_usuario` (`id_carrito`, `id_usuario`, `id_producto`, `cantidad`, `fecha`) VALUES
-(20, 15, 4, 3, '2025-11-12 19:31:41'),
-(21, 15, 5, 1, '2025-11-12 19:31:43'),
-(23, 16, 26, 1, '2025-11-13 15:09:41');
+(27, 28, 61, 1, '2025-11-14 03:58:11');
 
 -- --------------------------------------------------------
 
@@ -443,61 +441,6 @@ CREATE TABLE `detalle_pedido` (
   `precio_unitario` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `detalle_pedido`
---
-
-INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `id_talla`, `cantidad`, `precio_unitario`) VALUES
-(1, 1, 1, 2, 1, 350000.00),
-(2, 2, 2, 2, 1, 120000.00),
-(3, 3, 3, 4, 1, 95000.00),
-(4, 4, 4, 3, 2, 235000.00),
-(5, 5, 5, 5, 1, 80000.00),
-(6, 6, 3, NULL, 2, 95000.00),
-(7, 7, 3, NULL, 1, 95000.00),
-(8, 8, 3, NULL, 1, 95000.00),
-(9, 9, 2, NULL, 1, 120000.00),
-(10, 9, 3, NULL, 1, 95000.00),
-(11, 10, 2, NULL, 1, 120000.00),
-(12, 10, 3, NULL, 1, 95000.00),
-(13, 11, 2, NULL, 1, 120000.00),
-(14, 12, 6, NULL, 1, 98000.00),
-(15, 13, 6, NULL, 1, 98000.00),
-(16, 14, 6, NULL, 1, 98000.00),
-(17, 15, 6, NULL, 1, 98000.00),
-(18, 16, 4, NULL, 1, 470000.00),
-(19, 17, 5, NULL, 1, 80000.00),
-(20, 18, 2, NULL, 1, 120000.00),
-(21, 19, 4, NULL, 1, 470000.00),
-(22, 20, 3, NULL, 1, 95000.00),
-(23, 21, 10, NULL, 1, 90000.00),
-(24, 22, 3, NULL, 1, 95000.00),
-(25, 23, 2, NULL, 1, 120000.00),
-(26, 23, 7, NULL, 5, 120000.00),
-(27, 24, 6, NULL, 1, 98000.00),
-(28, 25, 6, NULL, 1, 98000.00),
-(29, 26, 2, NULL, 1, 120000.00),
-(30, 27, 2, NULL, 1, 120000.00),
-(31, 27, 10, NULL, 1, 90000.00),
-(32, 28, 3, NULL, 1, 95000.00),
-(33, 28, 4, NULL, 1, 470000.00),
-(34, 28, 7, NULL, 1, 120000.00),
-(35, 29, 4, NULL, 1, 470000.00),
-(36, 30, 4, NULL, 1, 470000.00),
-(37, 31, 4, NULL, 1, 470000.00),
-(38, 32, 4, NULL, 1, 470000.00),
-(39, 33, 4, NULL, 1, 470000.00),
-(40, 34, 4, NULL, 1, 470000.00),
-(41, 35, 7, NULL, 1, 120000.00),
-(42, 36, 4, NULL, 3, 470000.00),
-(43, 36, 5, NULL, 1, 80000.00),
-(44, 36, 3, NULL, 1, 95000.00),
-(45, 37, 5, NULL, 1, 80000.00),
-(46, 38, 7, NULL, 1, 120000.00),
-(47, 39, 1, NULL, 1, 350000.00),
-(48, 40, 5, NULL, 1, 80000.00),
-(49, 41, 5, NULL, 1, 80000.00);
-
 -- --------------------------------------------------------
 
 --
@@ -511,7 +454,8 @@ CREATE TABLE `devoluciones` (
   `cantidad` int(11) NOT NULL,
   `motivo` text DEFAULT NULL,
   `fecha` timestamp NULL DEFAULT current_timestamp(),
-  `estado` varchar(50) DEFAULT 'Pendiente'
+  `estado` varchar(50) DEFAULT 'Pendiente',
+  `estado_fisico` varchar(20) NOT NULL DEFAULT 'bueno'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -553,11 +497,7 @@ CREATE TABLE `imagenes` (
 --
 
 INSERT INTO `imagenes` (`id_imagen`, `id_producto`, `url`) VALUES
-(2, 2, 'https://nomadajoyas.com/wp-content/uploads/2022/07/collar-corazon-plata.jpg'),
-(3, 3, 'https://finagarcia.com/cdn/shop/files/ACPU00593.jpg?v=1729505395'),
-(4, 4, 'https://cdn-media.glamira.com/media/product/newgeneration/view/1/sku/G100735/diamond/ruby_AA/alloycolour/white.jpg'),
-(5, 5, 'https://taller-cruz.es/wp-content/uploads/broche-hoja-grande-1.jpg'),
-(6, 1, 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcQXtt5brPXaB6awQSeRp2WLWcpFKznoQ2p3slXxHdIvkbGeuwu5Xe9qmN5DxidjbRb6eM-hQ5XDjEVrnW0l52QlsoIUasnhUITT-Wu6GzJvKKyJ-0Y');
+(7, 72, 'uploads/eff2c23522fb46b88f218dbae9a23265_7a56dffb03c74ffe92a4a85f2ec16e83_sg-11134201-7qvg4-liijuezgbfnx54.jpg');
 
 -- --------------------------------------------------------
 
@@ -609,18 +549,6 @@ CREATE TABLE `movimientos_inventario` (
   `id_usuario` int(11) NOT NULL,
   `fecha` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `movimientos_inventario`
---
-
-INSERT INTO `movimientos_inventario` (`id_movimiento`, `id_producto`, `tipo`, `cantidad`, `motivo`, `id_usuario`, `fecha`) VALUES
-(1, 6, 'salida', 20, 'Vencido', 24, '2025-10-01 20:14:43'),
-(2, 6, 'entrada', 7, 'Fueron un regalo de la empresa por ser compradores frecuentes', 2, '2025-10-01 20:22:30'),
-(3, 6, 'entrada', 7, 'Fueron un regalo de la empresa por ser compradores frecuentes', 2, '2025-10-01 20:22:47'),
-(4, 6, 'salida', 10, 'Venta en tienda', 24, '2025-10-01 20:23:56'),
-(5, 6, 'entrada', 3, 'Se hizo un mal conteo al momento de hacer inventario ', 2, '2025-10-01 20:24:55'),
-(6, 6, 'entrada', 5, 'Se compraron 5 más', 24, '2025-10-01 20:38:05');
 
 -- --------------------------------------------------------
 
@@ -719,55 +647,59 @@ CREATE TABLE `pedidos` (
   `id_usuario` int(11) DEFAULT NULL,
   `subtotal` decimal(10,2) NOT NULL DEFAULT 0.00,
   `impuesto` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `codigo_seguimiento` varchar(50) DEFAULT NULL
+  `codigo_seguimiento` varchar(50) DEFAULT NULL,
+  `nombre_cliente` varchar(120) NOT NULL,
+  `direccion_entrega` varchar(255) NOT NULL,
+  `telefono_cliente` varchar(30) NOT NULL,
+  `correo_cliente` varchar(120) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`) VALUES
-(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL),
-(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL),
-(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL),
-(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL),
-(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL),
-(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL),
-(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL),
-(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL),
-(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL),
-(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL),
-(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL),
-(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL),
-(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL),
-(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL),
-(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL),
-(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL),
-(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL),
-(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL),
-(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL),
-(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL),
-(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL),
-(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL),
-(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL),
-(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL),
-(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL),
-(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL),
-(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL),
-(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL),
-(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL),
-(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL),
-(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL);
+INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`, `nombre_cliente`, `direccion_entrega`, `telefono_cliente`, `correo_cliente`) VALUES
+(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
+(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
+(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
+(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
+(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
+(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', ''),
+(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', ''),
+(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
+(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
+(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
+(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
+(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
+(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', ''),
+(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', ''),
+(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL, '', '', '', ''),
+(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL, '', '', '', ''),
+(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL, '', '', '', ''),
+(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
+(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
+(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
+(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
+(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
+(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL, '', '', '', ''),
+(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', ''),
+(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL, '', '', '', ''),
+(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', ''),
+(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', ''),
+(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', ''),
+(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', ''),
+(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -864,7 +796,6 @@ CREATE TABLE `productos` (
   `imagen` varchar(255) DEFAULT NULL,
   `categoria` varchar(100) DEFAULT NULL,
   `destacado` tinyint(1) DEFAULT 0,
-  `talla` varchar(50) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -872,16 +803,18 @@ CREATE TABLE `productos` (
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `alto`, `ancho`, `largo`, `dimensiones`, `referencia`, `stock`, `umbral_alerta`, `id_tipo`, `id_material`, `id_color`, `id_piedra`, `id_usuario`, `imagen`, `categoria`, `destacado`, `talla`, `activo`) VALUES
-(1, 'Anillo Clásico Oro', 'Anillo elegante de oro 18k', 350000.00, 0.05, 0.00, 0.00, 0.00, '2x2x2cm', 'AOR001', 9, 5, 1, 1, NULL, NULL, 1, NULL, NULL, 0, NULL, 1),
-(2, 'Collar Corazón Plata', 'Collar con dije en forma de corazón', 120000.00, 0.1, 0.00, 0.00, 0.00, '5x5x1cm', 'CPL002', 3, 5, 2, 2, NULL, NULL, 1, NULL, NULL, 0, NULL, 1),
-(3, 'Pulsera Acero Fina', 'Pulsera unisex en acero inoxidable', 95000.00, 0.08, 0.00, 0.00, 0.00, '4x4x2cm', 'PAC003', 17, 5, 3, 3, NULL, NULL, 1, NULL, NULL, 0, NULL, 1),
-(4, 'Aretes Rubí', 'Aretes con incrustaciones de rubí', 470000.00, 0.03, 0.00, 0.00, 0.00, '2x2x1cm', 'ARU004', 0, 5, 4, 4, NULL, NULL, 1, NULL, NULL, 0, NULL, 1),
-(5, 'Broche Hoja', 'Broche de hoja con material ecológico', 80000.00, 0.02, 0.00, 0.00, 0.00, '3x3x1cm', 'BHO005', 7, 5, 5, 5, NULL, NULL, 1, NULL, NULL, 0, NULL, 1),
-(6, 'Cadenita', 'SHAW', 98000.00, NULL, 0.00, 0.00, 0.00, NULL, NULL, 32, 5, NULL, NULL, NULL, NULL, 24, NULL, NULL, 0, NULL, 1),
-(7, 'Cadena ', 'Cadena nordica asi bien aqui asi bien chavalona', 120000.00, NULL, 0.00, 0.00, 0.00, NULL, NULL, 5, 5, NULL, NULL, NULL, NULL, 24, '71kXKyBRLlL._UF8941000_QL80_.jpg', NULL, 0, NULL, 1),
-(10, 'Cadena ', 'Una cadena de la SHAW', 90000.00, NULL, 0.00, 0.00, 0.00, NULL, NULL, 20, 5, NULL, NULL, NULL, NULL, 24, 'Hornet_Idle.jpg', 'Cadenas', 0, NULL, 1),
-(26, 'Collar de hollow knight', 'Amuleto de bocasucia', 59990.00, 5, 3.00, 1.00, 1.00, NULL, NULL, 59, 5, 2, 5, 5, 15, 15, 'uploads/7a56dffb03c74ffe92a4a85f2ec16e83_sg-11134201-7qvg4-liijuezgbfnx54.jpg', NULL, 0, '50cm', 1);
+INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `alto`, `ancho`, `largo`, `dimensiones`, `referencia`, `stock`, `umbral_alerta`, `id_tipo`, `id_material`, `id_color`, `id_piedra`, `id_usuario`, `imagen`, `categoria`, `destacado`, `activo`) VALUES
+(58, 'Anillo Solitario \"Aurora\"', 'Anillo de oro amarillo con diamante central talla brillante, sofisticado.', 5500000.00, 5, 0.50, 2.00, 2.00, NULL, NULL, NULL, 5, 1, 1, 1, 1, 28, 'uploads/anillo_aurora.jpg', NULL, 0, 1),
+(59, 'Collar \"Verde Imperial\"', 'Collar de plata con colgante de esmeralda en corte ovalado, elegante.', 3900000.00, 20, 0.50, 1.00, 45.00, NULL, NULL, NULL, 5, 2, 2, 2, 3, 28, 'uploads/collar_verde_imperial.jpg', NULL, 0, 1),
+(60, 'Pulsera \"Cielo Azul\"', 'Pulsera de acero inoxidable con topacios azules engarzados finamente.', 1850000.00, 15, 0.50, 0.50, 18.00, NULL, NULL, NULL, 5, 3, 3, 3, 6, 28, 'uploads/pulsera_cielo_azul.jpg', NULL, 0, 1),
+(61, 'Aretes \"Rubí Encanto\"', 'Aretes de oro con rubíes rojos en forma de gota, clásico y refinado.', 2750000.00, 4, 0.50, 0.50, 1.00, NULL, NULL, NULL, 5, 4, 1, 4, 4, 28, 'uploads/aretes_rubi_encanto.jpg', NULL, 0, 1),
+(62, 'Broche \"Perla Majestuosa\"', 'Broche de plata con perla natural central, ideal para ocasiones especiales.', 1370000.00, 10, 0.50, 3.00, 4.00, NULL, NULL, NULL, 5, 5, 2, 5, 10, 28, 'uploads/broche_perla_majestuosa.jpg', NULL, 0, 1),
+(63, 'Pendientes \"Ágata Serenidad\"', 'Pendientes largos de acero con ágata verde, estilo bohemio elegante.', 1000000.00, 6, 1.00, 1.00, 7.00, NULL, NULL, NULL, 5, 6, 3, 6, 12, 28, 'uploads/pendientes_agata_serenidad.jpg', NULL, 0, 1),
+(64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, NULL, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1),
+(65, 'Dije \"Citrino Radiante\"', 'Dije de oro con citrino tallado en forma de corazón, elegante y refinado.', 1600000.00, 3, 0.50, 1.50, 2.00, NULL, NULL, NULL, 5, 8, 1, 8, 14, 28, 'uploads/dije_citrino_radiante.jpg', NULL, 0, 1),
+(66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, NULL, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1),
+(67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, NULL, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1),
+(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, NULL, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -928,20 +861,6 @@ CREATE TABLE `producto_promocion` (
   `id_promocion` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `producto_promocion`
---
-
-INSERT INTO `producto_promocion` (`id_producto`, `id_promocion`) VALUES
-(1, 1),
-(1, 2),
-(2, 1),
-(2, 4),
-(3, 2),
-(3, 5),
-(4, 3),
-(5, 3);
-
 -- --------------------------------------------------------
 
 --
@@ -952,19 +871,6 @@ CREATE TABLE `producto_talla` (
   `id_producto` int(11) NOT NULL,
   `id_talla` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `producto_talla`
---
-
-INSERT INTO `producto_talla` (`id_producto`, `id_talla`) VALUES
-(1, 2),
-(1, 3),
-(2, 2),
-(3, 4),
-(4, 1),
-(4, 3),
-(5, 5);
 
 -- --------------------------------------------------------
 
@@ -1074,6 +980,44 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`) VALUES
 (3, 'Cliente'),
 (4, 'Soporte'),
 (5, 'Invitado');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `stock_tallas`
+--
+
+CREATE TABLE `stock_tallas` (
+  `id_stock` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `talla` varchar(50) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `stock_tallas`
+--
+
+INSERT INTO `stock_tallas` (`id_stock`, `id_producto`, `talla`, `stock`) VALUES
+(10, 58, '8', 5),
+(11, 58, '9', 3),
+(12, 58, '10', 2),
+(13, 59, '45 cm', 4),
+(14, 59, '50 cm', 2),
+(15, 60, '18 cm', 6),
+(16, 60, '20 cm', 3),
+(17, 61, 'Única', 10),
+(18, 62, 'Única', 7),
+(19, 63, '7', 4),
+(20, 63, '8', 5),
+(21, 63, '9', 3),
+(22, 64, '40 cm', 3),
+(23, 64, '45 cm', 2),
+(24, 65, '17 cm', 6),
+(25, 65, '19 cm', 4),
+(26, 66, 'Única', 8),
+(27, 67, 'Única', 5),
+(32, 72, '45cm', 20);
 
 -- --------------------------------------------------------
 
@@ -1211,6 +1155,21 @@ INSERT INTO `usuarios` (`id_usuario`, `nombre_completo`, `correo`, `telefono_con
 (25, 'Juan Bonilla', 'juancgb.drive@gmail.com', '+57984208924', 'scrypt:32768:8:1$UGkjjjVuIq1JfxFa$2b7572d5a3ab4cf801b3b27a63b70063b0eaab97c1398040451113f0423da161795894ca8608e6650c102bf82d25e74e80dce47c4cc87e8d663061bb32a74a34', 'Mi casita ', NULL, 1, 3, NULL, NULL),
 (28, 'José Muñoz', 'jose@test.com', '+573005006005', 'scrypt:32768:8:1$qKYD6cYrfcVfDI1n$466d8feca983bda4ba580d8c22919c18c270f82592b83a18b6ada3a508093a8183bff5a841b9351bc5893d288cf834f44e323ed816fe1ac011c2258a69e22461', 'Calle 1 #81 - 29', 'anime-koe-no-katachi-shouya-ishida-hd-wallpaper-thumb_20251113031914714479.jpg', 1, 2, '2008-08-21', '2025-11-13 03:29:16'),
 (29, 'Alan David Perez Guerra', 'alandavidperezguerra@gmail.com', '+57 3209551825', 'scrypt:32768:8:1$jzelyapmyAZmPSK0$82e7f1cf08cd081745dc547766b130e71f1dc5321ce9c388b29c183a8c2ae4bdb73ab439652a4726c052c42007e60cddaa60a2a9605f47c45f80fbd023ad4d82', 'calle 65bis#89-30', NULL, 1, 3, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `valoraciones`
+--
+
+CREATE TABLE `valoraciones` (
+  `id_valoracion` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `estrellas` int(11) NOT NULL CHECK (`estrellas` between 1 and 5),
+  `comentario` text NOT NULL,
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1659,6 +1618,13 @@ ALTER TABLE `roles`
   ADD PRIMARY KEY (`id_rol`);
 
 --
+-- Indices de la tabla `stock_tallas`
+--
+ALTER TABLE `stock_tallas`
+  ADD PRIMARY KEY (`id_stock`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
 -- Indices de la tabla `tallas`
 --
 ALTER TABLE `tallas`
@@ -1685,6 +1651,14 @@ ALTER TABLE `usuarios`
   ADD KEY `id_rol` (`id_rol`);
 
 --
+-- Indices de la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD PRIMARY KEY (`id_valoracion`),
+  ADD UNIQUE KEY `id_usuario` (`id_usuario`,`id_producto`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
@@ -1698,7 +1672,7 @@ ALTER TABLE `bitacora`
 -- AUTO_INCREMENT de la tabla `carrito_usuario`
 --
 ALTER TABLE `carrito_usuario`
-  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1746,7 +1720,7 @@ ALTER TABLE `faq`
 -- AUTO_INCREMENT de la tabla `imagenes`
 --
 ALTER TABLE `imagenes`
-  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencias_entrega`
@@ -1800,7 +1774,7 @@ ALTER TABLE `piedras`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_relacionados`
@@ -1827,6 +1801,12 @@ ALTER TABLE `roles`
   MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `stock_tallas`
+--
+ALTER TABLE `stock_tallas`
+  MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+
+--
 -- AUTO_INCREMENT de la tabla `tallas`
 --
 ALTER TABLE `tallas`
@@ -1849,6 +1829,12 @@ ALTER TABLE `tokens_recuperacion`
 --
 ALTER TABLE `usuarios`
   MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
+-- AUTO_INCREMENT de la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  MODIFY `id_valoracion` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
@@ -1985,6 +1971,12 @@ ALTER TABLE `producto_talla`
   ADD CONSTRAINT `producto_talla_ibfk_2` FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`);
 
 --
+-- Filtros para la tabla `stock_tallas`
+--
+ALTER TABLE `stock_tallas`
+  ADD CONSTRAINT `stock_tallas_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `tokens_recuperacion`
 --
 ALTER TABLE `tokens_recuperacion`
@@ -1995,6 +1987,13 @@ ALTER TABLE `tokens_recuperacion`
 --
 ALTER TABLE `usuarios`
   ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`);
+
+--
+-- Filtros para la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD CONSTRAINT `valoraciones_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+  ADD CONSTRAINT `valoraciones_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
