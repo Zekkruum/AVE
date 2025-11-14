@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Promociones Activas 🎉</h2>
+{% for p in promos %}
+<div class="card">
+    <h3>{{ p.nombre }}</h3>
+    <p>{{ p.descripcion }}</p>
+    <p><b>Descuento:</b> {{ p.porcentaje_descuento * 100 }}%</p>
+    <p><b>Válido:</b> {{ p.fecha_inicio }} → {{ p.fecha_fin }}</p>
+</div>
+{% else %}
+<p>No hay promociones activas en este momento.</p>
+{% endfor %}
+{% endblock %}

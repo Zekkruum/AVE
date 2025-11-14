@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Crear Promoción</h2>
+
+<form method="POST">
+  <label>Nombre</label>
+  <input type="text" name="nombre" required>
+
+  <label>Descripción</label>
+  <textarea name="descripcion"></textarea>
+
+  <label>% Descuento</label>
+  <input type="number" name="descuento" step="0.1" required>
+
+  <label>Fecha Inicio</label>
+  <input type="date" name="fecha_inicio" required>
+
+  <label>Fecha Fin</label>
+  <input type="date" name="fecha_fin" required>
+
+  <button type="submit">Guardar</button>
+</form>
+{% endblock %}

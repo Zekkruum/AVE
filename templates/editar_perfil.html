@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+
+<div class="editar-container">
+  <!-- FOTO -->
+  <div class="editar-foto">
+    <img 
+      src="{% if usuario.foto_perfil %}{{ url_for('static', filename='uploads/perfiles/' + usuario.foto_perfil) }}{% else %}{{ url_for('static', filename='img/default_user.png') }}{% endif %}"
+      alt="Foto de perfil">
+    <h4>{{ usuario.nombre_completo }}</h4>
+    <p>{{ usuario.correo }}</p>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="editar-form">
+    <h3>Editar Perfil</h3>
+
+    <form action="{{ url_for('editar_perfil') }}" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="nombre_completo">Nombre completo</label>
+        <input type="text" id="nombre_completo" name="nombre_completo"
+               value="{{ usuario.nombre_completo }}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="telefono_contacto">Teléfono de contacto</label>
+        <input type="text" id="telefono_contacto" name="telefono_contacto"
+               value="{{ usuario.telefono_contacto or '' }}">
+      </div>
+
+      <div class="mb-3">
+        <label for="direccion">Dirección</label>
+        <input type="text" id="direccion" name="direccion"
+               value="{{ usuario.direccion or '' }}">
+      </div>
+
+      <div class="mb-3">
+        <label for="fecha_nacimiento">Fecha de nacimiento</label>
+        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento"
+               value="{{ usuario.fecha_nacimiento or '' }}">
+      </div>
+
+      <div class="mb-4">
+        <label for="foto_perfil">Foto de perfil</label>
+        <input type="file" id="foto_perfil" name="foto_perfil"
+               class="form-control" accept="image/*">
+      </div>
+
+      <div class="text-center mt-5 mb-2">
+        <button type="submit" class="btn btn-dark px-4 me-2">
+          <i class="bi bi-save"></i> Guardar cambios
+        </button>
+        <a href="{{ url_for('perfil') }}" class="btn btn-outline-dark px-4">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
