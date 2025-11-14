@@ -544,7 +544,7 @@ def carrito():
         WHERE c.id_usuario = %s
     """, (usuario['id_usuario'],))
     carrito = cursor.fetchall()
-    cursor.close()
+    cursor.close() 
     conn.close()
 
     # 🔥 Normalizar imagen igual que catálogo
