@@ -75,9 +75,7 @@
                     </div>
                     {% endif %}
                     {% else %}
-                    <span class="precio">
-                        ${{ '%.2f'|format(producto.precio|float) }}
-                    </span>
+                    <p class="precio" style="font-size: 18px;">$ {{ '{:,.0f}'.format(producto.precio|float) }} <span style="font-weight: normal; font-size: 13px;">COP</span></p>
                     {% endif %}
 
                     <span class="stock">Stock: {{ producto.stock }}</span>
