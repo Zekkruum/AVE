@@ -485,13 +485,30 @@ def producto_detalle(id_producto):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Traer datos del producto
+    # ---- Traer datos del producto + relaciones ----
     cursor.execute("""
-        SELECT p.id_producto, p.nombre, p.descripcion, p.precio,
-               p.peso, p.largo, p.ancho, p.alto,
-               p.imagen AS imagen_local,
-               GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
+        SELECT 
+            p.id_producto,
+            p.nombre,
+            p.descripcion,
+            p.precio,
+            p.referencia,
+            p.peso,
+            p.largo,
+            p.ancho,
+            p.alto,
+            p.stock,
+            t.nombre_tipo AS tipo_joya,
+            m.nombre_material AS material,
+            c.nombre AS color,
+            pi.nombre AS piedra,
+            p.imagen AS imagen_local,
+            GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
         FROM productos p
+        LEFT JOIN tipos_joya t ON p.id_tipo = t.id_tipo
+        LEFT JOIN materiales m ON p.id_material = m.id_material
+        LEFT JOIN colores c ON p.id_color = c.id_color
+        LEFT JOIN piedras pi ON p.id_piedra = pi.id_piedra
         LEFT JOIN imagenes i ON p.id_producto = i.id_producto
         WHERE p.id_producto = %s
         GROUP BY p.id_producto
@@ -503,7 +520,7 @@ def producto_detalle(id_producto):
         conn.close()
         return redirect(url_for('catalogo'))
 
-    # ---- Imagenes normalizadas ----
+    # ---- Normalizar imágenes ----
     def normalize(src):
         if not src:
             return None
@@ -533,14 +550,24 @@ def producto_detalle(id_producto):
     else:
         producto["dimensiones"] = "N/A"
 
-    # ---- STOCK POR TALLA ----
+   # ---- STOCK POR TALLA ----
     cursor.execute("""
-        SELECT talla, stock
-        FROM stock_tallas
-        WHERE id_producto = %s
-        ORDER BY talla ASC
-    """, (id_producto,))
+    SELECT talla, stock
+    FROM stock_tallas
+    WHERE id_producto = %s
+    ORDER BY talla ASC
+""", (id_producto,))
     producto["tallas"] = cursor.fetchall()
+
+# ---- STOCK TOTAL SUMANDO LAS TALLAS ----
+    cursor.execute("""
+    SELECT COALESCE(SUM(stock), 0) AS total_stock
+    FROM stock_tallas
+    WHERE id_producto = %s
+""", (id_producto,))
+    result = cursor.fetchone()
+    producto['stock'] = result['total_stock']
+
 
     cursor.close()
     conn.close()
