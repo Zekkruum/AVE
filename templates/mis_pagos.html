@@ -36,7 +36,7 @@
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
             <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
-            
+
 
             {% if session.get('rol') == 3 %}
             <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
@@ -53,8 +53,8 @@
             <!-- {% if session.get('rol') in [1, 2] %}
             <li><a href="{{ url_for('listar_usuarios') }}">Usuarios</a></li>
             {% endif %} --> <!-- funcionalidad del rol administrador -->
-            
-            
+
+
         </ul>
     </nav>
 
@@ -76,6 +76,7 @@
                         <th>Método</th>
                         <th>Estado</th>
                         <th>Fecha</th>
+                        <th>Factura</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,6 +88,13 @@
                         <td>{{ pago.metodo_pago }}</td>
                         <td>{{ pago.estado }}</td>
                         <td>{{ pago.fecha }}</td>
+
+                        <td>
+                            <a class="btn btn-sm btn-primary"
+                                href="{{ url_for('ver_factura', id_pedido=pago.id_pedido) }}">
+                                Ver Factura
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

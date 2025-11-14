@@ -1,32 +1,110 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Estadísticas de Ventas</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estadisticas.css') }}">
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estadisticas_dashboard.css') }}">
 
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <div class="header-left">
-            <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE" class="logo">
+<main class="dashboard-container">
+    
+    <!-- TÍTULO -->
+    <h1 class="dashboard-title">Panel de Estadísticas – AVE Joyas</h1>
+    <p class="subtitle">Analiza las ventas por periodo, productos destacados y comportamiento del negocio.</p>
+
+    <!-- FILTROS -->
+    <form class="filtros-form" method="GET" action="{{ url_for('estadisticas') }}">
+        <label>Rango de Fechas:</label>
+        <input type="date" name="inicio" value="{{ fecha_inicio }}">
+        <input type="date" name="fin" value="{{ fecha_fin }}">
+
+        <label>Agrupar por:</label>
+        <select name="modo">
+            <option value="dia" {% if modo=='dia' %}selected{% endif %}>Día</option>
+            <option value="semana" {% if modo=='semana' %}selected{% endif %}>Semana</option>
+            <option value="mes" {% if modo=='mes' %}selected{% endif %}>Mes</option>
+        </select>
+
+        <button type="submit" class="btn-filtrar">Aplicar Filtro</button>
+    </form>
+
+    <!-- TARJETAS RESUMEN -->
+    <section class="resumen-cards">
+        <div class="card">
+            <h3>Total Vendido</h3>
+            <p class="valor">${{ '%.2f'|format(total_vendido|float) }}</p>
         </div>
-        <div class="header-right">
-            <a href="{{ url_for('vendedor_panel') }}" class="btn-ghost">⬅ Volver al Panel</a>
-            <a href="{{ url_for('logout') }}" class="btn-danger">Cerrar sesión</a>
+
+        <div class="card">
+            <h3>Pedidos Realizados</h3>
+            <p class="valor">{{ total_pedidos }}</p>
         </div>
-    </header>
 
-    <!-- Contenido principal -->
-    <main class="container">
-        <p class="subtitle">Aquí podrás ver gráficas y reportes de tus ventas.</p>
-        <!-- Aquí irán las gráficas -->
-    </main>
+        <div class="card">
+            <h3>Productos Vendidos</h3>
+            <p class="valor">{{ total_items_vendidos }}</p>
+        </div>
+    </section>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 AVE Joyas - Todos los derechos reservados</p>
-    </footer>
-</body>
-</html>
+    <!-- GRÁFICO 1 -->
+    <section class="grafico-box">
+        <h2>Ingresos por {{ modo|capitalize }}</h2>
+        <canvas id="graficoIngresos"></canvas>
+    </section>
+
+    <!-- GRÁFICO 2 -->
+    <section class="grafico-box">
+        <h2>Top 5 Productos Más Vendidos</h2>
+        <canvas id="graficoProductos"></canvas>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // ==========================
+    // Gráfico 1: Ingresos por periodo
+    // ==========================
+    const ingresosLabels = {{ ingresos_periodo | map(attribute='label') | list | tojson }};
+    const ingresosData = {{ ingresos_periodo | map(attribute='total') | list | tojson }};
+
+    new Chart(document.getElementById('graficoIngresos'), {
+        type: 'line',
+        data: {
+            labels: ingresosLabels,
+            datasets: [{
+                label: 'Ingresos ($)',
+                data: ingresosData,
+                borderWidth: 3,
+                borderColor: '#7d4cf5',
+                backgroundColor: 'rgba(125,76,245,0.25)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // ==========================
+    // Gráfico 2: Top productos
+    // ==========================
+    const productosLabels = {{ top_productos | map(attribute='nombre') | list | tojson }};
+    const productosData = {{ top_productos | map(attribute='total_vendidos') | list | tojson }};
+
+    new Chart(document.getElementById('graficoProductos'), {
+        type: 'bar',
+        data: {
+            labels: productosLabels,
+            datasets: [{
+                label: 'Unidades Vendidas',
+                data: productosData,
+                backgroundColor: ['#7d4cf5', '#9a72fa', '#b998ff', '#d7c0ff', '#ede2ff']
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+
+{% endblock %}

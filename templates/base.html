@@ -13,11 +13,11 @@
     <header>
         <div class="header-container">
             <!-- Logo -->
-<div class="logo">
-    <a href="{{ url_for('catalogo') }}">
-        <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logo AVE Joyas">
-    </a>
-</div>
+            <div class="logo">
+                <a href="{{ url_for('catalogo') }}">
+                    <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logo AVE Joyas">
+                </a>
+            </div>
 
 
             <!-- Accesos -->
@@ -33,37 +33,43 @@
         </div>
     </header>
 
-    <!-- Navegación -->
     <nav>
         <ul class="menu">
             <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
-            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
-            
 
             {% if session.get('rol') == 3 %}
-            <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
+            <li>
+                <a href="#">Mis Compras</a>
+                <ul class="submenu">
+                    <li><a href="{{ url_for('mis_pagos') }}">Historial de Compras</a></li>
+                    <li><a href="{{ url_for('mis_valoraciones') }}">Valorar Productos</a></li>
+                    <li><a href="{{ url_for('mis_valoraciones_historial') }}">Historial de Valoraciones</a></li>
+                    <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
+                    <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado</a></li>
+                </ul>
+            </li>
+            <li><a href="{{ url_for('faq') }}">Preguntas Frecuentes</a></li>
             {% endif %}
-            {% if session.get('rol') == 3 %}
-            <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
-            <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado </a></li>
-            {% endif %}
+
             {% if session.get('rol') == 2 %}
-            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
-            <li><a href="{{ url_for('pedidos_recibidos') }}">Pedidos Recibidos</a></li>
+            <li>
+                <a href="#">Panel de Vendedor</a>
+                <ul class="submenu">
+                    <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+                    <li><a href="{{ url_for('pedidos_recibidos') }}">Pedidos Recibidos</a></li>
+                    <li><a href="{{ url_for('estadisticas') }}">Estadísticas</a></li>
+                </ul>
+            </li>
             {% endif %}
-              {% if session.get('rol') == 3 %}
-            <li><a href="{{ url_for('faq') }}">preguntas_frecuentes</a></li>
-            {% endif %}
-        
 
-            {% if session.get('rol') == 1%}
+            {% if session.get('rol') == 1 %}
             <li><a href="{{ url_for('listar_usuarios') }}">Usuarios</a></li>
-            {% endif %} 
-
+            {% endif %}
         </ul>
     </nav>
+
 
     <!-- Contenido dinámico -->
     <main>

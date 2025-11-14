@@ -12,6 +12,94 @@ from config import DB_CONFIG, EMAIL_CONFIG
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+
+
+# ==========================
+# GENERAR FACTURA PDF
+# ==========================
+
+
+def generar_factura_pdf(pedido, detalles, ruta_salida):
+    """Genera un PDF de factura basado en los datos del pedido y su detalle."""
+
+    # Crear el lienzo
+    c = canvas.Canvas(ruta_salida, pagesize=letter)
+    width, height = letter
+
+    y = height - 50
+
+    # Encabezado
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, y, "AVE JOYAS - FACTURA DE COMPRA")
+    y -= 40
+
+    c.setFont("Helvetica", 12)
+    c.drawString(50, y, f"Factura Nº: {pedido['id_pedido']}")
+    y -= 20
+    c.drawString(50, y, f"Fecha de emisión: {str(pedido['fecha'])}")
+    y -= 30
+
+    # Datos del cliente
+    c.setFont("Helvetica-Bold", 13)
+    c.drawString(50, y, "Datos del Cliente:")
+    y -= 20
+
+    c.setFont("Helvetica", 12)
+    c.drawString(50, y, f"Nombre: {pedido['nombre_cliente']}")
+    y -= 20
+    c.drawString(50, y, f"Dirección: {pedido['direccion_entrega']}")
+    y -= 20
+    c.drawString(50, y, f"Correo: {pedido['correo_cliente']}")
+    y -= 20
+    c.drawString(50, y, f"Teléfono: {pedido['telefono_cliente']}")
+    y -= 30
+
+    # Encabezado tabla
+    c.setFont("Helvetica-Bold", 13)
+    c.drawString(50, y, "Detalle de Productos:")
+    y -= 20
+
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Producto")
+    c.drawString(250, y, "Cant.")
+    c.drawString(300, y, "P.Unit")
+    c.drawString(380, y, "Subtotal")
+    y -= 15
+    c.line(50, y, 500, y)
+    y -= 25
+
+    c.setFont("Helvetica", 12)
+
+    # Productos
+    for item in detalles:
+        c.drawString(50, y, str(item['nombre']))
+        c.drawString(260, y, str(item['cantidad']))
+        c.drawString(300, y, f"${item['precio_unitario']}")
+        c.drawString(380, y, f"${item['subtotal']}")
+        y -= 20
+
+    y -= 20
+    c.line(50, y, 500, y)
+    y -= 30
+
+    # Totales
+    c.setFont("Helvetica-Bold", 13)
+    c.drawString(300, y, f"Subtotal: ${pedido['subtotal']}")
+    y -= 20
+    c.drawString(300, y, f"Impuesto (19%): ${pedido['impuesto']}")
+    y -= 20
+    c.drawString(300, y, f"Total pagado: ${pedido['total']}")
+    y -= 40
+
+    # Nota legal
+    c.setFont("Helvetica", 10)
+    c.drawString(50, y, "Este documento es válido como comprobante de pago conforme a la legislación vigente.")
+
+    # Guardar PDF
+    c.save()
+    return ruta_salida
 
 
 # ----------------------------

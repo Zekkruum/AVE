@@ -1,3 +1,6 @@
+/* ================================
+   ESTILO GENERAL (SE MANTIENE)
+=================================*/
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -7,7 +10,7 @@ body {
     color: #333;
 }
 
-/* ---------- Header de estadísticas ---------- */
+/* ---------- HEADER ---------- */
 header {
     background: rgba(255, 255, 255, 0.95);
     border-bottom: 1px solid #ddd;
@@ -29,18 +32,12 @@ header .logo {
     border-radius: 50%;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    color: #222;
-}
-
 .header-right {
     display: flex;
     gap: 12px;
 }
 
-/* ---------- Main (contenedor de estadísticas) ---------- */
+/* ---------- MAIN CONTENEDOR ---------- */
 .container {
     max-width: 1200px;
     margin: 30px auto;
@@ -57,7 +54,91 @@ header h1 {
     margin-bottom: 20px;
 }
 
-/* ---------- Botones reutilizados ---------- */
+/* ================================
+   TABLA DE PEDIDOS
+=================================*/
+.tabla-pedidos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 15px;
+}
+
+.tabla-pedidos th {
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: white;
+    padding: 12px;
+    border-bottom: 2px solid #222;
+}
+
+.tabla-pedidos td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background-color: rgba(255,255,255,0.8);
+}
+
+.tabla-pedidos tr:hover td {
+    background-color: rgba(240,240,240,0.9);
+}
+
+/* ================================
+   ESTADOS DE PEDIDOS
+=================================*/
+.estado {
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    display: inline-block;
+}
+
+.estado.pendiente {
+    background-color: #e67e22;
+}
+
+.estado.enviado {
+    background-color: #2980b9;
+}
+
+.estado.entregado {
+    background-color: #27ae60;
+}
+
+/* ================================
+   BOTONES ACCIÓN
+=================================*/
+.btn {
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: 0.3s ease;
+    color: white;
+    display: inline-block;
+}
+
+.btn-enviar {
+    background: linear-gradient(135deg, #2980b9, #1c5f85);
+}
+
+.btn-enviar:hover {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    transform: translateY(-2px);
+}
+
+.btn-entregar {
+    background: linear-gradient(135deg, #27ae60, #1e874a);
+}
+
+.btn-entregar:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    transform: translateY(-2px);
+}
+
+/* ================================
+   BOTONES DE HEADER
+=================================*/
 .btn-ghost {
     background: linear-gradient(135deg, #000000, #3f3f3f);
     border: 2px solid #ccc;
@@ -89,13 +170,14 @@ header h1 {
     background: linear-gradient(135deg, #6d6d6c, #afafae);
     transform: translateY(-2px);
     color: #000;
-
 }
 
-/* ---------- Footer ---------- */
+/* ================================
+   FOOTER
+=================================*/
 footer {
     text-align: center;
-    background: rgba(0,0,0,0.85);   /* Fondo oscuro semi-transparente */
+    background: rgba(0,0,0,0.85);
     color: #fff;
     padding: 18px 10px;
     margin-top: 40px;
@@ -105,7 +187,4 @@ footer {
 
 footer p {
     margin: 0;
-    font-weight: 400;
-    letter-spacing: 0.5px;
 }
-

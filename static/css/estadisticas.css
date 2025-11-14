@@ -1,109 +1,74 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: url("../img/fondo-joyas.png") no-repeat center center fixed;
-    background-size: cover;
-    color: #333;
+.dashboard-container {
+    padding: 30px;
+    max-width: 1100px;
+    margin: auto;
 }
 
-/* ---------- Header de estadísticas ---------- */
-header {
-    background: rgba(255, 255, 255, 0.95);
-    border-bottom: 1px solid #ddd;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-header .logo {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    color: #222;
-}
-
-.header-right {
-    display: flex;
-    gap: 12px;
-}
-
-/* ---------- Main (contenedor de estadísticas) ---------- */
-.container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.92);
-    border-radius: 12px;
-    box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+.dashboard-title {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 32px;
+    font-weight: bold;
 }
 
 .subtitle {
     text-align: center;
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 20px;
+    color: #666;
+    margin-bottom: 30px;
 }
 
-/* ---------- Botones reutilizados ---------- */
-.btn-ghost {
-    background: linear-gradient(135deg, #000000, #3f3f3f);
-    border: 2px solid #ccc;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.3s ease;
+.filtros-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
-.btn-ghost:hover {
-    border-color: #000;
-    background: linear-gradient(135deg, #6d6d6c, #afafae);
-    color: #000;
+.filtros-form input,
+.filtros-form select {
+    padding: 8px;
 }
 
-.btn-danger {
-    background: linear-gradient(135deg, #000000, #3f3f3f);
+.btn-filtrar {
+    padding: 10px 20px;
+    background: #7d4cf5;
     color: #fff;
-    padding: 8px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.btn-danger:hover {
-    background: linear-gradient(135deg, #6d6d6c, #afafae);
-    transform: translateY(-2px);
-    color: #000;
-
+.resumen-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 40px;
 }
 
-footer {
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     text-align: center;
-    background: rgba(0,0,0,0.85);   /* Fondo oscuro semi-transparente */
-    color: #fff;
-    padding: 18px 10px;
-    margin-top: 40px;
-    font-size: 0.9rem;
-    border-top: 2px solid #000000;
+    width: 250px;
 }
 
-footer p {
-    margin: 0;
-    font-weight: 400;
-    letter-spacing: 0.5px;
+.card h3 {
+    margin-bottom: 10px;
+}
+
+.card .valor {
+    font-size: 26px;
+    font-weight: bold;
+    color: #7d4cf5;
+}
+
+.grafico-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }

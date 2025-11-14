@@ -773,3 +773,49 @@ nav {
     transform: scale(1.1);
 }
 
+.form-container {
+    background: #fff;
+    padding: 2rem;
+    width: 50%;
+    margin: 2rem auto;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+}
+
+.envio-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.envio-form input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+}
+
+.btn-principal {
+    padding: 12px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.btn-principal:hover {
+    background: #333;
+}
+
+.styled-table td a.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.styled-table td {
+    vertical-align: middle;
+}
+
