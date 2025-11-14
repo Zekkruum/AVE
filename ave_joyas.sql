@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-11-2025 a las 05:11:07
+-- Tiempo de generación: 14-11-2025 a las 13:54:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -651,55 +651,56 @@ CREATE TABLE `pedidos` (
   `nombre_cliente` varchar(120) NOT NULL,
   `direccion_entrega` varchar(255) NOT NULL,
   `telefono_cliente` varchar(30) NOT NULL,
-  `correo_cliente` varchar(120) NOT NULL
+  `correo_cliente` varchar(120) NOT NULL,
+  `numero_pedido` varchar(30) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`, `nombre_cliente`, `direccion_entrega`, `telefono_cliente`, `correo_cliente`) VALUES
-(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
-(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
-(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
-(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
-(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', ''),
-(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', ''),
-(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', ''),
-(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
-(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
-(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
-(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', ''),
-(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', ''),
-(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', ''),
-(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', ''),
-(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL, '', '', '', ''),
-(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL, '', '', '', ''),
-(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL, '', '', '', ''),
-(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
-(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
-(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
-(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
-(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', ''),
-(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL, '', '', '', ''),
-(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', ''),
-(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL, '', '', '', ''),
-(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', ''),
-(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', ''),
-(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', ''),
-(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', ''),
-(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '');
+INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`, `nombre_cliente`, `direccion_entrega`, `telefono_cliente`, `correo_cliente`, `numero_pedido`) VALUES
+(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
+(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL),
+(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL),
+(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
+(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL, '', '', '', '', NULL),
+(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL, '', '', '', '', NULL),
+(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
+(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
+(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
+(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
+(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
+(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
+(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
+(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL, '', '', '', '', NULL),
+(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
+(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
+(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', '', NULL),
+(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
+(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -1535,6 +1536,7 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `pedidos`
   ADD PRIMARY KEY (`id_pedido`),
+  ADD UNIQUE KEY `numero_pedido` (`numero_pedido`),
   ADD KEY `id_cliente` (`id_cliente`),
   ADD KEY `fk_pedido_usuario` (`id_usuario`);
 
