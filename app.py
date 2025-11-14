@@ -532,19 +532,42 @@ def carrito():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
-        SELECT c.id_producto, c.cantidad, p.nombre, p.precio, 
-               COALESCE(i.url, '') AS imagen
+        SELECT 
+            c.id_producto, 
+            c.cantidad, 
+            p.nombre, 
+            p.precio,
+            p.imagen AS imagen_local,
+            (SELECT url FROM imagenes WHERE id_producto = p.id_producto LIMIT 1) AS imagen_extra
         FROM carrito_usuario c
         JOIN productos p ON c.id_producto = p.id_producto
-        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
         WHERE c.id_usuario = %s
     """, (usuario['id_usuario'],))
     carrito = cursor.fetchall()
     cursor.close()
     conn.close()
 
+    # 🔥 Normalizar imagen igual que catálogo
+    for item in carrito:
+        imagen_src = item['imagen_local'] or item['imagen_extra']
+
+        if imagen_src:
+            if imagen_src.startswith('static/'):
+                imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
+            elif imagen_src.startswith('uploads/'):
+                imagen_src = url_for('static', filename=imagen_src)
+        else:
+            imagen_src = url_for('static', filename='img/no-image.png')
+
+        item['imagen_src'] = imagen_src
+
     total = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
-    return render_template('carrito.html', carrito=carrito, total=total, usuario=usuario)
+
+    return render_template('carrito.html',
+                           carrito=carrito,
+                           total=total,
+                           usuario=usuario)
+
 
 @app.route('/carrito/agregar/<int:id_producto>', methods=['POST'])
 def agregar_carrito(id_producto):
