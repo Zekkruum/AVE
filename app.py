@@ -1,7 +1,7 @@
 import csv
 from flask import Response
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from utils import get_db_connection, enviar_correo, generar_token, save_profile_image, hash_password, verify_password
 from flask import request, jsonify , current_app
@@ -1488,12 +1488,11 @@ def registrar_salida_stock(id_producto):
     return render_template("registrar_salida_stock.html", producto=producto, usuario=usuario)
 
 # ----------------------------
-# generador de devoluciones
+# generador de devoluciones 2.0
 # ----------------------------
 
 @app.route('/vendedor/devolucion/<int:id_producto>', methods=['GET', 'POST'])
 def registrar_devolucion(id_producto):
-    # Comprueba que el usuario sea vendedor (ajusta según tu función obtener_usuario)
     usuario = obtener_usuario()
     if not usuario or usuario.get('id_rol') != 2:
         return redirect(url_for('login'))
@@ -1501,9 +1500,12 @@ def registrar_devolucion(id_producto):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Obtener los datos del producto (para mostrar en el formulario)
-    cursor.execute("SELECT id_producto, nombre, stock FROM productos WHERE id_producto = %s AND id_usuario = %s",
-                   (id_producto, usuario['id_usuario']))
+    # Obtener datos del producto
+    cursor.execute("""
+        SELECT id_producto, nombre, stock 
+        FROM productos 
+        WHERE id_producto = %s AND id_usuario = %s
+    """, (id_producto, usuario['id_usuario']))
     producto = cursor.fetchone()
 
     if not producto:
@@ -1512,42 +1514,54 @@ def registrar_devolucion(id_producto):
         flash("Producto no encontrado o no autorizado.", "error")
         return redirect(url_for('mis_productos'))
 
+    # -----------------------------------
+    #  generador de devoluciones, lectura del formulario
+    # -----------------------------------
     if request.method == 'POST':
+
+        # Cantidad devuelta
         try:
             cantidad = int(request.form['cantidad'])
-        except (KeyError, ValueError):
-            flash("Ingresa una cantidad válida.", "error")
+        except:
+            flash("Cantidad inválida.", "error")
             return redirect(url_for('registrar_devolucion', id_producto=id_producto))
 
         motivo = request.form.get('motivo', '').strip()
+        estado_fisico = request.form.get('estado_fisico')   
 
-        # Intentamos leer id_pedido si el formulario lo provee (opcional)
+        # Pedido opcional
         id_pedido_form = request.form.get('id_pedido')
         id_pedido = int(id_pedido_form) if id_pedido_form else None
 
         cursor_write = conn.cursor()
-        # Insertamos la devolución (id_pedido puede ser NULL)
-        cursor_write.execute("""
-            INSERT INTO devoluciones (id_pedido, id_producto, cantidad, motivo, estado)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (id_pedido, id_producto, cantidad, motivo, 'Registrada'))
 
-        # Actualizamos stock (sumamos la cantidad devuelta)
+        # Guardamos la devolución
         cursor_write.execute("""
-            UPDATE productos SET stock = stock + %s WHERE id_producto = %s
-        """, (cantidad, id_producto))
+            INSERT INTO devoluciones (id_pedido, id_producto, cantidad, motivo, estado, estado_fisico)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (id_pedido, id_producto, cantidad, motivo, 'Registrada', estado_fisico))
+
+        # Si el producto está en buen estado → vuelve al inventario
+        if estado_fisico == "bueno":
+            cursor_write.execute("""
+                UPDATE productos SET stock = stock + %s WHERE id_producto = %s
+            """, (cantidad, id_producto))
+            mensaje = "El producto fue devuelto al inventario."
+        else:
+            mensaje = "Producto defectuoso: no se añadió al inventario."
 
         conn.commit()
         cursor_write.close()
         cursor.close()
         conn.close()
 
-        flash("Devolución registrada correctamente y stock actualizado.", "success")
+        flash(mensaje, "success")
         return redirect(url_for('mis_productos'))
 
     cursor.close()
     conn.close()
     return render_template('registrar_devolucion.html', usuario=usuario, producto=producto)
+
 
 
 # ----------------------------
