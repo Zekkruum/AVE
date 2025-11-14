@@ -19,9 +19,22 @@
       <p class="descripcion">{{ producto.descripcion }}</p>
       <p class="precio"> ${{ '%.2f'|format(producto.precio|float) }}</p>
       <p> <strong> Stock disponible: </strong>{{ producto.stock }}</p>
-      <p><strong>Talla:</strong> {{ producto.talla or 'N/A' }}</p>
       <p><strong>Peso:</strong> {{ producto.peso or 'N/A' }} g</p>
       <p><strong>Dimensiones:</strong> {{ producto.dimensiones }}</p>
+      <!-- STOCK POR TALLA -->
+        <h3>Disponibilidad por talla</h3>
+
+        {% if producto.tallas and producto.tallas|length > 0 %}
+            <ul class="lista-tallas">
+                {% for t in producto.tallas %}
+                    <li>
+                        <strong>Talla {{ t.talla }}</strong>: {{ t.stock }} unidades
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay tallas registradas.</p>
+        {% endif %}
 
 
       <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">

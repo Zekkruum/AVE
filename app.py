@@ -245,6 +245,19 @@ WHERE 1=1
     sql += " GROUP BY p.id_producto ORDER BY p.nombre ASC"
     cursor.execute(sql, params)
     productos = cursor.fetchall()
+    
+    # =====================================================
+# 🔥 REEMPLAZAR EL STOCK GENERAL CON LA SUMA DE STOCK_TALLAS
+# =====================================================
+    for p in productos:
+        cursor.execute("""
+            SELECT COALESCE(SUM(stock), 0) AS total_stock
+            FROM stock_tallas
+            WHERE id_producto = %s
+        """, (p['id_producto'],))
+        result = cursor.fetchone()
+        p['stock'] = result['total_stock']  # ← Reemplaza el stock original
+# =====================================================
 
     # Normalizar imágenes
     for p in productos:
@@ -472,10 +485,10 @@ def producto_detalle(id_producto):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Traer datos + lista de imágenes + nuevos campos
+    # Traer datos del producto
     cursor.execute("""
-        SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, 
-               p.talla, p.peso, p.alto, p.ancho, p.largo,
+        SELECT p.id_producto, p.nombre, p.descripcion, p.precio,
+               p.peso, p.largo, p.ancho, p.alto,
                p.imagen AS imagen_local,
                GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
         FROM productos p
@@ -484,13 +497,13 @@ def producto_detalle(id_producto):
         GROUP BY p.id_producto
     """, (id_producto,))
     producto = cursor.fetchone()
-    cursor.close()
-    conn.close()
 
     if not producto:
+        cursor.close()
+        conn.close()
         return redirect(url_for('catalogo'))
 
-    # Normalizar imágenes (igual que en catalogo)
+    # ---- Imagenes normalizadas ----
     def normalize(src):
         if not src:
             return None
@@ -514,11 +527,23 @@ def producto_detalle(id_producto):
 
     producto["imagenes"] = imagenes
 
-    # Construir campo de dimensiones
+    # ---- Dimensiones ----
     if producto.get("largo") and producto.get("ancho") and producto.get("alto"):
         producto["dimensiones"] = f"{producto['largo']} x {producto['ancho']} x {producto['alto']}"
     else:
         producto["dimensiones"] = "N/A"
+
+    # ---- STOCK POR TALLA ----
+    cursor.execute("""
+        SELECT talla, stock
+        FROM stock_tallas
+        WHERE id_producto = %s
+        ORDER BY talla ASC
+    """, (id_producto,))
+    producto["tallas"] = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return render_template("producto_detalle.html", usuario=usuario, producto=producto)
 
@@ -735,13 +760,13 @@ def allowed_file(filename):
 @app.route('/registrar_producto', methods=['GET', 'POST'])
 def registrar_producto():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 2:
+    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
         return redirect(url_for('login'))
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Listas para los selects
+    # Listas para selects
     cursor.execute("SELECT * FROM colores")
     lista_colores = cursor.fetchall()
     cursor.execute("SELECT * FROM piedras")
@@ -760,56 +785,55 @@ def registrar_producto():
         alto = float(request.form.get('alto', 0))
         ancho = float(request.form.get('ancho', 0))
         largo = float(request.form.get('largo', 0))
-        stock = int(request.form['stock'])
-        umbral_alerta = int(request.form.get('umbral_alerta', 5))
-        categoria = request.form.get('categoria')
         id_tipo = request.form.get('id_tipo')
         id_material = request.form.get('id_material')
         id_color = request.form.get('id_color')
         id_piedra = request.form.get('id_piedra')
-        talla = request.form.get('talla')
-
-
 
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # Insertar producto sin talla
         cursor.execute("""
-            INSERT INTO productos 
+            INSERT INTO productos
                 (nombre, descripcion, precio, peso, alto, ancho, largo,
-                 stock, umbral_alerta, categoria, id_tipo, id_material, id_color, id_piedra, id_usuario, talla)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                 id_tipo, id_material, id_color, id_piedra, id_usuario)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (nombre, descripcion, precio, peso, alto, ancho, largo,
-              stock, umbral_alerta, categoria, id_tipo, id_material, id_color, id_piedra, usuario['id_usuario'],talla))
+              id_tipo, id_material, id_color, id_piedra, usuario['id_usuario']))
 
         id_producto = cursor.lastrowid
 
-        # Imagen (tu lógica actual)
-        # Imagen (nueva lógica)
+        # Stock por talla
+        tallas = request.form.getlist('talla[]')
+        stocks = request.form.getlist('stock[]')
+        for t, s in zip(tallas, stocks):
+            cursor.execute("""
+                INSERT INTO stock_tallas (id_producto, talla, stock)
+                VALUES (%s, %s, %s)
+            """, (id_producto, t, int(s)))
+
+        # Imágenes
         if 'imagenes' in request.files:
-            file = request.files['imagenes']
-            if file and allowed_file(file.filename):
-                # Nombre seguro y único para evitar sobrescribir archivos
-                filename = secure_filename(file.filename)
-                filename = f"{uuid.uuid4().hex}_{filename}"
-
-                # Ruta física donde se guardará la imagen
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-
-                # Guardar ruta relativa dentro de /static en la base de datos
-                imagen_src = f"uploads/{filename}"
-                cursor.execute("UPDATE productos SET imagen=%s WHERE id_producto=%s", (imagen_src, id_producto))
-
+            files = request.files.getlist('imagenes')
+            for file in files:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    filename = f"{uuid.uuid4().hex}_{filename}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    imagen_src = f"uploads/{filename}"
+                    cursor.execute("INSERT INTO imagenes (id_producto, url) VALUES (%s, %s)",
+                                   (id_producto, imagen_src))
 
         conn.commit()
         cursor.close(); conn.close()
         flash("✅ Producto registrado con éxito", "success")
         return redirect(url_for('mis_productos'))
 
-    return render_template("registrar_producto.html", 
-                           usuario=usuario, 
-                           colores=lista_colores, 
+    return render_template("registrar_producto.html",
+                           usuario=usuario,
+                           colores=lista_colores,
                            piedras=lista_piedras,
                            tipos=lista_tipos,
                            materiales=lista_materiales)

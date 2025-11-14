@@ -58,11 +58,13 @@
                     {% if producto.descuento_promocion %}
                     <div class="precio-oferta">
                         <span style="text-decoration: line-through; color:#888;">
-                            ${{ '%.2f'|format(producto.precio|float) }}
+                         ${{ "{:,.2f}".format(producto.precio|float) }}
                         </span>
-                        <span style="color:#c00; font-weight:bold; margin-left:5px;">
-                            ${{ '%.2f'|format(producto.precio_final|float) }}
+
+                        <span style="color:#c00; font-weight:lighter; margin-left:5px;">
+                            ${{ "{:,.2f}".format(producto.precio_final|float) }}
                         </span>
+
                     </div>
                     <span class="promo-badge" style="background:#c00; color:#fff; padding:2px 6px; border-radius:4px; font-size:12px;">
                         -{{ producto.descuento_promocion * 100 }}%

@@ -10,6 +10,7 @@
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+  font-family: Arial, sans-serif;
 }
 
 /* Título */
@@ -29,7 +30,7 @@
   color: #333;
 }
 
-/* Inputs & Textareas */
+/* Inputs, Textareas y Selects */
 .form-container input,
 .form-container textarea,
 .form-container select {
@@ -50,16 +51,48 @@
   outline: none;
 }
 
-/* Checkbox y opciones */
-.form-container .checkbox-group {
-  margin-bottom: 15px;
+/* Filas de Talla + Stock */
+.talla-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.form-container .checkbox-group label {
-  display: inline-block;
-  margin-right: 15px;
-  font-size: 14px;
-  color: #555;
+.talla-row input[type="text"],
+.talla-row input[type="number"] {
+  width: 45%;
+}
+
+/* Botones de eliminar fila */
+.talla-row button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.talla-row button:hover {
+  background-color: #555;
+}
+
+/* Botón Añadir otra fila */
+button.add-talla-btn {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.2s;
+}
+
+button.add-talla-btn:hover {
+  background-color: #555;
 }
 
 /* Botón principal */
@@ -67,7 +100,7 @@
   display: block;
   width: 100%;
   padding: 12px;
-  background: #222;
+  background: #333;
   color: #fff;
   font-size: 16px;
   font-weight: bold;
@@ -93,6 +126,22 @@
   background: #eee;
 }
 
+/* Preview de imágenes */
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.image-preview img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .form-container {
@@ -102,5 +151,23 @@
   .btn-submit {
     font-size: 14px;
     padding: 10px;
+  }
+
+  .talla-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .talla-row input[type="text"],
+  .talla-row input[type="number"] {
+    width: 100%;
+  }
+
+  .talla-row button {
+    width: 100%;
+  }
+
+  button.add-talla-btn {
+    width: 100%;
   }
 }

@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="form-container">
-  <h2> Registrar Producto</h2>
+  <h2>Registrar Producto</h2>
   <form method="post" enctype="multipart/form-data">
 
     <!-- Nombre -->
@@ -20,14 +20,6 @@
     <!-- Precio -->
     <label for="precio">Precio:</label>
     <input type="number" id="precio" step="0.01" name="precio">
-
-    <!-- Stock -->
-    <label for="stock">Stock:</label>
-    <input type="number" id="stock" name="stock">
-
-    <!-- Umbral de alerta -->
-    <label for="umbral_alerta">Umbral de alerta:</label>
-    <input type="number" id="umbral_alerta" name="umbral_alerta" value="5">
 
     <!-- Peso -->
     <label for="peso">Peso (g):</label>
@@ -46,53 +38,51 @@
     <input type="number" id="largo" step="0.01" name="largo">
 
     <!-- Tipo de joya -->
-<label for="id_tipo">Tipo de joya:</label>
-<select id="id_tipo" name="id_tipo" required>
-  <option value="">-- Selecciona un tipo --</option>
-  {% for tipo in tipos %}
-    <option value="{{ tipo.id_tipo }}">{{ tipo.nombre_tipo }}</option>
-  {% endfor %}
-</select>
+    <label for="id_tipo">Tipo de joya:</label>
+    <select id="id_tipo" name="id_tipo" required>
+      <option value="">-- Selecciona un tipo --</option>
+      {% for tipo in tipos %}
+        <option value="{{ tipo.id_tipo }}">{{ tipo.nombre_tipo }}</option>
+      {% endfor %}
+    </select>
 
-<!-- Material -->
-<label for="id_material">Material:</label>
-<select id="id_material" name="id_material" required>
-  <option value="">-- Selecciona un material --</option>
-  {% for material in materiales %}
-    <option value="{{ material.id_material }}">{{ material.nombre_material }}</option>
-  {% endfor %}
-</select>
+    <!-- Material -->
+    <label for="id_material">Material:</label>
+    <select id="id_material" name="id_material" required>
+      <option value="">-- Selecciona un material --</option>
+      {% for material in materiales %}
+        <option value="{{ material.id_material }}">{{ material.nombre_material }}</option>
+      {% endfor %}
+    </select>
 
-
- <label for="talla" class="form-label fw-bold">Talla / Longitud</label>
-    <input type="text" class="form-control" id="talla" name="talla"
-           placeholder="Ej: 10 (anillo), 45 cm (collar), 18 cm (brazalete)">
-
-    <!-- Colores -->
-    <!-- Seleccionar color -->
-<div class="form-group">
-  <label for="id_color">Color del producto</label>
-  <select name="id_color" id="id_color" >
-    <option value="">-- Selecciona un color --</option>
-    {% for color in colores %}
-      <option value="{{ color.id_color }}">{{ color.nombre }}</option>
-    {% endfor %}
-  </select>
-</div>
-
+    <!-- Color -->
+    <label for="id_color">Color del producto:</label>
+    <select id="id_color" name="id_color">
+      <option value="">-- Selecciona un color --</option>
+      {% for color in colores %}
+        <option value="{{ color.id_color }}">{{ color.nombre }}</option>
+      {% endfor %}
+    </select>
 
     <!-- Piedras -->
-    <!-- Seleccionar piedra -->
-<div class="form-group">
-  <label for="id_piedra">Tipo de piedra</label>
-  <select name="id_piedra" id="id_piedra" >
-    <option value="">-- Selecciona una piedra --</option>
-    {% for piedra in piedras %}
-      <option value="{{ piedra.id_piedra }}">{{ piedra.nombre }}</option>
-    {% endfor %}
-  </select>
-</div>
+    <label for="id_piedra">Tipo de piedra (si aplica):</label>
+    <select id="id_piedra" name="id_piedra" disabled>
+      <option value="">-- Selecciona una piedra --</option>
+      {% for piedra in piedras %}
+        <option value="{{ piedra.id_piedra }}">{{ piedra.nombre }}</option>
+      {% endfor %}
+    </select>
 
+    <!-- Stock por talla -->
+    <div id="tallas-container">
+      <h4>Tallas y Stock</h4>
+      <div class="talla-row">
+        <input type="text" name="talla[]" placeholder="Talla" required>
+        <input type="number" name="stock[]" placeholder="Stock" min="0" required>
+        <button type="button" onclick="removeRow(this)">Eliminar</button>
+      </div>
+    </div>
+    <button type="button" onclick="addRow()">Añadir otra talla</button>
 
     <!-- Imágenes -->
     <label for="imagenes">Imágenes:</label>
@@ -102,12 +92,45 @@
     <div id="preview" class="image-preview"></div>
 
     <!-- Botón -->
-    <button type="submit" class="btn-submit"> Guardar</button>
+    <button type="submit" class="btn-submit">Guardar</button>
   </form>
 </div>
 
-<!-- JS para preview -->
+<!-- JS dinámico -->
 <script>
+  // Activar select de piedras solo si se selecciona "Piedra preciosa"
+  const materialSelect = document.getElementById('id_material');
+  const piedraSelect = document.getElementById('id_piedra');
+
+  materialSelect.addEventListener('change', function() {
+    if (this.value === '4') { // Piedra preciosa
+      piedraSelect.disabled = false;
+      piedraSelect.required = true;
+    } else {
+      piedraSelect.disabled = true;
+      piedraSelect.required = false;
+      piedraSelect.value = "";
+    }
+  });
+
+  // Añadir/eliminar tallas
+  function addRow() {
+    const container = document.getElementById("tallas-container");
+    const div = document.createElement("div");
+    div.classList.add("talla-row");
+    div.innerHTML = `
+      <input type="text" name="talla[]" placeholder="Talla" required>
+      <input type="number" name="stock[]" placeholder="Stock" min="0" required>
+      <button type="button" onclick="removeRow(this)">Eliminar</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function removeRow(button) {
+    button.parentElement.remove();
+  }
+
+  // Preview de imágenes
   function previewImages() {
     const preview = document.getElementById("preview");
     preview.innerHTML = "";

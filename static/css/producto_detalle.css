@@ -20,6 +20,15 @@
     flex-direction: column;
     gap: 10px;
 }
+.lista-tallas {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.lista-tallas li {
+    padding: 4px 5px 2px 15px;
+    font-size: 15px;
+}
 
 .detalle-img {
     width: 100%;
