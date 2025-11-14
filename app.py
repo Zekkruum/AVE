@@ -924,42 +924,207 @@ def reporte_inventario():
     return send_file(output, as_attachment=True, download_name="reporte_inventario.xlsx", # type: ignore
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-
-# ----------------------------
-# Estadísticas de ventas (dummy de momento)
-# ----------------------------
-@app.route('/vendedor/estadisticas')
+# ---------------------------------------------------------
+# Estadísticas reales del vendedor
+# ---------------------------------------------------------
+@app.route('/vendedor/estadisticas', methods=["GET"])
 def estadisticas():
     usuario = obtener_usuario()
     if not usuario or usuario['id_rol'] != 2:
         return redirect(url_for('login'))
 
-    # TODO: más adelante consultar ventas reales
-    data = {
-        "total_ventas": 25,
-        "ingresos": 1200000,
-        "producto_mas_vendido": "Anillo de oro"
-    }
+    id_vendedor = usuario['id_usuario']
 
-    return render_template('estadisticas.html', usuario=usuario, data=data)
+    # Filtros GET
+    fecha_inicio = request.args.get("inicio")
+    fecha_fin = request.args.get("fin")
+    modo = request.args.get("modo", "mes")  # por defecto mes
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # ------------------------------------------
+    # 1) AGRUPACIÓN (día, semana, mes)
+    # ------------------------------------------
+    if modo == "dia":
+        agrupador = "DATE(p.fecha)"
+        label = "DATE(p.fecha)"
+    elif modo == "semana":
+        agrupador = "YEARWEEK(p.fecha)"
+        label = "YEARWEEK(p.fecha)"
+    else:
+        agrupador = "DATE_FORMAT(p.fecha, '%Y-%m')"
+        label = "DATE_FORMAT(p.fecha, '%Y-%m')"
+
+    # ------------------------------------------
+    # INGRESOS AGRUPADOS
+    # ------------------------------------------
+    query_ingresos = f"""
+        SELECT 
+            {label} AS label,
+            SUM(dp.cantidad * dp.precio_unitario) AS total
+        FROM pedidos p
+        JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+        JOIN productos prod ON dp.id_producto = prod.id_producto
+        WHERE prod.id_usuario = %s
+    """
+    valores = [id_vendedor]
+
+    if fecha_inicio and fecha_fin:
+        query_ingresos += " AND p.fecha BETWEEN %s AND %s"
+        valores.extend([fecha_inicio, fecha_fin])
+
+    query_ingresos += f" GROUP BY {agrupador} ORDER BY {agrupador}"
+    cursor.execute(query_ingresos, tuple(valores))
+    ingresos_periodo = cursor.fetchall()
+
+    # ------------------------------------------
+    # TOP PRODUCTOS
+    # ------------------------------------------
+    query_top = """
+        SELECT 
+            prod.nombre,
+            SUM(dp.cantidad) AS total_vendidos
+        FROM detalle_pedido dp
+        JOIN productos prod ON dp.id_producto = prod.id_producto
+        WHERE prod.id_usuario = %s
+    """
+    valores_top = [id_vendedor]
+
+    if fecha_inicio and fecha_fin:
+        query_top += " AND dp.id_pedido IN (SELECT id_pedido FROM pedidos WHERE fecha BETWEEN %s AND %s)"
+        valores_top.extend([fecha_inicio, fecha_fin])
+
+    query_top += " GROUP BY prod.id_producto ORDER BY total_vendidos DESC LIMIT 5"
+    cursor.execute(query_top, tuple(valores_top))
+    top_productos = cursor.fetchall()
+
+    # ------------------------------------------
+    # RESUMEN GENERAL
+    # ------------------------------------------
+    query_resumen = """
+        SELECT 
+            COUNT(DISTINCT p.id_pedido) AS total_pedidos,
+            SUM(dp.cantidad) AS total_unidades,
+            SUM(dp.cantidad * dp.precio_unitario) AS total_ingresos
+        FROM pedidos p
+        JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+        JOIN productos prod ON dp.id_producto = prod.id_producto
+        WHERE prod.id_usuario = %s
+    """
+    valores_resumen = [id_vendedor]
+
+    if fecha_inicio and fecha_fin:
+        query_resumen += " AND p.fecha BETWEEN %s AND %s"
+        valores_resumen.extend([fecha_inicio, fecha_fin])
+
+    cursor.execute(query_resumen, tuple(valores_resumen))
+    resumen = cursor.fetchone() or {}
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "estadisticas.html",
+        usuario=usuario,
+        ingresos_periodo=ingresos_periodo,
+        top_productos=top_productos,
+        total_vendido=resumen.get("total_ingresos", 0),
+        total_pedidos=resumen.get("total_pedidos", 0),
+        total_items_vendidos=resumen.get("total_unidades", 0),
+        fecha_inicio=fecha_inicio,
+        fecha_fin=fecha_fin,
+        modo=modo
+    )
 
 
-# ----------------------------
-# Gestionar pedidos (dummy)
-# ----------------------------
+
+# ---------------------------------------------------------
+# Gestionar pedidos reales del vendedor (con cambio de estado)
+# ---------------------------------------------------------
 @app.route('/vendedor/pedidos')
 def gestionar_pedidos():
     usuario = obtener_usuario()
     if not usuario or usuario['id_rol'] != 2:
         return redirect(url_for('login'))
 
-    # TODO: conectar con tabla de pedidos
-    pedidos = [
-        {"id": 1, "cliente": "Carlos Pérez", "producto": "Anillo Plata", "estado": "Pendiente"},
-        {"id": 2, "cliente": "Ana Torres", "producto": "Collar Oro", "estado": "Enviado"},
-    ]
+    id_vendedor = usuario['id_usuario']
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Traer solo los pedidos que tienen productos de este vendedor
+    cursor.execute("""
+        SELECT 
+            p.id_pedido,
+            p.fecha,
+            p.estado,
+            u.nombre_completo AS cliente,
+            GROUP_CONCAT(prod.nombre SEPARATOR ', ') AS productos
+        FROM pedidos p
+        JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+        JOIN productos prod ON dp.id_producto = prod.id_producto
+        JOIN usuarios u ON p.id_usuario = u.id_usuario
+        WHERE prod.id_usuario = %s
+        GROUP BY p.id_pedido, p.fecha, p.estado, cliente
+        ORDER BY p.fecha DESC
+    """, (id_vendedor,))
+
+    pedidos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return render_template('pedidos.html', usuario=usuario, pedidos=pedidos)
+
+# ---------------------------------------------------------
+# Cambiar estado a "Enviado"
+# ---------------------------------------------------------
+@app.route('/vendedor/pedido/<int:id_pedido>/enviar')
+def marcar_enviado(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE pedidos
+        SET estado = 'Enviado'
+        WHERE id_pedido = %s
+    """, (id_pedido,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('gestionar_pedidos'))
+
+
+# ---------------------------------------------------------
+# Cambiar estado a "Entregado"
+# ---------------------------------------------------------
+@app.route('/vendedor/pedido/<int:id_pedido>/entregar')
+def marcar_entregado(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 2:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE pedidos
+        SET estado = 'Entregado'
+        WHERE id_pedido = %s
+    """, (id_pedido,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('gestionar_pedidos'))
 
 # ----------------------------
 # Producto - Detalle (VENDEDOR)
@@ -1048,54 +1213,95 @@ def eliminar_producto(id_producto):
         return redirect(url_for('mis_productos'))
 
 
-# ----------------------------
-# Registrar Pago
-# ----------------------------
+# ===========================================
+# REGISTRAR PAGO + GENERAR FACTURA (RF060)
+# ===========================================
 @app.route('/pedido/<int:id_pedido>/pago', methods=['GET', 'POST'])
 def registrar_pago(id_pedido):
     usuario = obtener_usuario()
-    # ✅ Ahora permitimos clientes (3) y vendedores (2) y administrador 😝
     if not usuario or usuario['id_rol'] not in [1, 2, 3]:
         return redirect(url_for('login'))
-
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-
-    # 🚨 IMPORTANTE: aquí supongo que tienes tabla pedidos con total
+    # Obtener el pedido
     cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s", (id_pedido,))
     pedido = cursor.fetchone()
-
 
     if not pedido:
         cursor.close()
         conn.close()
         return "Pedido no encontrado", 404
 
-
     if request.method == 'POST':
+
         metodo = request.form['metodo']
         monto = float(request.form['monto'])
-        estado = "Pagado"
+        estado = "pagado"
 
-
+        # Registrar pago
         cursor.execute("""
             INSERT INTO pagos (id_pedido, monto, metodo_pago, estado, fecha)
             VALUES (%s, %s, %s, %s, NOW())
         """, (id_pedido, monto, metodo, estado))
-        conn.commit()
         id_pago = cursor.lastrowid
 
+        # Actualizar estado del pedido
+        cursor.execute("""
+            UPDATE pedidos 
+            SET estado_pago='pagado'
+            WHERE id_pedido=%s
+        """, (id_pedido,))
 
+        # === Obtener información completa del pedido para factura ===
+        cursor.execute("""
+            SELECT * FROM pedidos WHERE id_pedido = %s
+        """, (id_pedido,))
+        pedido = cursor.fetchone()
+
+        cursor.execute("""
+            SELECT d.id_producto, d.cantidad, d.precio_unitario,
+                   (d.cantidad * d.precio_unitario) AS subtotal,
+                   p.nombre
+            FROM detalle_pedido d
+            JOIN productos p ON p.id_producto = d.id_producto
+            WHERE d.id_pedido = %s
+        """, (id_pedido,))
+        detalles = cursor.fetchall()
+
+        conn.commit()
         cursor.close()
         conn.close()
-        return redirect(url_for('pago_exito', id_pago=id_pago))
 
+        # ====================
+        # GENERAR FACTURA PDF
+        # ====================
+        from utils import generar_factura_pdf
+        import os
 
+        carpeta = "static/facturas"
+        os.makedirs(carpeta, exist_ok=True)
+
+        ruta_pdf = f"{carpeta}/factura_{id_pedido}.pdf"
+
+        generar_factura_pdf(pedido, detalles, ruta_pdf)
+
+        flash("Pago registrado correctamente. Tu factura está disponible.", "success")
+        return redirect(url_for('ver_factura', id_pedido=id_pedido))
+
+    # ====================
+    # MÉTODO GET (mostrar formulario)
+    # ====================
     cursor.close()
     conn.close()
     return render_template('pago_form.html', usuario=usuario, pedido=pedido)
+
+@app.route('/factura/<int:id_pedido>')
+def ver_factura(id_pedido):
+    ruta = f"static/facturas/factura_{id_pedido}.pdf"
+    return render_template("factura_lista.html", ruta=ruta, id_pedido=id_pedido)
+
 
 
 # ----------------------------
@@ -1167,10 +1373,17 @@ def crear_pedido():
     if not usuario:
         return redirect(url_for('login'))
 
+    # Datos del formulario
+    nombre_cliente = request.form.get('nombre_cliente')
+    direccion_entrega = request.form.get('direccion_entrega')
+    telefono_cliente = request.form.get('telefono_cliente')
+    correo_cliente = request.form.get('correo_cliente')
+    
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Obtener el carrito desde la base de datos
+    # Obtener carrito
     cursor.execute("""
         SELECT c.id_producto, c.cantidad, p.precio, p.stock
         FROM carrito_usuario c
@@ -1184,40 +1397,40 @@ def crear_pedido():
         conn.close()
         return redirect(url_for('carrito'))
 
-    # Verificar stock disponible
-    for item in carrito:
-        if item['cantidad'] > item['stock']:
-            cursor.close()
-            conn.close()
-            return f"Stock insuficiente para {item['id_producto']}", 400
-
-    # Calcular subtotal, impuesto y total
+    # Calcular totales
     subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
-    impuesto = round(subtotal * 0.19, 2)  
+    impuesto = round(subtotal * 0.19, 2)
     total = subtotal + impuesto
 
-    # Insertar pedido
+    # Insertar pedido con datos del cliente
     cursor.execute("""
-        INSERT INTO pedidos (id_usuario, fecha, estado, subtotal, impuesto, total)
-        VALUES (%s, NOW(), 'Pendiente', %s, %s, %s)
-    """, (usuario['id_usuario'], subtotal, impuesto, total))
+        INSERT INTO pedidos 
+        (id_usuario, fecha, estado, subtotal, impuesto, total,
+        nombre_cliente, direccion_entrega, telefono_cliente,
+        correo_cliente)
+        VALUES (%s, NOW(), 'Pendiente', %s, %s, %s,
+        %s, %s, %s, %s)
+    """, (
+        usuario['id_usuario'], subtotal, impuesto, total,
+        nombre_cliente, direccion_entrega, telefono_cliente,
+        correo_cliente
+    ))
+
     id_pedido = cursor.lastrowid
 
-    # Insertar detalles y descontar stock
+    # Insertar productos + actualizar stock
     for item in carrito:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
             VALUES (%s, %s, %s, %s)
         """, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
 
-        # Descontar stock
         cursor.execute("""
-            UPDATE productos
-            SET stock = stock - %s
+            UPDATE productos SET stock = stock - %s
             WHERE id_producto = %s
         """, (item['cantidad'], item['id_producto']))
 
-    # Limpiar carrito del usuario en DB
+    # Vaciar carrito
     cursor.execute("DELETE FROM carrito_usuario WHERE id_usuario = %s", (usuario['id_usuario'],))
 
     conn.commit()
@@ -1225,6 +1438,8 @@ def crear_pedido():
     conn.close()
 
     return redirect(url_for('registrar_pago', id_pedido=id_pedido))
+
+
 
 
 # ----------------------------
@@ -2273,6 +2488,160 @@ def admin_ver_productos():
 
     return render_template('admin_productos.html', usuario=usuario, productos=productos)
 
+#-----------------------------------------------------------------
+# Funcion para mostrar la informacion del usuario en el checkout
+#-----------------------------------------------------------------
+
+@app.route('/checkout', methods=['GET'])
+def checkout():
+    if not session.get('usuario_id'):
+        flash("Debe iniciar sesión para procesar un pedido.", "warning")
+        return redirect(url_for('login'))
+
+    id_usuario = session['usuario_id']
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Obtener carrito del usuario
+    cursor.execute("""
+        SELECT c.id_producto, c.cantidad, p.nombre, p.precio, p.stock, p.imagen
+        FROM carrito c
+        INNER JOIN productos p ON c.id_producto = p.id_producto
+        WHERE c.id_usuario = %s
+    """, (id_usuario,))
+    carrito = cursor.fetchall()
+
+    if len(carrito) == 0:
+        flash("El carrito está vacío.", "danger")
+        return redirect(url_for('catalogo'))
+
+    # Datos del usuario (para prellenar)
+    cursor.execute("""
+        SELECT nombre_completo, direccion, telefono_contacto, correo
+        FROM usuarios
+        WHERE id_usuario = %s
+    """, (id_usuario,))
+    usuario = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("checkout.html", usuario=usuario, carrito=carrito)
+
+@app.route('/datos_envio', methods=['GET'])
+def datos_envio():
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+    
+    return render_template('datos_envio.html', usuario=usuario)
+
+# -------------------------------------------------------------------
+# Productos que el cliente puede valorar
+# -------------------------------------------------------------------
+@app.route('/mis_valoraciones')
+def mis_valoraciones():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # solo clientes
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT DISTINCT 
+            dp.id_producto,
+            p.nombre,
+            p.imagen,
+            p.precio,
+            ped.estado
+        FROM detalle_pedido dp
+        JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
+        JOIN productos p ON dp.id_producto = p.id_producto
+        WHERE ped.id_usuario = %s
+          AND ped.estado = 'Entregado'
+          AND dp.id_producto NOT IN (
+              SELECT id_producto FROM valoraciones WHERE id_usuario = %s
+          );
+    """
+    cursor.execute(query, (usuario['id_usuario'], usuario['id_usuario']))
+    productos_para_valorar = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("mis_valoraciones.html",
+                           usuario=usuario,
+                           productos=productos_para_valorar)
+    
+# -------------------------------------------------------------------
+# Formulario de valoración
+# -------------------------------------------------------------------
+@app.route('/valorar/<int:id_producto>', methods=['GET'])
+def valorar_producto(id_producto):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:
+        return redirect(url_for('login'))
+
+    return render_template("valorar_producto.html",
+                           usuario=usuario,
+                           id_producto=id_producto)
+
+# -------------------------------------------------------------------
+# Guardar valoración
+# -------------------------------------------------------------------
+@app.route('/valorar/<int:id_producto>', methods=['POST'])
+def guardar_valoracion(id_producto):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+
+    calificacion = request.form.get("calificacion")
+    comentario = request.form.get("comentario")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+        INSERT INTO valoraciones (id_usuario, id_producto, calificacion, comentario)
+        VALUES (%s, %s, %s, %s)
+    """
+
+    cursor.execute(query, (usuario['id_usuario'], id_producto, calificacion, comentario))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('mis_valoraciones'))
+
+@app.route('/cliente/mis_valoraciones')
+def mis_valoraciones_historial():
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 3:  # 3 = Cliente
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT v.calificacion, v.comentario, v.fecha,
+               p.nombre, p.imagen
+        FROM valoraciones v
+        JOIN productos p ON v.id_producto = p.id_producto
+        WHERE v.id_usuario = %s
+        ORDER BY v.fecha DESC
+    """
+    cursor.execute(query, (usuario['id_usuario'],))
+    valoraciones = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("mis_valoraciones_historial.html",
+                           valoraciones=valoraciones,
+                           usuario=usuario)
 
 # ----------------------------
 # Run app

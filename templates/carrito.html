@@ -25,9 +25,7 @@
         <h3>Total: ${{ total }}</h3>
 
         <!-- Botón para crear pedido -->
-        <form action="{{ url_for('crear_pedido') }}" method="POST">
-            <button type="submit" class="btn-proceder">Proceder al pago</button>
-        </form>
+        <a href="{{ url_for('datos_envio') }}" class="btn-proceder">Proceder al pago</a>
 
         <!-- Formulario para calcular costo de envío -->
         <form action="{{ url_for('calcular_envio') }}" method="POST">
