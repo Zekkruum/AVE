@@ -52,8 +52,9 @@
             <p><strong>Pedido:</strong> #{{ pago.id_pedido }}</p>
             <p><strong>Estado:</strong> {{ pago.estado }}</p>
             <p><strong>Monto:</strong> ${{ '%.2f'|format(pago.monto|float) }}</p>
-            <p><strong>Método:</strong> {{ pago.metodo }}</p>
+            <p><strong>Método:</strong> {{ pago.metodo_pago }}</p>
 
+            
 
             <div class="form-actions" style="margin-top:20px; gap:12px;">
                 <a href="{{ url_for('catalogo') }}" class="btn btn-primary">Seguir comprando</a>

@@ -210,3 +210,37 @@ def hash_password(password):
 
 def verify_password(hash_value, password):
     return check_password_hash(hash_value, password)
+
+
+
+
+
+
+# ----------------------------
+# Generar número único de pedido
+# ----------------------------
+def generar_numero_pedido():
+    from datetime import datetime
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fecha en formato AAAAMMDD
+    fecha = datetime.now().strftime("%Y%m%d")
+
+    # Contar pedidos creados hoy para generar correlativo
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM pedidos 
+        WHERE numero_pedido LIKE %s
+    """, (f"PED-{fecha}-%",))
+
+    count = cursor.fetchone()[0] + 1  # correlativo incremental
+
+    # Construcción del número de pedido
+    numero_pedido = f"PED-{fecha}-{count:06d}"
+
+    cursor.close()
+    conn.close()
+    
+    return numero_pedido
+

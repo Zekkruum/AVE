@@ -1294,13 +1294,15 @@ def mis_pagos():
 
     # 🚨 asumo que pedidos.id_usuario guarda al dueño del pedido
     cursor.execute("""
-        SELECT pa.*, pe.total
+        SELECT pa.*, pe.total, pe.numero_pedido
         FROM pagos pa
         INNER JOIN pedidos pe ON pa.id_pedido = pe.id_pedido
         WHERE pe.id_usuario = %s
         ORDER BY pa.fecha DESC
-    """, (usuario['id_usuario'],))
+        """, (usuario['id_usuario'],))
     pagos = cursor.fetchall()
+
+
 
 
     cursor.close()
@@ -1314,6 +1316,8 @@ def mis_pagos():
 # ----------------------------
 @app.route('/crear_pedido', methods=['POST'])
 def crear_pedido():
+    from utils import generar_numero_pedido  # 🔥 Import directo
+
     usuario = obtener_usuario()
     if not usuario:
         return redirect(url_for('login'))
@@ -1342,28 +1346,29 @@ def crear_pedido():
         conn.close()
         return redirect(url_for('carrito'))
 
-    # Calcular totales
+    # Verificar stock disponible
+    for item in carrito:
+        if item['cantidad'] > item['stock']:
+            cursor.close()
+            conn.close()
+            return f"Stock insuficiente para {item['id_producto']}", 400
+
+    # Calcular subtotal, impuesto y total
     subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
-    impuesto = round(subtotal * 0.19, 2)
+    impuesto = round(subtotal * 0.19, 2)  
     total = subtotal + impuesto
 
-    # Insertar pedido con datos del cliente
-    cursor.execute("""
-        INSERT INTO pedidos 
-        (id_usuario, fecha, estado, subtotal, impuesto, total,
-        nombre_cliente, direccion_entrega, telefono_cliente,
-        correo_cliente)
-        VALUES (%s, NOW(), 'Pendiente', %s, %s, %s,
-        %s, %s, %s, %s)
-    """, (
-        usuario['id_usuario'], subtotal, impuesto, total,
-        nombre_cliente, direccion_entrega, telefono_cliente,
-        correo_cliente
-    ))
+    # 🔥 Generar número único de pedido
+    numero_pedido = generar_numero_pedido()
 
+    # Insertar pedido con número único
+    cursor.execute("""
+        INSERT INTO pedidos (id_usuario, fecha, estado, subtotal, impuesto, total, numero_pedido)
+        VALUES (%s, NOW(), 'Pendiente', %s, %s, %s, %s)
+    """, (usuario['id_usuario'], subtotal, impuesto, total, numero_pedido))
     id_pedido = cursor.lastrowid
 
-    # Insertar productos + actualizar stock
+    # Insertar detalles y descontar stock
     for item in carrito:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
@@ -1561,7 +1566,6 @@ def registrar_devolucion(id_producto):
     cursor.close()
     conn.close()
     return render_template('registrar_devolucion.html', usuario=usuario, producto=producto)
-
 
 
 # ----------------------------
