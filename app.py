@@ -421,61 +421,6 @@ def buscar_rapido():
 
 
 
-# ----------------------------
-# Producto - Detalle (CLIENTE)
-# ----------------------------
-# @app.route('/producto/<int:id_producto>')
-# def producto_detalle(id_producto):
-#     usuario = obtener_usuario()
-#     if not usuario:
-#         return redirect(url_for('login'))
-
-#     conn = get_db_connection()
-#     cursor = conn.cursor(dictionary=True)
-
-#     # Traer datos + lista de imágenes
-#     cursor.execute("""
-#         SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, 
-#                p.imagen AS imagen_local,
-#                GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat
-#         FROM productos p
-#         LEFT JOIN imagenes i ON p.id_producto = i.id_producto
-#         WHERE p.id_producto = %s
-#         GROUP BY p.id_producto
-#     """, (id_producto,))
-#     producto = cursor.fetchone()
-#     cursor.close()
-#     conn.close()
-
-#     if not producto:
-#         return redirect(url_for('catalogo'))
-
-#     # Normalizar imágenes (igual que en catalogo)
-#     def normalize(src):
-#         if not src:
-#             return None
-#         if src.startswith('http://') or src.startswith('https://'):
-#             return src
-#         if src.startswith('static/'):
-#             return url_for('static', filename=src.replace('static/', '', 1))
-#         if src.startswith('uploads/'):
-#             return url_for('static', filename=src)
-#         return url_for('static', filename='uploads/' + src)
-
-#     imagenes = []
-#     if producto.get("imagenes_concat"):
-#         imagenes = [normalize(s) for s in producto["imagenes_concat"].split("||") if s]
-
-#     if producto.get("imagen_local"):
-#         imagenes.insert(0, normalize(producto["imagen_local"]))
-
-#     if not imagenes:
-#         imagenes = [url_for('static', filename='img/no-image.png')]
-
-#     producto["imagenes"] = imagenes
-
-#     return render_template("producto_detalle.html", usuario=usuario, producto=producto)
-
 @app.route('/producto/<int:id_producto>')
 def producto_detalle(id_producto):
     usuario = obtener_usuario()
