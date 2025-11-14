@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Productos para valorar</h1>
+
+{% if productos %}
+<div class="productos-grid">
+    {% for p in productos %}
+    <div class="producto-card">
+        <img src="{{ url_for('static', filename='uploads/' + (p.imagen if p.imagen else 'ejemplo.jpg')) }}"
+            alt="{{ p.nombre }}" class="producto-img">
+        <h3>{{ p.nombre }}</h3>
+        <p>${{ p.precio }}</p>
+
+        <a class="btn" href="{{ url_for('valorar_producto', id_producto=p.id_producto) }}">
+            Valorar Producto
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No tienes productos pendientes por valorar.</p>
+{% endif %}
+{% endblock %}
