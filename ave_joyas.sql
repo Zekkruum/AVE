@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-11-2025 a las 16:27:54
+-- Tiempo de generación: 14-11-2025 a las 01:24:04
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -1129,7 +1129,12 @@ INSERT INTO `tipos_joya` (`id_tipo`, `nombre_tipo`) VALUES
 (2, 'Collar'),
 (3, 'Pulsera'),
 (4, 'Arete'),
-(5, 'Broche');
+(5, 'Broche'),
+(6, 'Cadena'),
+(7, 'Argolla'),
+(8, 'Choker'),
+(9, 'Gargantilla'),
+(10, 'Colgante');
 
 -- --------------------------------------------------------
 
@@ -1831,7 +1836,7 @@ ALTER TABLE `tallas`
 -- AUTO_INCREMENT de la tabla `tipos_joya`
 --
 ALTER TABLE `tipos_joya`
-  MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tokens_recuperacion`
