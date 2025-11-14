@@ -549,7 +549,7 @@ def carrito():
 
     # 🔥 Normalizar imagen igual que catálogo
     for item in carrito:
-        imagen_src = item['imagen_local'] or item['imagen_extra']
+        imagen_src = item['imagen_local'] or item['imagen_extra'] 
 
         if imagen_src:
             if imagen_src.startswith('static/'):
