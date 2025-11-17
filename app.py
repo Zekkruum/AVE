@@ -198,116 +198,86 @@ def catalogo():
     cursor = conn.cursor(dictionary=True)
 
     sql = """
-SELECT 
-    p.id_producto,
-    p.nombre,
-    p.descripcion,
-    p.precio,
-    p.stock,
-    p.imagen AS imagen_local,
-    GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
+    SELECT 
+        p.id_producto,
+        p.nombre,
+        p.descripcion,
+        p.precio,
+        p.stock,
+        p.imagen AS imagen_local,
+        GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
 
-    pr.descuento AS descuento_promocion,
-    pr.nombre AS nombre_promocion,
+        pr.descuento AS descuento_promocion,
+        pr.titulo AS nombre_promocion,
 
-    CASE 
-        WHEN pr.descuento IS NOT NULL AND pr.descuento > 0
-        THEN ROUND(p.precio - (p.precio * pr.descuento), 2)
-        ELSE p.precio
-    END AS precio_final
+        CASE 
+            WHEN pr.descuento IS NOT NULL AND pr.descuento > 0
+            THEN ROUND(p.precio - (p.precio * pr.descuento), 2)
+            ELSE p.precio
+        END AS precio_final
 
-FROM productos p
-LEFT JOIN imagenes i 
-    ON p.id_producto = i.id_producto
-LEFT JOIN producto_promocion pp 
-    ON p.id_producto = pp.id_producto
-LEFT JOIN promociones pr 
-    ON pp.id_promocion = pr.id_promocion 
-    AND pr.estado = 1 
-    AND pr.activa = 1
-    AND pr.fecha_inicio <= NOW()
-    AND pr.fecha_fin >= NOW()
+    FROM productos p
+    LEFT JOIN imagenes i 
+        ON p.id_producto = i.id_producto
+    LEFT JOIN producto_promocion pp 
+        ON p.id_producto = pp.id_producto
+    LEFT JOIN promociones pr 
+        ON pp.id_promocion = pr.id_promocion
+        AND pr.estado = 1
+        AND pr.activa = 1
+        AND pr.fecha_inicio <= NOW()
+        AND pr.fecha_fin >= NOW()
 
-WHERE 1=1
-"""
+    WHERE 1=1
+    """
+
     params = []
     if tipo_selected:
         sql += " AND p.id_tipo = %s"
         params.append(tipo_selected)
+
     if material_selected:
         sql += " AND p.id_material = %s"
         params.append(material_selected)
+
     if precio_min_selected is not None:
         sql += " AND p.precio >= %s"
         params.append(precio_min_selected)
+
     if precio_max_selected is not None:
         sql += " AND p.precio <= %s"
         params.append(precio_max_selected)
+
     if busqueda:
         sql += " AND (p.nombre LIKE %s OR p.referencia LIKE %s)"
         like_query = f"%{busqueda}%"
         params.extend([like_query, like_query])
 
     sql += " GROUP BY p.id_producto ORDER BY p.nombre ASC"
+
     cursor.execute(sql, params)
     productos = cursor.fetchall()
 
-    # Normalizar imágenes
-    for p in productos:
-        imgs = [s for s in (p.get('imagenes_concat') or '').split('||') if s]
-        imagen_src = p['imagen_local'] or (imgs[0] if imgs else None)
-
-        if imagen_src:
-            if imagen_src.startswith('static/'):
-                imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
-            elif imagen_src.startswith('uploads/'):
-                imagen_src = url_for('static', filename=imagen_src)
-        else:
-            imagen_src = url_for('static', filename='img/no-image.png')
-
-        p['imagen_src'] = imagen_src
-
-    # Obtener listas para filtros
-    cursor.execute("SELECT * FROM tipos_joya ORDER BY nombre_tipo ASC")
-    tipos = cursor.fetchall()
-
-    cursor.execute("SELECT * FROM materiales ORDER BY nombre_material ASC")
-    materiales = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return render_template(
-        'catalogo.html',
-        productos=productos,
-        usuario=usuario,
-        tipos=tipos,
-        materiales=materiales,
-        tipo_selected=tipo_selected,
-        material_selected=material_selected,
-        precio_min_selected=precio_min_selected or '',
-        precio_max_selected=precio_max_selected or '',
-        busqueda=busqueda
-    )
-
-    
-    # =====================================================
-# 🔥 REEMPLAZAR EL STOCK GENERAL CON LA SUMA DE STOCK_TALLAS
-# =====================================================
+    # -----------------------------
+    # Reemplazar stock general por stock de tallas
+    # -----------------------------
     for p in productos:
         cursor.execute("""
             SELECT COALESCE(SUM(stock), 0) AS total_stock
             FROM stock_tallas
             WHERE id_producto = %s
         """, (p['id_producto'],))
-        result = cursor.fetchone()
-        p['stock'] = result['total_stock']  # ← Reemplaza el stock original
-# =====================================================
 
+        result = cursor.fetchone()
+        p['stock'] = result['total_stock']
+
+    # -----------------------------
     # Normalizar imágenes
+    # -----------------------------
     for p in productos:
         imgs = [s for s in (p.get('imagenes_concat') or '').split('||') if s]
         imagen_src = p['imagen_local'] or (imgs[0] if imgs else None)
+
         if imagen_src:
             if imagen_src.startswith('static/'):
                 imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
@@ -315,11 +285,13 @@ WHERE 1=1
                 imagen_src = url_for('static', filename=imagen_src)
         else:
             imagen_src = url_for('static', filename='img/no-image.png')
+
         p['imagen_src'] = imagen_src
 
-    # Obtener tipos y materiales para el formulario
+    # Obtener filtros
     cursor.execute("SELECT * FROM tipos_joya ORDER BY nombre_tipo ASC")
     tipos = cursor.fetchall()
+
     cursor.execute("SELECT * FROM materiales ORDER BY nombre_material ASC")
     materiales = cursor.fetchall()
 
@@ -338,7 +310,7 @@ WHERE 1=1
         precio_max_selected=precio_max_selected or '',
         busqueda=busqueda
     )
-    
+
 @app.route('/catalogo/filtrar')
 def catalogo_filtrar():
     tipo_selected = request.args.get('tipo', type=int)
@@ -1167,6 +1139,49 @@ def marcar_entregado(id_pedido):
     conn.close()
 
     return redirect(url_for('gestionar_pedidos'))
+
+
+@app.route("/incidencia/<int:id_pedido>", methods=["GET"])
+def registrar_incidencia_form(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for("login"))
+
+    # Verificar que el pedido exista y sea del usuario
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM pagos WHERE id_pago = %s AND id_usuario = %s", 
+                   (id_pedido, usuario['id_usuario']))
+    pedido = cursor.fetchone()
+
+    if not pedido:
+        return "Pedido no encontrado o no pertenece al usuario", 404
+
+    return render_template("registrar_incidencia.html", pedido=pedido, usuario=usuario)
+
+@app.route("/mis-incidencias")
+def incidencias_historial():
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for("login"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT i.*, p.monto, p.fecha_pago
+        FROM incidencias i
+        INNER JOIN pagos p ON i.id_pedido = p.id_pago
+        WHERE i.id_usuario = %s
+        ORDER BY i.fecha_registro DESC
+    """, (usuario['id_usuario'],))
+
+    incidencias = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("incidencias_historial.html", incidencias=incidencias)
 
 # ----------------------------
 # Producto - Detalle (VENDEDOR)
