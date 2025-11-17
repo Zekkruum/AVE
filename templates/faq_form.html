@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <h1>
+        {% if modo == 'nuevo' %}
+            Crear nueva pregunta
+        {% else %}
+            Editar pregunta
+        {% endif %}
+    </h1>
+
+    <form method="POST" class="form-box">
+
+        <label>Pregunta</label>
+        <input type="text" name="pregunta" required
+               value="{{ faq.pregunta if faq else '' }}">
+
+        <label>Respuesta</label>
+        <textarea name="respuesta" rows="5" required>{{ faq.respuesta if faq else '' }}</textarea>
+
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <a href="{{ url_for('admin_faq') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</main>
+{% endblock %}

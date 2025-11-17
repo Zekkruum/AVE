@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Administrar Promociones</h2>
+
+<a href="{{ url_for('crear_promocion') }}">➕ Nueva Promoción</a>
+
+<table border="1">
+<tr>
+  <th>Nombre</th>
+  <th>Descuento</th>
+  <th>Inicio</th>
+  <th>Fin</th>
+  <th>Estado</th>
+  <th>Acción</th>
+</tr>
+
+{% for p in promos %}
+<tr>
+  <td>{{ p.nombre }}</td>
+  <td>{{ p.porcentaje_descuento }}%</td>
+  <td>{{ p.fecha_inicio }}</td>
+  <td>{{ p.fecha_fin }}</td>
+  <td>{{ "Activa" if p.estado == 1 else "Inactiva" }}</td>
+  <td>
+    {% if p.estado == 1 %}
+      <a href="{{ url_for('cambiar_estado_promocion', id=p.id_promocion, estado=0) }}">❌ Desactivar</a>
+    {% else %}
+      <a href="{{ url_for('cambiar_estado_promocion', id=p.id_promocion, estado=1) }}">✅ Activar</a>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

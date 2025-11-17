@@ -1,0 +1,821 @@
+/* ---------- Reset básico ---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background: url("/static/img/fondo-joyas.png") no-repeat center center fixed;
+    background-size: cover;
+}
+
+
+/* ---------- Encabezado ---------- */
+header {
+    background: linear-gradient(to right, #fdfdfd, #eaeaea);
+    border-bottom: 1px solid #ddd;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #000;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #777;
+}
+
+
+/* ---------- Navegación ---------- */
+nav {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.menu>li {
+    position: relative;
+}
+
+.menu>li>a {
+    display: block;
+    padding: 15px 25px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+}
+
+.menu>li>a:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+/* Submenús */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.submenu li a:hover {
+    background-color: #f5f5f5;
+    color: #000;
+}
+
+.menu>li:hover .submenu {
+    display: block;
+}
+
+/* Logout */
+.logout {
+    background: #b33;
+    border-radius: 8px;
+}
+
+.logout:hover {
+    background: #222;
+}
+
+.slogan {
+    margin-top: 15px;
+    font-size: 1rem;
+    color: #555;
+}
+
+/* ---------- Contenido principal ---------- */
+main section {
+    background: rgba(255, 255, 255, 0.1); /* blanco con 75% opacidad */
+    border-radius: 16px;
+    padding: 50px;
+    margin-top: auto;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    backdrop-filter: blur(8px); /* efecto vidrio difuminado */
+}
+
+main section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+main {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+
+main h2 {
+    color: #222;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+main h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #000000;
+    margin: 8px auto 0;
+    border-radius: 2px;
+}
+
+main p {
+    color: #555;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+main ul {
+    list-style: none;
+    padding: 0;
+    margin: 25px auto;
+}
+
+main ul li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 12px;
+    color: #444;
+    font-size: 1rem;
+}
+
+main ul li::before {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #2b2b2b;
+    font-weight: bold;
+}
+
+
+/* ---------- Grillas reutilizables ---------- */
+.grid,
+.dashboard-grid,
+.catalogo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+/* ---------- Tarjetas reutilizables ---------- */
+.card,
+.producto-card {
+    background: rgba(255, 255, 255, 0.8); /* translúcido */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.12);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover,
+.producto-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0px 10px 28px rgba(0,0,0,0.18);
+}
+
+/* Tarjetas de productos */
+.producto-card img {
+    max-width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+.producto-card:hover img {
+    transform: scale(1.05);
+}
+
+
+.producto-card h3 {
+    margin: 12px 0 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #222;
+}
+
+.producto-card .descripcion {
+    font-size: 0.95rem;
+    color: #555;
+    margin: 8px 0 12px;
+    line-height: 1.4;
+}
+
+
+.producto-card .precio {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #000000; 
+    margin: 10px 0;
+}
+
+.producto-card .stock {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+
+.producto-card a {
+    text-decoration: none; /* elimina el subrayado */
+    color: inherit;        /* hereda el color del texto */
+    display: block; 
+}
+
+
+/* ---------- Botones ---------- */
+
+.producto-card button {
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.2s ease;
+}
+
+.producto-card button:hover {
+    background: linear-gradient(135deg, #6d6d6c, #afafae);
+    transform: translateY(-2px);
+}
+
+
+button {
+    background: #2a9d8f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #21867a;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    background: #333;
+    color: #eee;
+    text-align: center;
+    padding: 25px;
+    margin-top: 60px;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* ---------- Formularios de autenticación ---------- */
+.auth-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #fdfdfd, #f5f5f5);
+}
+
+.auth-container {
+    background: #fff;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.auth-container h2 {
+    margin-bottom: 20px;
+    color: #444;
+}
+
+.auth-container label {
+    display: block;
+    text-align: left;
+    margin: 10px 0 5px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.auth-container input,
+.auth-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.auth-container input:focus,
+.auth-container select:focus {
+    outline: none;
+    border-color: #2a9d8f;
+    box-shadow: 0 0 5px rgba(42, 157, 143, 0.3);
+}
+
+.auth-container button {
+    background: #2a9d8f;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.auth-container button:hover {
+    background: #21867a;
+}
+
+.error {
+    color: red;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.auth-link {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.auth-link a {
+    color: #2a9d8f;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Estilos del Menú Premium ---------- */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+header {
+    background: linear-gradient(to right, #fdfdfd, #eaeaea);
+    border-bottom: 1px solid #ddd;
+    padding: 25px 20px 15px;
+    text-align: center;
+}
+
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* evita que se rompa en pantallas pequeñas */
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.logo img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 155px;
+}
+
+.logo h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #222;
+    font-weight: 700;
+}
+
+.branding {
+    flex: 1;
+    text-align: center;
+}
+
+.branding h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 1px;
+}
+
+.branding p {
+    margin: 5px 0 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #333;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+header p {
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* Barra de navegación */
+nav {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.menu>li {
+    position: relative;
+}
+
+.menu>li>a {
+    display: block;
+    padding: 15px 25px;
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+}
+
+.menu>li>a:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+/* Submenús */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.submenu li a:hover {
+    background-color: #f5f5f5;
+    color: #000;
+}
+
+.menu>li:hover .submenu {
+    display: block;
+}
+
+/* Logout especial */
+.logout {
+    color: #fff !important;
+    background: #444;
+    border-radius: 20px;
+    padding: 10px 20px !important;
+    margin-left: 20px;
+    transition: background 0.3s;
+}
+
+.logout:hover {
+    background: #222;
+}
+
+.acceso {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.acceso a {
+    background: #333;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.bienvenida {
+    font-size: 0.95rem;
+    color: #444;
+    margin-right: 10px;
+}
+
+.acceso a:hover {
+    background: linear-gradient(135deg, #6d6d6c, #afafae);
+    transform: translateY(-2px);
+}
+
+
+.content-box {
+    background: rgba(255, 255, 255, 0.7); /* semi transparente */
+    backdrop-filter: blur(10px); /* efecto vidrio */
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 50px 40px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.content-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+}
+
+.content-box h2 {
+    color: #222;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.content-box h2::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #0f0f0f; /* dorado */
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+.content-box p {
+    color: #444;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.content-box ul {
+    list-style: none;
+    padding: 0;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.content-box ul li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 14px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.content-box ul li::before {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #000000;
+    font-weight: bold;
+}
+
+
+/* ---------- Carrito ---------- */
+.carrito-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.carrito-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+}
+
+/* Imagen más pequeña */
+.carrito-item img {
+    width: 80px;   /* ajusta tamaño */
+    height: 80px;  /* ajusta tamaño */
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.menu li a[href*="pedido_personalizado"] {
+    color: #444;
+}
+.menu li a[href*="pedido_personalizado"]:hover {
+    color: #c49b3f;
+    text-decoration: none;
+}
+
+/* Contenedor de la tabla */
+.table-container {
+    margin-top: 20px;
+    overflow-x: auto; /* por si la tabla se desborda en móviles */
+}
+
+/* Tabla estilizada */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Cabecera */
+.styled-table thead {
+    background: #d4af37; /* dorado */
+    color: #fff;
+    text-align: left;
+}
+
+.styled-table th {
+    padding: 14px 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Celdas */
+.styled-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    line-height: 1.5; /* más espacio entre líneas */
+}
+
+/* Filas */
+.styled-table tbody tr:hover {
+    background: #f9f9f9;
+    transition: background 0.2s ease;
+}
+
+/* Última fila sin borde */
+.styled-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    right: 20px;
+    background-color: #25d366;
+    border-radius: 50%;
+    text-align: center;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.whatsapp-float img {
+    width: 32px;
+    height: 32px;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+}
+
+.form-container {
+    background: #fff;
+    padding: 2rem;
+    width: 50%;
+    margin: 2rem auto;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+}
+
+.envio-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.envio-form input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+}
+
+.btn-principal {
+    padding: 12px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.btn-principal:hover {
+    background: #333;
+}
+
+.styled-table td a.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.styled-table td {
+    vertical-align: middle;
+}
+

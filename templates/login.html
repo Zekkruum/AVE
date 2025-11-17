@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+
+<body class="auth-body">
+    <div class="auth-container">
+        <h2>Iniciar Sesión</h2>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <label for="correo">Correo electrónico</label>
+            <input type="email" id="correo" name="correo" required>
+
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" required>
+
+            <div class="show-pass">
+                <input type="checkbox" id="togglePassword">
+                <label for="togglePassword">Mostrar contraseña</label>
+            </div>
+
+            <button type="submit">Ingresar</button>
+        </form>
+
+        <p class="auth-link">¿Olvidaste tu contraseña? <a href="{{ url_for('recuperar') }}">Recupérala aquí</a></p>
+        <p class="auth-link">¿No tienes cuenta? <a href="{{ url_for('signin') }}">Regístrate</a></p>
+    </div>
+
+    <script>
+        const toggle = document.getElementById("togglePassword");
+        const password = document.getElementById("password");
+        toggle.addEventListener("change", function() {
+            password.type = this.checked ? "text" : "password";
+        });
+    </script>
+</body>
+</html>
+ 

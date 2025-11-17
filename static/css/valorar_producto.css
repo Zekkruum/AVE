@@ -1,0 +1,77 @@
+/* ======== CONTENEDOR ======== */
+.valoracion-container {
+    max-width: 550px;
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ======== TÍTULO ======== */
+.titulo {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #000000;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* ======== FORMULARIO ======== */
+.valoracion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.label {
+    font-weight: 600;
+    color: #222222;
+}
+
+/* CAMPOS */
+.select,
+.textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #bfbfbf;
+    border-radius: 8px;
+    background: #f2f2f2;
+    font-size: 1rem;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+/* FOCUS */
+.select:focus,
+.textarea:focus {
+    border-color: #000000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+/* TEXTAREA */
+.textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+/* ======== BOTÓN ======== */
+.btn-enviar {
+    padding: 12px;
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-enviar:hover {
+    background: linear-gradient(135deg, #6d6d6c, #afafae);
+    transform: translateY(-2px);
+    color: #000000;
+}

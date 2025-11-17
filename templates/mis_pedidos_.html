@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Mis pedidos</h2>
+<table>
+  <tr><th>ID</th><th>Fecha</th><th>Estado</th><th>Total</th><th>Acciones</th></tr>
+  {% for p in pedidos %}
+  <tr>
+    <td>{{ p.id_pedido }}</td>
+    <td>{{ p.fecha }}</td>
+    <td>{{ p.estado }}</td>
+    <td>${{ '%.2f'|format(p.total) }}</td>
+    <td>
+      <a href="{{ url_for('detalle_pedido', id_pedido=p.id_pedido) }}">Ver</a>
+      {% if p.codigo_seguimiento %}<a href="{{ url_for('seguimiento_publico', codigo=p.codigo_seguimiento) }}">Seguimiento</a>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

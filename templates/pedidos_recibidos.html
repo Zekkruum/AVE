@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/p_recibidos.css') }}">
+
+<div class="pedido-container">
+    <h2> Pedidos Recibidos</h2>
+
+    {% if pedidos %}
+    <table class="tabla-pedidos">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Tipo de Producto</th>
+                <th>Materiales</th>
+                <th>Diseño</th>
+                <th>Presupuesto</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr>
+                <td>{{ p.nombre_cliente }}</td>
+                <td>{{ p.tipo_producto }}</td>
+                <td>{{ p.materiales }}</td>
+                <td>{{ p.diseno }}</td>
+                <td>${{ p.presupuesto }}</td>
+                <td><span class="estado {{ p.estado|lower }}">{{ p.estado }}</span></td>
+                <td>
+                    <form action="{{ url_for('actualizar_pedido_personalizado', id_pedido=p.id_pedido_personalizado) }}"
+                        method="POST">
+
+                        <!-- Botón aceptar con fecha -->
+                        <div class="form-group">
+                            <label for="fecha_entrega"> Fecha estimada de entrega</label>
+                            <input type="date" name="fecha_entrega" required min="{{ fecha_hoy }}">
+                        </div>
+                        <button type="submit" name="estado" value="Aceptado">Aceptar</button>
+
+                        <!-- Botón rechazar con modal -->
+                        <button type="button" onclick="abrirModal({{ p.id_pedido_personalizado }})"> Rechazar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes pedidos recibidos aún.</p>
+    {% endif %}
+</div>
+
+<!-- Modal Rechazo -->
+<div id="modal-rechazo" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>❌ Rechazar Pedido</h3>
+        <form id="form-rechazo" method="POST">
+            <textarea name="motivo" placeholder="Explica el motivo del rechazo..." required></textarea>
+            <div class="modal-actions">
+                <button type="submit">Enviar</button>
+                <button type="button" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModal(idPedido) {
+        const modal = document.getElementById("modal-rechazo");
+        const form = document.getElementById("form-rechazo");
+        form.action = "/pedido_personalizado/" + idPedido + "/rechazar";
+        modal.style.display = "block";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-rechazo").style.display = "none";
+    }
+</script>
+{% endblock %}
