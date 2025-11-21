@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-11-2025 a las 13:54:46
+-- Tiempo de generación: 21-11-2025 a las 18:42:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -478,7 +478,68 @@ CREATE TABLE `faq` (
 INSERT INTO `faq` (`id_faq`, `pregunta`, `respuesta`, `fecha_creacion`) VALUES
 (1, '¿Cuánto tarda el envío?', 'El envío tarda entre 3 y 5 días hábiles.', '2025-11-11 02:25:14'),
 (2, '¿Puedo devolver un producto?', 'Sí, tienes 15 días para devolver productos no personalizados.', '2025-11-11 02:25:14'),
-(3, '¿Aceptan pagos con tarjeta?', 'Sí, aceptamos todas las tarjetas principales y PayPal.', '2025-11-11 02:25:14');
+(3, '¿Aceptan pagos con tarjeta?', 'Sí, aceptamos todas las tarjetas principales y PayPal.', '2025-11-11 02:25:14'),
+(4, '¿Cómo puedo saber si mi pedido fue confirmado?', 'Una vez completes el pago, recibirás un correo con la confirmación del pedido junto con el número de seguimiento.', '2025-11-21 12:40:36'),
+(5, '¿Cuánto tarda el proceso de envío?', 'Los envíos tardan entre 3 y 5 días hábiles, dependiendo de la ciudad y la empresa transportadora.', '2025-11-21 12:40:36'),
+(6, '¿Hacen envíos internacionales?', 'Sí, realizamos envíos internacionales. Los tiempos y costos varían según el país de destino.', '2025-11-21 12:40:36'),
+(7, '¿Cómo puedo hacer seguimiento a mi pedido?', 'Cuando tu pedido sea enviado recibirás un enlace de seguimiento para ver el estado del envío en tiempo real.', '2025-11-21 12:40:36'),
+(8, '¿Qué métodos de pago aceptan?', 'Aceptamos tarjetas de crédito, débito, PSE, Nequi, Daviplata y pago contraentrega en algunas ciudades.', '2025-11-21 12:40:36'),
+(9, '¿Es seguro pagar en su tienda?', 'Sí. Utilizamos pasarelas de pago certificadas con cifrado avanzado para proteger tus datos en todo momento.', '2025-11-21 12:40:36'),
+(10, '¿Puedo devolver un producto?', 'Sí, puedes solicitar una devolución dentro de los primeros 15 días, siempre que el producto esté en perfecto estado y con su empaque original.', '2025-11-21 12:40:36'),
+(11, '¿Cómo elijo la talla correcta de un anillo?', 'En nuestra guía de tallas encontrarás instrucciones para medir tu dedo o comparar con un anillo que ya tengas.', '2025-11-21 12:40:36'),
+(12, '¿Puedo personalizar una joya?', 'Sí, contamos con un servicio de diseño personalizado donde puedes elegir materiales, piedras y grabados.', '2025-11-21 12:40:36'),
+(13, '¿Las joyas tienen garantía?', 'Sí, todas nuestras joyas cuentan con garantía de 6 meses por defectos de fabricación.', '2025-11-21 12:40:36'),
+(14, '¿Qué materiales utilizan en las joyas?', 'Trabajamos con oro, plata, acero quirúrgico y piedras preciosas certificadas.', '2025-11-21 12:40:36'),
+(15, '¿Cómo cuido mis joyas?', 'Evita el contacto con perfumes, agua salada y otros químicos. Guarda tus joyas en estuches individuales.', '2025-11-21 12:40:36'),
+(16, '¿Puedo cambiar un producto por otro?', 'Sí, puedes solicitar un cambio dentro de los primeros 15 días presentando la factura de compra.', '2025-11-21 12:40:36'),
+(17, '¿El precio del producto incluye el envío?', 'El envío es gratuito para compras superiores a $150.000. Si el monto es menor, se aplicará una tarifa según tu ciudad.', '2025-11-21 12:40:36'),
+(18, '¿Qué pasa si mi pedido llega dañado?', 'Si tu pedido llega con daño o defecto, debes reportarlo dentro de las primeras 24 horas para gestionar la reposición sin costo.', '2025-11-21 12:40:36'),
+(19, '¿Cómo puedo saber si mi pedido fue confirmado?', 'Una vez completes el pago, recibirás un correo con la confirmación del pedido junto con el número de seguimiento.', '2025-11-21 12:40:54'),
+(20, '¿Cuánto tarda el proceso de envío?', 'Los envíos tardan entre 3 y 5 días hábiles, dependiendo de la ciudad y la empresa transportadora.', '2025-11-21 12:40:54'),
+(21, '¿Hacen envíos internacionales?', 'Sí, realizamos envíos internacionales. Los tiempos y costos varían según el país de destino.', '2025-11-21 12:40:54'),
+(22, '¿Cómo puedo hacer seguimiento a mi pedido?', 'Cuando tu pedido sea enviado recibirás un enlace de seguimiento para ver el estado del envío en tiempo real.', '2025-11-21 12:40:54'),
+(23, '¿Qué métodos de pago aceptan?', 'Aceptamos tarjetas de crédito, débito, PSE, Nequi, Daviplata y pago contraentrega en algunas ciudades.', '2025-11-21 12:40:54'),
+(24, '¿Es seguro pagar en su tienda?', 'Sí. Utilizamos pasarelas de pago certificadas con cifrado avanzado para proteger tus datos en todo momento.', '2025-11-21 12:40:54'),
+(25, '¿Puedo devolver un producto?', 'Sí, puedes solicitar una devolución dentro de los primeros 15 días, siempre que el producto esté en perfecto estado y con su empaque original.', '2025-11-21 12:40:54'),
+(26, '¿Cómo elijo la talla correcta de un anillo?', 'En nuestra guía de tallas encontrarás instrucciones para medir tu dedo o comparar con un anillo que ya tengas.', '2025-11-21 12:40:54'),
+(27, '¿Puedo personalizar una joya?', 'Sí, contamos con un servicio de diseño personalizado donde puedes elegir materiales, piedras y grabados.', '2025-11-21 12:40:54'),
+(28, '¿Las joyas tienen garantía?', 'Sí, todas nuestras joyas cuentan con garantía de 6 meses por defectos de fabricación.', '2025-11-21 12:40:54'),
+(29, '¿Qué materiales utilizan en las joyas?', 'Trabajamos con oro, plata, acero quirúrgico y piedras preciosas certificadas.', '2025-11-21 12:40:54'),
+(30, '¿Cómo cuido mis joyas?', 'Evita el contacto con perfumes, agua salada y otros químicos. Guarda tus joyas en estuches individuales.', '2025-11-21 12:40:54'),
+(31, '¿Puedo cambiar un producto por otro?', 'Sí, puedes solicitar un cambio dentro de los primeros 15 días presentando la factura de compra.', '2025-11-21 12:40:54'),
+(32, '¿El precio del producto incluye el envío?', 'El envío es gratuito para compras superiores a $150.000. Si el monto es menor, se aplicará una tarifa según tu ciudad.', '2025-11-21 12:40:54'),
+(33, '¿Qué pasa si mi pedido llega dañado?', 'Si tu pedido llega con daño o defecto, debes reportarlo dentro de las primeras 24 horas para gestionar la reposición sin costo.', '2025-11-21 12:40:54'),
+(34, '¿Cómo puedo saber si mi pedido fue confirmado?', 'Una vez completes el pago, recibirás un correo con la confirmación del pedido junto con el número de seguimiento.', '2025-11-21 12:41:38'),
+(35, '¿Cuánto tarda el proceso de envío?', 'Los envíos tardan entre 3 y 5 días hábiles, dependiendo de la ciudad y la empresa transportadora.', '2025-11-21 12:41:38'),
+(36, '¿Hacen envíos internacionales?', 'Sí, realizamos envíos internacionales. Los tiempos y costos varían según el país de destino.', '2025-11-21 12:41:38'),
+(37, '¿Cómo puedo hacer seguimiento a mi pedido?', 'Cuando tu pedido sea enviado recibirás un enlace de seguimiento para ver el estado del envío en tiempo real.', '2025-11-21 12:41:38'),
+(38, '¿Qué métodos de pago aceptan?', 'Aceptamos tarjetas de crédito, débito, PSE, Nequi, Daviplata y pago contraentrega en algunas ciudades.', '2025-11-21 12:41:38'),
+(39, '¿Es seguro pagar en su tienda?', 'Sí. Utilizamos pasarelas de pago certificadas con cifrado avanzado para proteger tus datos en todo momento.', '2025-11-21 12:41:38'),
+(40, '¿Puedo devolver un producto?', 'Sí, puedes solicitar una devolución dentro de los primeros 15 días, siempre que el producto esté en perfecto estado y con su empaque original.', '2025-11-21 12:41:38'),
+(41, '¿Cómo elijo la talla correcta de un anillo?', 'En nuestra guía de tallas encontrarás instrucciones para medir tu dedo o comparar con un anillo que ya tengas.', '2025-11-21 12:41:38'),
+(42, '¿Puedo personalizar una joya?', 'Sí, contamos con un servicio de diseño personalizado donde puedes elegir materiales, piedras y grabados.', '2025-11-21 12:41:38'),
+(43, '¿Las joyas tienen garantía?', 'Sí, todas nuestras joyas cuentan con garantía de 6 meses por defectos de fabricación.', '2025-11-21 12:41:38'),
+(44, '¿Qué materiales utilizan en las joyas?', 'Trabajamos con oro, plata, acero quirúrgico y piedras preciosas certificadas.', '2025-11-21 12:41:38'),
+(45, '¿Cómo cuido mis joyas?', 'Evita el contacto con perfumes, agua salada y otros químicos. Guarda tus joyas en estuches individuales.', '2025-11-21 12:41:38'),
+(46, '¿Puedo cambiar un producto por otro?', 'Sí, puedes solicitar un cambio dentro de los primeros 15 días presentando la factura de compra.', '2025-11-21 12:41:38'),
+(47, '¿El precio del producto incluye el envío?', 'El envío es gratuito para compras superiores a $150.000. Si el monto es menor, se aplicará una tarifa según tu ciudad.', '2025-11-21 12:41:38'),
+(48, '¿Qué pasa si mi pedido llega dañado?', 'Si tu pedido llega con daño o defecto, debes reportarlo dentro de las primeras 24 horas para gestionar la reposición sin costo.', '2025-11-21 12:41:38'),
+(49, '¿Cuánto tarda un pedido en ser entregado?', 'El tiempo de entrega promedio es de 2 a 5 días hábiles según la ciudad.', '2025-11-21 12:41:38'),
+(50, '¿Puedo pagar contra entrega?', 'Sí, en ciertas ciudades ofrecemos pago contra entrega.', '2025-11-21 12:41:38'),
+(51, '¿Cómo sé si mi pago fue confirmado?', 'Recibirás un correo con la confirmación del pago y podrás verlo en tu historial.', '2025-11-21 12:41:38'),
+(52, '¿Los productos tienen garantía?', 'Sí, todos nuestros productos cuentan con garantía de 30 días por defectos de fábrica.', '2025-11-21 12:41:38'),
+(53, '¿Puedo cambiar una joya si no me gustó?', 'Sí, puedes cambiarla dentro de los primeros 5 días.', '2025-11-21 12:41:38'),
+(54, '¿Cómo contacto al vendedor?', 'Puedes usar el chat interno o WhatsApp desde la página.', '2025-11-21 12:41:38'),
+(55, '¿Cómo uso un cupón de descuento?', 'En el carrito, antes de pagar, encontrarás un campo para ingresar el cupón.', '2025-11-21 12:41:38'),
+(56, '¿Qué materiales trabajan?', 'Oro, plata 925, acero, baño en oro y más.', '2025-11-21 12:41:38'),
+(57, '¿Tienen tienda física?', 'Sí, contamos con punto de atención. Contáctanos para más información.', '2025-11-21 12:41:38'),
+(58, '¿Cómo rastreo mi pedido?', 'En tu historial de compras se muestra el estado y detalles del seguimiento.', '2025-11-21 12:41:38'),
+(59, '¿Qué pasa si mi talla no está disponible?', 'Puedes solicitar fabricación personalizada.', '2025-11-21 12:41:38'),
+(60, '¿Las cadenas o anillos se despintan?', 'No, nuestros productos tienen calidad garantizada.', '2025-11-21 12:41:38'),
+(61, '¿Puedo ver fotos reales del producto?', 'Sí, todas las fotos son tomadas directamente de nuestros productos.', '2025-11-21 12:41:38'),
+(62, '¿Qué hago si no recibí correo de confirmación?', 'Revisa tu carpeta de spam o contáctanos directamente.', '2025-11-21 12:41:38'),
+(63, '¿Puedo cancelar un pedido?', 'Sí, siempre que aún no haya sido enviado.', '2025-11-21 12:41:38'),
+(64, '¿Cómo sé qué talla soy?', 'En la sección de producto encontrarás la guía de tallas.', '2025-11-21 12:41:38');
 
 -- --------------------------------------------------------
 
@@ -498,6 +559,22 @@ CREATE TABLE `imagenes` (
 
 INSERT INTO `imagenes` (`id_imagen`, `id_producto`, `url`) VALUES
 (7, 72, 'uploads/eff2c23522fb46b88f218dbae9a23265_7a56dffb03c74ffe92a4a85f2ec16e83_sg-11134201-7qvg4-liijuezgbfnx54.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `incidencias`
+--
+
+CREATE TABLE `incidencias` (
+  `id_incidencia` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `tipo` varchar(100) NOT NULL,
+  `comentario` text NOT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp(),
+  `estado` varchar(50) DEFAULT 'En revisión'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -896,11 +973,11 @@ CREATE TABLE `promociones` (
 --
 
 INSERT INTO `promociones` (`id_promocion`, `titulo`, `descripcion`, `fecha_inicio`, `fecha_fin`, `activa`, `nombre`, `descuento`, `estado`) VALUES
-(1, 'D?a de la Madre', '10% de descuento en anillos y collares', '2024-05-01', '2024-05-10', 1, NULL, 0.00, 1),
-(2, 'Semana del Oro', '15% descuento en todos los productos de oro', '2024-06-01', '2024-06-07', 1, NULL, 0.00, 1),
-(3, 'Black Friday', 'Hasta 50% en joyas seleccionadas', '2024-11-25', '2024-11-30', 1, NULL, 0.00, 1),
-(4, 'Navidad Especial', '20% en colecciones de invierno', '2024-12-15', '2024-12-31', 1, NULL, 0.00, 1),
-(5, 'A?o Nuevo', '5% de descuento adicional', '2025-01-01', '2025-01-05', 1, NULL, 0.00, 1),
+(1, 'D?a de la Madre', '10% de descuento en anillos y collares', '2024-05-01', '2024-05-10', 1, NULL, 0.10, 1),
+(2, 'Semana del Oro', '15% descuento en todos los productos de oro', '2024-06-01', '2024-06-07', 1, NULL, 0.15, 1),
+(3, 'Black Friday', 'Hasta 50% en joyas seleccionadas', '2024-11-25', '2024-11-30', 1, NULL, 0.50, 1),
+(4, 'Navidad Especial', '20% en colecciones de invierno', '2024-12-15', '2024-12-31', 1, NULL, 0.20, 1),
+(5, 'A?o Nuevo', '5% de descuento adicional', '2025-01-01', '2025-01-05', 1, NULL, 0.05, 1),
 (6, 'Promocion de prueba', 'Promoción válida por tiempo limitado', '2025-11-01', '2025-12-31', 1, 'Descuento de Verano', 0.15, 1),
 (7, NULL, 'Descuentos navideños', '2025-11-11', '2025-11-21', NULL, 'Navidad 2025', 0.20, 1);
 
@@ -1497,6 +1574,14 @@ ALTER TABLE `imagenes`
   ADD KEY `id_producto` (`id_producto`);
 
 --
+-- Indices de la tabla `incidencias`
+--
+ALTER TABLE `incidencias`
+  ADD PRIMARY KEY (`id_incidencia`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
 -- Indices de la tabla `incidencias_entrega`
 --
 ALTER TABLE `incidencias_entrega`
@@ -1716,13 +1801,19 @@ ALTER TABLE `devoluciones`
 -- AUTO_INCREMENT de la tabla `faq`
 --
 ALTER TABLE `faq`
-  MODIFY `id_faq` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_faq` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT de la tabla `imagenes`
 --
 ALTER TABLE `imagenes`
   MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `incidencias`
+--
+ALTER TABLE `incidencias`
+  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencias_entrega`
@@ -1887,6 +1978,13 @@ ALTER TABLE `devoluciones`
 --
 ALTER TABLE `imagenes`
   ADD CONSTRAINT `imagenes_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
+
+--
+-- Filtros para la tabla `incidencias`
+--
+ALTER TABLE `incidencias`
+  ADD CONSTRAINT `incidencias_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pagos` (`id_pago`),
+  ADD CONSTRAINT `incidencias_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
 
 --
 -- Filtros para la tabla `incidencias_entrega`
