@@ -817,7 +817,8 @@ def registrar_producto():
     lista_tipos = cursor.fetchall()
     cursor.execute("SELECT * FROM materiales")
     lista_materiales = cursor.fetchall()
-    cursor.close(); conn.close()
+    cursor.close()
+    conn.close()
 
     if request.method == 'POST':
         nombre = request.form['nombre']
@@ -835,7 +836,7 @@ def registrar_producto():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Insertar producto sin talla
+        # Insertar producto sin stock total aún
         cursor.execute("""
             INSERT INTO productos
                 (nombre, descripcion, precio, peso, alto, ancho, largo,
@@ -849,11 +850,20 @@ def registrar_producto():
         # Stock por talla
         tallas = request.form.getlist('talla[]')
         stocks = request.form.getlist('stock[]')
+
+        total_stock = 0
         for t, s in zip(tallas, stocks):
+            cantidad = int(s)
+            total_stock += cantidad
             cursor.execute("""
                 INSERT INTO stock_tallas (id_producto, talla, stock)
                 VALUES (%s, %s, %s)
-            """, (id_producto, t, int(s)))
+            """, (id_producto, t, cantidad))
+
+        # Actualizar stock total en productos
+        cursor.execute("""
+            UPDATE productos SET stock = %s WHERE id_producto = %s
+        """, (total_stock, id_producto))
 
         # Imágenes
         if 'imagenes' in request.files:
@@ -869,7 +879,8 @@ def registrar_producto():
                                    (id_producto, imagen_src))
 
         conn.commit()
-        cursor.close(); conn.close()
+        cursor.close()
+        conn.close()
         flash("✅ Producto registrado con éxito", "success")
         return redirect(url_for('mis_productos'))
 
@@ -879,6 +890,7 @@ def registrar_producto():
                            piedras=lista_piedras,
                            tipos=lista_tipos,
                            materiales=lista_materiales)
+
 
 
  
@@ -1459,12 +1471,18 @@ def crear_pedido():
         conn.close()
         return redirect(url_for('carrito'))
 
-    # Verificar stock disponible
+    # Verificar stock disponible con manejo de None
     for item in carrito:
-        if item['cantidad'] > item['stock']:
+        stock = item['stock']
+        if stock is None:
             cursor.close()
             conn.close()
-            return f"Stock insuficiente para {item['id_producto']}", 400
+            return f"Producto {item['id_producto']} no tiene stock definido.", 400
+
+        if item['cantidad'] > stock:
+            cursor.close()
+            conn.close()
+            return f"Stock insuficiente para el producto {item['id_producto']}.", 400
 
     # Calcular subtotal, impuesto y total
     subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
@@ -1501,6 +1519,7 @@ def crear_pedido():
     conn.close()
 
     return redirect(url_for('registrar_pago', id_pedido=id_pedido))
+
 
 
 

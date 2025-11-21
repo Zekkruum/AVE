@@ -36,27 +36,16 @@
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
             <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
-            <a class="btn btn-warning" href="{{ url_for('registrar_incidencia_form', id_pedido=pedido.id_pago) }}">
-    Registrar incidencia
-</a>
 
             {% if session.get('rol') == 3 %}
             <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
-            {% endif %}
-            {% if session.get('rol') == 3 %}
-            <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizads</a></li>
+            <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
             <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado </a></li>
             {% endif %}
             {% if session.get('rol') == 2 %}
             <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
             <li><a href="{{ url_for('pedidos_recibidos') }}">Pedidos Recibidos</a></li>
             {% endif %}
-
-            <!-- {% if session.get('rol') in [1, 2] %}
-            <li><a href="{{ url_for('listar_usuarios') }}">Usuarios</a></li>
-            {% endif %} --> <!-- funcionalidad del rol administrador -->
-
-
         </ul>
     </nav>
 
@@ -65,7 +54,6 @@
         <h1 class="page-title">Historial de Compras</h1>
         <p class="subtitle">Consulta aquí todos los pagos realizados en tu cuenta</p>
         <a href="{{ url_for('exportar_pedidos') }}" class="btn btn-primary">Exportar Pedidos</a>
-
 
         {% if pagos %}
         <div class="table-container">
@@ -78,7 +66,7 @@
                         <th>Método</th>
                         <th>Estado</th>
                         <th>Fecha</th>
-                        <th>Factura</th>
+                        <th>Factura / Incidencia</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,11 +79,14 @@
                         <td>{{ pago.metodo_pago }}</td>
                         <td>{{ pago.estado }}</td>
                         <td>{{ pago.fecha }}</td>
-
                         <td>
                             <a class="btn btn-sm btn-primary"
-                                href="{{ url_for('ver_factura', id_pedido=pago.id_pedido) }}">
+                               href="{{ url_for('ver_factura', id_pedido=pago.id_pedido) }}">
                                 Ver Factura
+                            </a>
+                            <a class="btn btn-sm btn-warning"
+                               href="{{ url_for('registrar_incidencia_form', id_pedido=pago.id_pedido) }}">
+                                Registrar incidencia
                             </a>
                         </td>
                     </tr>
