@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-11-2025 a las 18:42:21
+-- Tiempo de generación: 21-11-2025 a las 23:02:43
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -327,13 +327,6 @@ CREATE TABLE `carrito_usuario` (
   `fecha` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `carrito_usuario`
---
-
-INSERT INTO `carrito_usuario` (`id_carrito`, `id_usuario`, `id_producto`, `cantidad`, `fecha`) VALUES
-(27, 28, 61, 1, '2025-11-14 03:58:11');
-
 -- --------------------------------------------------------
 
 --
@@ -440,6 +433,14 @@ CREATE TABLE `detalle_pedido` (
   `cantidad` int(11) DEFAULT NULL,
   `precio_unitario` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_pedido`
+--
+
+INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `id_talla`, `cantidad`, `precio_unitario`) VALUES
+(50, 42, 58, NULL, 2, 5500000.00),
+(51, 43, 76, NULL, 10, 55.00);
 
 -- --------------------------------------------------------
 
@@ -558,7 +559,11 @@ CREATE TABLE `imagenes` (
 --
 
 INSERT INTO `imagenes` (`id_imagen`, `id_producto`, `url`) VALUES
-(7, 72, 'uploads/eff2c23522fb46b88f218dbae9a23265_7a56dffb03c74ffe92a4a85f2ec16e83_sg-11134201-7qvg4-liijuezgbfnx54.jpg');
+(7, 72, 'uploads/eff2c23522fb46b88f218dbae9a23265_7a56dffb03c74ffe92a4a85f2ec16e83_sg-11134201-7qvg4-liijuezgbfnx54.jpg'),
+(8, 73, 'uploads/e0b70094177e4019af85264ef3bb9224_anilloxd.webp'),
+(9, 74, 'uploads/bd41bd6f0fc0458aa2a520764bdaaa29_anilloxd.webp'),
+(10, 75, 'uploads/3ccb3805fabb46f4abb2b2b4c2b1e2e3_anilloxd.webp'),
+(11, 76, 'uploads/1f6d743d52f3457c86c7115d7a267374_anilloxd.webp');
 
 -- --------------------------------------------------------
 
@@ -693,7 +698,9 @@ INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `estado`, `
 (18, 33, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:50:08', NULL),
 (19, 39, 'tarjeta', 416500.00, 'Pagado', '2025-11-11 07:08:00', NULL),
 (20, 40, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:17:22', NULL),
-(21, 41, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:35:52', NULL);
+(21, 41, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:35:52', NULL),
+(22, 42, 'tarjeta', 13090000.00, 'pagado', '2025-11-21 18:19:17', NULL),
+(23, 43, 'tarjeta', 654.50, 'pagado', '2025-11-21 19:02:56', NULL);
 
 --
 -- Disparadores `pagos`
@@ -777,7 +784,9 @@ INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_env
 (38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
 (39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', '', NULL),
 (40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
-(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL);
+(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
+(42, NULL, '2025-11-21', 'Pagado', NULL, NULL, 13090000.00, 'pagado', 30, 11000000.00, 2090000.00, NULL, '', '', '', '', 'PED-20251121-000001'),
+(43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002');
 
 -- --------------------------------------------------------
 
@@ -864,7 +873,7 @@ CREATE TABLE `productos` (
   `largo` decimal(10,2) DEFAULT 0.00,
   `dimensiones` varchar(100) DEFAULT NULL,
   `referencia` varchar(50) DEFAULT NULL,
-  `stock` int(11) DEFAULT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
   `umbral_alerta` int(11) DEFAULT 5,
   `id_tipo` int(11) DEFAULT NULL,
   `id_material` int(11) DEFAULT NULL,
@@ -882,17 +891,20 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `alto`, `ancho`, `largo`, `dimensiones`, `referencia`, `stock`, `umbral_alerta`, `id_tipo`, `id_material`, `id_color`, `id_piedra`, `id_usuario`, `imagen`, `categoria`, `destacado`, `activo`) VALUES
-(58, 'Anillo Solitario \"Aurora\"', 'Anillo de oro amarillo con diamante central talla brillante, sofisticado.', 5500000.00, 5, 0.50, 2.00, 2.00, NULL, NULL, NULL, 5, 1, 1, 1, 1, 28, 'uploads/anillo_aurora.jpg', NULL, 0, 1),
-(59, 'Collar \"Verde Imperial\"', 'Collar de plata con colgante de esmeralda en corte ovalado, elegante.', 3900000.00, 20, 0.50, 1.00, 45.00, NULL, NULL, NULL, 5, 2, 2, 2, 3, 28, 'uploads/collar_verde_imperial.jpg', NULL, 0, 1),
-(60, 'Pulsera \"Cielo Azul\"', 'Pulsera de acero inoxidable con topacios azules engarzados finamente.', 1850000.00, 15, 0.50, 0.50, 18.00, NULL, NULL, NULL, 5, 3, 3, 3, 6, 28, 'uploads/pulsera_cielo_azul.jpg', NULL, 0, 1),
-(61, 'Aretes \"Rubí Encanto\"', 'Aretes de oro con rubíes rojos en forma de gota, clásico y refinado.', 2750000.00, 4, 0.50, 0.50, 1.00, NULL, NULL, NULL, 5, 4, 1, 4, 4, 28, 'uploads/aretes_rubi_encanto.jpg', NULL, 0, 1),
-(62, 'Broche \"Perla Majestuosa\"', 'Broche de plata con perla natural central, ideal para ocasiones especiales.', 1370000.00, 10, 0.50, 3.00, 4.00, NULL, NULL, NULL, 5, 5, 2, 5, 10, 28, 'uploads/broche_perla_majestuosa.jpg', NULL, 0, 1),
-(63, 'Pendientes \"Ágata Serenidad\"', 'Pendientes largos de acero con ágata verde, estilo bohemio elegante.', 1000000.00, 6, 1.00, 1.00, 7.00, NULL, NULL, NULL, 5, 6, 3, 6, 12, 28, 'uploads/pendientes_agata_serenidad.jpg', NULL, 0, 1),
-(64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, NULL, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1),
-(65, 'Dije \"Citrino Radiante\"', 'Dije de oro con citrino tallado en forma de corazón, elegante y refinado.', 1600000.00, 3, 0.50, 1.50, 2.00, NULL, NULL, NULL, 5, 8, 1, 8, 14, 28, 'uploads/dije_citrino_radiante.jpg', NULL, 0, 1),
-(66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, NULL, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1),
-(67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, NULL, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1),
-(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, NULL, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1);
+(58, 'Anillo Solitario \"Aurora\"', 'Anillo de oro amarillo con diamante central talla brillante, sofisticado.', 5500000.00, 5, 0.50, 2.00, 2.00, NULL, NULL, 30, 5, 1, 1, 1, 1, 28, 'uploads/anillo_aurora.jpg', NULL, 0, 1),
+(59, 'Collar \"Verde Imperial\"', 'Collar de plata con colgante de esmeralda en corte ovalado, elegante.', 3900000.00, 20, 0.50, 1.00, 45.00, NULL, NULL, 0, 5, 2, 2, 2, 3, 28, 'uploads/collar_verde_imperial.jpg', NULL, 0, 1),
+(60, 'Pulsera \"Cielo Azul\"', 'Pulsera de acero inoxidable con topacios azules engarzados finamente.', 1850000.00, 15, 0.50, 0.50, 18.00, NULL, NULL, 0, 5, 3, 3, 3, 6, 28, 'uploads/pulsera_cielo_azul.jpg', NULL, 0, 1),
+(61, 'Aretes \"Rubí Encanto\"', 'Aretes de oro con rubíes rojos en forma de gota, clásico y refinado.', 2750000.00, 4, 0.50, 0.50, 1.00, NULL, NULL, 0, 5, 4, 1, 4, 4, 28, 'uploads/aretes_rubi_encanto.jpg', NULL, 0, 1),
+(62, 'Broche \"Perla Majestuosa\"', 'Broche de plata con perla natural central, ideal para ocasiones especiales.', 1370000.00, 10, 0.50, 3.00, 4.00, NULL, NULL, 0, 5, 5, 2, 5, 10, 28, 'uploads/broche_perla_majestuosa.jpg', NULL, 0, 1),
+(63, 'Pendientes \"Ágata Serenidad\"', 'Pendientes largos de acero con ágata verde, estilo bohemio elegante.', 1000000.00, 6, 1.00, 1.00, 7.00, NULL, NULL, 0, 5, 6, 3, 6, 12, 28, 'uploads/pendientes_agata_serenidad.jpg', NULL, 0, 1),
+(64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, 0, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1),
+(66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, 0, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1),
+(67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, 0, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1),
+(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 0, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1),
+(73, 'anillo xd', 'ewsrjhfliafhywahfl', 1200000.00, 10, 12.00, 5.00, 4.00, NULL, NULL, 0, 5, 1, 2, 5, NULL, 28, NULL, NULL, 0, 1),
+(74, 'uwu', 'hszrjtre', 254524.00, 5, 5.00, 5.00, 5.00, NULL, NULL, 0, 5, 2, 3, 6, NULL, 28, NULL, NULL, 0, 1),
+(75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 100, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1),
+(76, 'anillo plateado', 'anillo con buen estilo y brillo', 55.00, 555, 55.00, 55.00, 55.00, NULL, NULL, 20, 5, 4, 2, 5, NULL, 28, NULL, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -1077,25 +1089,28 @@ CREATE TABLE `stock_tallas` (
 --
 
 INSERT INTO `stock_tallas` (`id_stock`, `id_producto`, `talla`, `stock`) VALUES
-(10, 58, '8', 5),
-(11, 58, '9', 3),
-(12, 58, '10', 2),
-(13, 59, '45 cm', 4),
-(14, 59, '50 cm', 2),
-(15, 60, '18 cm', 6),
-(16, 60, '20 cm', 3),
-(17, 61, 'Única', 10),
-(18, 62, 'Única', 7),
-(19, 63, '7', 4),
-(20, 63, '8', 5),
-(21, 63, '9', 3),
-(22, 64, '40 cm', 3),
-(23, 64, '45 cm', 2),
-(24, 65, '17 cm', 6),
-(25, 65, '19 cm', 4),
-(26, 66, 'Única', 8),
-(27, 67, 'Única', 5),
-(32, 72, '45cm', 20);
+(10, 58, '8', 10),
+(11, 58, '9', 10),
+(12, 58, '10', 10),
+(13, 59, '45 cm', 0),
+(14, 59, '50 cm', 0),
+(15, 60, '18 cm', 0),
+(16, 60, '20 cm', 0),
+(17, 61, 'Única', 0),
+(18, 62, 'Única', 0),
+(19, 63, '7', 0),
+(20, 63, '8', 0),
+(21, 63, '9', 0),
+(22, 64, '40 cm', 0),
+(23, 64, '45 cm', 0),
+(26, 66, 'Única', 0),
+(27, 67, 'Única', 0),
+(32, 72, '45cm', 0),
+(33, 73, '5', 0),
+(34, 73, '4', 0),
+(35, 74, '5', 22),
+(36, 75, '5', 22),
+(37, 76, '5', 23);
 
 -- --------------------------------------------------------
 
@@ -1232,7 +1247,8 @@ INSERT INTO `usuarios` (`id_usuario`, `nombre_completo`, `correo`, `telefono_con
 (24, 'Juan Garcia', 'juanpgr768@gmail.com', '+57091234782', 'scrypt:32768:8:1$47dkFKyVYWgqEuTg$c9200e415aa47cb7ee2568c957fe98ac4d4011fb262e286cdcd0b4efc3e133e63884f51801fd2579691519375a4e8643f206927cdce120d9e94856dff464e22d', 'Cerru Premium', NULL, 1, 2, NULL, NULL),
 (25, 'Juan Bonilla', 'juancgb.drive@gmail.com', '+57984208924', 'scrypt:32768:8:1$UGkjjjVuIq1JfxFa$2b7572d5a3ab4cf801b3b27a63b70063b0eaab97c1398040451113f0423da161795894ca8608e6650c102bf82d25e74e80dce47c4cc87e8d663061bb32a74a34', 'Mi casita ', NULL, 1, 3, NULL, NULL),
 (28, 'José Muñoz', 'jose@test.com', '+573005006005', 'scrypt:32768:8:1$qKYD6cYrfcVfDI1n$466d8feca983bda4ba580d8c22919c18c270f82592b83a18b6ada3a508093a8183bff5a841b9351bc5893d288cf834f44e323ed816fe1ac011c2258a69e22461', 'Calle 1 #81 - 29', 'anime-koe-no-katachi-shouya-ishida-hd-wallpaper-thumb_20251113031914714479.jpg', 1, 2, '2008-08-21', '2025-11-13 03:29:16'),
-(29, 'Alan David Perez Guerra', 'alandavidperezguerra@gmail.com', '+57 3209551825', 'scrypt:32768:8:1$jzelyapmyAZmPSK0$82e7f1cf08cd081745dc547766b130e71f1dc5321ce9c388b29c183a8c2ae4bdb73ab439652a4726c052c42007e60cddaa60a2a9605f47c45f80fbd023ad4d82', 'calle 65bis#89-30', NULL, 1, 3, NULL, NULL);
+(29, 'Alan David Perez Guerra', 'alandavidperezguerra@gmail.com', '+57 3209551825', 'scrypt:32768:8:1$jzelyapmyAZmPSK0$82e7f1cf08cd081745dc547766b130e71f1dc5321ce9c388b29c183a8c2ae4bdb73ab439652a4726c052c42007e60cddaa60a2a9605f47c45f80fbd023ad4d82', 'calle 65bis#89-30', NULL, 1, 3, NULL, NULL),
+(30, 'Juan', 'cliente@test.com', '+5710000000', 'scrypt:32768:8:1$cXb2tg71QSHAZ1EW$041369a5d6a068eb15a1d0806a735c9272afbe4285340426d0a31c0fb2751730af81444e3f9f61443a12896d450ce75a9f82af56957e8971eecff6dc54a28edd', 'Cerca de mi vecino', NULL, 1, 3, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1759,7 +1775,7 @@ ALTER TABLE `bitacora`
 -- AUTO_INCREMENT de la tabla `carrito_usuario`
 --
 ALTER TABLE `carrito_usuario`
-  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1789,7 +1805,7 @@ ALTER TABLE `detalle_orden`
 -- AUTO_INCREMENT de la tabla `detalle_pedido`
 --
 ALTER TABLE `detalle_pedido`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de la tabla `devoluciones`
@@ -1807,7 +1823,7 @@ ALTER TABLE `faq`
 -- AUTO_INCREMENT de la tabla `imagenes`
 --
 ALTER TABLE `imagenes`
-  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencias`
@@ -1843,13 +1859,13 @@ ALTER TABLE `ordenes_compra`
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_personalizados`
@@ -1867,7 +1883,7 @@ ALTER TABLE `piedras`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_relacionados`
@@ -1897,7 +1913,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `stock_tallas`
 --
 ALTER TABLE `stock_tallas`
-  MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `tallas`
@@ -1921,7 +1937,7 @@ ALTER TABLE `tokens_recuperacion`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de la tabla `valoraciones`
