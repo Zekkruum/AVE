@@ -2,33 +2,195 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">
+<style>
+    .faq-search {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        display: flex;
+        justify-content: center;
+    }
+
+    .faq-search input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .faq-item {
+        border: 1px solid #ddd;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .faq-pregunta {
+        display: flex;
+        justify-content: space-between;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .faq-toggle::after {
+        content: ">";
+        font-size: 18px;
+        transition: 0.3s;
+    }
+
+    .faq-item.open .faq-toggle::after {
+        content: "<";
+        color: #c00;
+    }
+
+    .faq-respuesta {
+        display: none;
+        margin-top: 10px;
+        color: #444;
+        line-height: 1.4;
+    }
+
+    .faq-no-result {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+        color: #555;
+        display: none;
+    }
+
+    .paginacion {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .paginacion button {
+        padding: 8px 15px;
+        border: none;
+        background: #222;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .paginacion button:disabled {
+        background: #888;
+        cursor: not-allowed;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <main class="faq-main">
     <h2>Preguntas frecuentes</h2>
-    <div class="faq-container">
+
+    <!-- 🔍 Buscador -->
+    <div class="faq-search">
+        <input type="text" id="faqBuscador" placeholder="Buscar una pregunta...">
+    </div>
+
+    <div class="faq-container" id="faqContainer">
         {% for item in preguntas %}
         <div class="faq-item">
             <div class="faq-pregunta">
-                <span>{{ item.pregunta }}</span>
+                <span class="faq-text">{{ item.pregunta }}</span>
                 <span class="faq-toggle"></span>
             </div>
-            <div class="faq-respuesta" style="display:none;">
-                {{ item.respuesta }}
-            </div>
+
+            <div class="faq-respuesta">{{ item.respuesta }}</div>
         </div>
         {% endfor %}
+    </div>
+
+    <div id="faqNoResult" class="faq-no-result">
+        No se encontraron preguntas que coincidan.
+    </div>
+
+    <!-- PAGINACIÓN -->
+    <div class="paginacion">
+        <button id="prevBtn">Anterior</button>
+        <button id="nextBtn">Siguiente</button>
     </div>
 </main>
 
 <script>
-document.querySelectorAll('.faq-item').forEach(item => {
-    const toggle = item.querySelector('.faq-toggle');
-    const respuesta = item.querySelector('.faq-respuesta');
-    toggle.addEventListener('click', () => {
-        respuesta.style.display = respuesta.style.display === 'none' ? 'block' : 'none';
+    const items = [...document.querySelectorAll('.faq-item')];
+    const buscador = document.getElementById("faqBuscador");
+    const noResult = document.getElementById("faqNoResult");
+
+    let paginaActual = 1;
+    const porPagina = 10;
+
+    // 🔵 Lista filtrada independientemente del display
+    let filtrados = [...items];
+
+    function renderPagina() {
+        // Oculta todo
+        items.forEach(i => i.style.display = "none");
+
+        // Calcula límites
+        const inicio = (paginaActual - 1) * porPagina;
+        const fin = inicio + porPagina;
+
+        // Muestra los elementos de la página actual
+        filtrados.slice(inicio, fin).forEach(i => {
+            i.style.display = "block";
+        });
+
+        // Botones
+        document.getElementById("prevBtn").disabled = paginaActual === 1;
+        document.getElementById("nextBtn").disabled = fin >= filtrados.length;
+    }
+
+    // 🔵 Paginación
+    document.getElementById("prevBtn").addEventListener("click", () => {
+        if (paginaActual > 1) {
+            paginaActual--;
+            renderPagina();
+        }
     });
-});
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+        if ((paginaActual * porPagina) < filtrados.length) {
+            paginaActual++;
+            renderPagina();
+        }
+    });
+
+    // 🔵 Buscador
+    buscador.addEventListener("input", () => {
+        const texto = buscador.value.toLowerCase();
+
+        filtrados = items.filter(item => {
+            const p = item.querySelector(".faq-text").textContent.toLowerCase();
+            const r = item.querySelector(".faq-respuesta").textContent.toLowerCase();
+            return p.includes(texto) || r.includes(texto);
+        });
+
+        // Mostrar mensaje si no hay resultados
+        noResult.style.display = filtrados.length === 0 ? "block" : "none";
+
+        paginaActual = 1;
+        renderPagina();
+    });
+
+    // 🔵 Toggle de respuestas
+    items.forEach(item => {
+        const pregunta = item.querySelector('.faq-pregunta');
+        const respuesta = item.querySelector('.faq-respuesta');
+
+        pregunta.addEventListener("click", () => {
+            item.classList.toggle("open");
+            respuesta.style.display = respuesta.style.display === "block" ? "none" : "block";
+        });
+    });
+
+    // Primera carga
+    renderPagina();
 </script>
+
 {% endblock %}

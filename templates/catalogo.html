@@ -55,7 +55,8 @@
                 <p class="descripcion">{{ producto.descripcion[:120] }}{% if producto.descripcion|length > 120 %}...{% endif %}</p>
 
                 <div class="meta">
-                    {% if producto.descuento_promocion %}
+                    {% if producto.descuento_promocion is not none and producto.descuento_promocion > 0 %}
+
                     <div class="precio-oferta">
                         <span style="text-decoration: line-through; color:#888;">
                          ${{ "{:,.2f}".format(producto.precio|float) }}
