@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from utils import get_db_connection, enviar_correo, generar_token, save_profile_image, hash_password, verify_password
 from flask import request, jsonify , current_app
 from openpyxl import Workbook
-import io
+import io 
 
 app = Flask(__name__)
 app.secret_key = 'clave_super_secreta'
