@@ -1,12 +1,18 @@
 import csv
-from flask import Response
+from flask import Response, send_from_directory
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from utils import get_db_connection, enviar_correo, generar_token, save_profile_image, hash_password, verify_password
 from flask import request, jsonify , current_app
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 from openpyxl import Workbook
-import io
+import io 
 
 app = Flask(__name__)
 app.secret_key = 'clave_super_secreta'
@@ -489,7 +495,6 @@ def producto_detalle(id_producto):
             p.largo,
             p.ancho,
             p.alto,
-            p.stock,
             t.nombre_tipo AS tipo_joya,
             m.nombre_material AS material,
             c.nombre AS color,
@@ -505,6 +510,7 @@ def producto_detalle(id_producto):
         WHERE p.id_producto = %s
         GROUP BY p.id_producto
     """, (id_producto,))
+
     producto = cursor.fetchone()
 
     if not producto:
@@ -526,7 +532,9 @@ def producto_detalle(id_producto):
 
     imagenes = []
     if producto.get("imagenes_concat"):
-        imagenes = [normalize(s) for s in producto["imagenes_concat"].split("||") if s]
+        imagenes = [
+            normalize(s) for s in producto["imagenes_concat"].split("||") if s
+        ]
 
     if producto.get("imagen_local"):
         imagenes.insert(0, normalize(producto["imagen_local"]))
@@ -538,33 +546,35 @@ def producto_detalle(id_producto):
 
     # ---- Dimensiones ----
     if producto.get("largo") and producto.get("ancho") and producto.get("alto"):
-        producto["dimensiones"] = f"{producto['largo']} x {producto['ancho']} x {producto['alto']}"
+        producto["dimensiones"] = (
+            f"{producto['largo']} x {producto['ancho']} x {producto['alto']} mm"
+        )
     else:
-        producto["dimensiones"] = "N/A"
+        producto["dimensiones"] = "No especificado"
 
-   # ---- STOCK POR TALLA ----
+    # ---- STOCK POR TALLA ----
     cursor.execute("""
-    SELECT talla, stock
-    FROM stock_tallas
-    WHERE id_producto = %s
-    ORDER BY talla ASC
-""", (id_producto,))
+        SELECT talla, stock
+        FROM stock_tallas
+        WHERE id_producto = %s
+        ORDER BY talla ASC
+    """, (id_producto,))
     producto["tallas"] = cursor.fetchall()
 
-# ---- STOCK TOTAL SUMANDO LAS TALLAS ----
+    # ---- STOCK TOTAL SUMANDO LAS TALLAS ----
     cursor.execute("""
-    SELECT COALESCE(SUM(stock), 0) AS total_stock
-    FROM stock_tallas
-    WHERE id_producto = %s
-""", (id_producto,))
+        SELECT COALESCE(SUM(stock), 0) AS total_stock
+        FROM stock_tallas
+        WHERE id_producto = %s
+    """, (id_producto,))
     result = cursor.fetchone()
     producto['stock'] = result['total_stock']
-
 
     cursor.close()
     conn.close()
 
     return render_template("producto_detalle.html", usuario=usuario, producto=producto)
+
 
 
 # ----------------------------
@@ -1515,9 +1525,31 @@ def crear_pedido():
 
     # Insertar pedido con número único
     cursor.execute("""
-        INSERT INTO pedidos (id_usuario, fecha, estado, subtotal, impuesto, total, numero_pedido)
-        VALUES (%s, NOW(), 'Pendiente', %s, %s, %s, %s)
-    """, (usuario['id_usuario'], subtotal, impuesto, total, numero_pedido))
+    INSERT INTO pedidos (
+        id_usuario, 
+        nombre_cliente,
+        direccion_entrega,
+        telefono_cliente,
+        correo_cliente,
+        fecha, 
+        estado, 
+        subtotal, 
+        impuesto, 
+        total, 
+        numero_pedido
+    )
+    VALUES (%s, %s, %s, %s, %s, NOW(), 'Pendiente', %s, %s, %s, %s)
+""", (
+    usuario['id_usuario'],
+    nombre_cliente,
+    direccion_entrega,
+    telefono_cliente,
+    correo_cliente,
+    subtotal,
+    impuesto,
+    total,
+    numero_pedido
+))
     id_pedido = cursor.lastrowid
 
     # Insertar detalles y descontar stock
@@ -2846,6 +2878,158 @@ def mis_valoraciones_historial():
     return render_template("mis_valoraciones_historial.html",
                            valoraciones=valoraciones,
                            usuario=usuario)
+
+@app.route('/descargar_ficha/<int:id_producto>')
+def descargar_ficha(id_producto):
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    import os
+
+    carpeta_pdf = "static/pdf"
+    if not os.path.exists(carpeta_pdf):
+        os.makedirs(carpeta_pdf)
+
+    nombre_pdf = f"ficha_{id_producto}.pdf"
+    ruta_pdf = os.path.join(carpeta_pdf, nombre_pdf)
+
+    # Si ya existe, devolver directamente
+    if os.path.exists(ruta_pdf):
+        return send_from_directory(carpeta_pdf, nombre_pdf, as_attachment=True)
+
+    # -------------------------
+    # Obtener datos del producto
+    # -------------------------
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT p.*, 
+               t.nombre_tipo AS tipo_joya,
+               m.nombre_material AS material,
+               c.nombre AS color,
+               pi.nombre AS piedra
+        FROM productos p
+        LEFT JOIN tipos_joya t ON p.id_tipo = t.id_tipo
+        LEFT JOIN materiales m ON p.id_material = m.id_material
+        LEFT JOIN colores c ON p.id_color = c.id_color
+        LEFT JOIN piedras pi ON p.id_piedra = pi.id_piedra
+        WHERE p.id_producto = %s
+    """, (id_producto,))
+    
+    producto = cursor.fetchone()
+
+    # Obtener tallas
+    cursor.execute("""
+        SELECT talla, stock 
+        FROM stock_tallas 
+        WHERE id_producto = %s
+        ORDER BY talla ASC
+    """, (id_producto,))
+    tallas = cursor.fetchall()
+
+    # Intentar obtener imagen adicional desde tabla imagenes
+    cursor.execute("""
+        SELECT url FROM imagenes
+        WHERE id_producto = %s
+        LIMIT 1
+    """, (id_producto,))
+    imagen_extra = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not producto:
+        return "Producto no encontrado", 404
+
+    # -------------------------
+    # RUTAS DE IMAGENES
+    # -------------------------
+
+    # Imagen principal desde productos.imagen
+    imagen_producto = None
+    if producto["imagen"]:
+        posible = os.path.join("static", producto["imagen"])  # ejemplo: static/uploads/img.jpg
+        if os.path.exists(posible):
+            imagen_producto = posible
+
+    # Si no existe, usar imagen desde tabla imagenes
+    if not imagen_producto and imagen_extra:
+        posible = os.path.join("static", imagen_extra["url"])
+        if os.path.exists(posible):
+            imagen_producto = posible
+
+    # -------------------------
+    # Crear PDF
+    # -------------------------
+    doc = SimpleDocTemplate(ruta_pdf, pagesize=letter)
+    story = []
+    styles = getSampleStyleSheet()
+
+    # LOGO DE LA EMPRESA
+    logo_path = "static/img/logoave.png"
+    if os.path.exists(logo_path):
+        story.append(Image(logo_path, width=140, height=60))
+        story.append(Spacer(1, 12))
+
+    # TÍTULO
+    story.append(Paragraph("<b>Ficha Técnica del Producto</b>", styles["Title"]))
+    story.append(Spacer(1, 20))
+
+    # IMAGEN DEL PRODUCTO
+    if imagen_producto and os.path.exists(imagen_producto):
+        story.append(Image(imagen_producto, width=250, height=250))
+        story.append(Spacer(1, 20))
+
+    # TABLA DE INFORMACIÓN
+    info = [
+        ["Nombre", producto["nombre"]],
+        ["Código", producto["id_producto"]],
+        ["Tipo de joya", producto["tipo_joya"]],
+        ["Material", producto["material"]],
+        ["Color", producto["color"]],
+        ["Piedra", producto["piedra"]],
+        ["Peso", f"{producto['peso']} g"],
+        ["Dimensiones", f"{producto['largo']} x {producto['ancho']} x {producto['alto']} mm"],
+        ["Precio", f"${producto['precio']}"],
+    ]
+
+    tabla_info = Table(info, colWidths=[130, 350])
+    tabla_info.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#d9c7ff")),
+        ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.gray),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+    ]))
+
+    story.append(tabla_info)
+    story.append(Spacer(1, 20))
+
+    # DESCRIPCIÓN
+    story.append(Paragraph("<b>Descripción del Producto:</b>", styles["Heading3"]))
+    story.append(Paragraph(producto["descripcion"], styles["BodyText"]))
+    story.append(Spacer(1, 20))
+
+    # TABLA DE TALLAS
+    if tallas:
+        story.append(Paragraph("<b>Tallas Disponibles</b>", styles["Heading3"]))
+        datos_tallas = [["Talla", "Stock"]] + [[t["talla"], t["stock"]] for t in tallas]
+        tabla_tallas = Table(datos_tallas, colWidths=[100, 120])
+        tabla_tallas.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#d9c7ff")),
+            ('GRID', (0, 0), (-1, -1), 1, colors.gray),
+            ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ]))
+        story.append(tabla_tallas)
+
+    story.append(Spacer(1, 40))
+    story.append(Paragraph("Documento generado automáticamente por <b>AVE Joyas</b>.", styles["Italic"]))
+
+    doc.build(story)
+
+    return send_from_directory(carpeta_pdf, nombre_pdf, as_attachment=True)
 
 # ----------------------------
 # Run app
