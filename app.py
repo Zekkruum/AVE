@@ -1314,17 +1314,36 @@ def registrar_pago(id_pedido):
         conn.close()
         return "Pedido no encontrado", 404
 
+    # ======================
+    # MÉTODO POST (REGISTRAR PAGO)
+    # ======================
     if request.method == 'POST':
 
         metodo = request.form['metodo']
         monto = float(request.form['monto'])
         estado = "pagado"
 
-        # Registrar pago
+        # -------------------------------
+        # OBTENER DATOS DE TARJETA SI APLICA
+        # -------------------------------
+        if metodo == "tarjeta":
+            numero_tarjeta = request.form.get("numero_tarjeta", "").replace(" ", "")
+            vencimiento = request.form.get("vencimiento")
+            cvc = request.form.get("cvc")
+        else:
+            numero_tarjeta = None
+            vencimiento = None
+            cvc = None
+
+        # Registrar el pago en base de datos
         cursor.execute("""
-            INSERT INTO pagos (id_pedido, monto, metodo_pago, estado, fecha)
-            VALUES (%s, %s, %s, %s, NOW())
-        """, (id_pedido, monto, metodo, estado))
+            INSERT INTO pagos 
+                (id_pedido, monto, metodo_pago, estado, fecha,
+                 numero_tarjeta, vencimiento, cvc)
+            VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s)
+        """, (id_pedido, monto, metodo, estado,
+              numero_tarjeta, vencimiento, cvc))
+
         id_pago = cursor.lastrowid
 
         # Actualizar estado del pedido
@@ -1334,7 +1353,9 @@ def registrar_pago(id_pedido):
             WHERE id_pedido=%s
         """, (id_pedido,))
 
-        # === Obtener información completa del pedido para factura ===
+        # -------------------------------
+        # Información para generar factura
+        # -------------------------------
         cursor.execute("""
             SELECT * FROM pedidos WHERE id_pedido = %s
         """, (id_pedido,))
@@ -1354,9 +1375,9 @@ def registrar_pago(id_pedido):
         cursor.close()
         conn.close()
 
-        # ====================
+        # ======================
         # GENERAR FACTURA PDF
-        # ====================
+        # ======================
         from utils import generar_factura_pdf
         import os
 
@@ -1369,10 +1390,11 @@ def registrar_pago(id_pedido):
 
         flash("Pago registrado correctamente. Tu factura está disponible.", "success")
         return redirect(url_for('ver_factura', id_pedido=id_pedido))
+    
 
-    # ====================
-    # MÉTODO GET (mostrar formulario)
-    # ====================
+    # ======================
+    # MÉTODO GET (MOSTRAR FORMULARIO)
+    # ======================
     cursor.close()
     conn.close()
     return render_template('pago_form.html', usuario=usuario, pedido=pedido)
@@ -1381,7 +1403,6 @@ def registrar_pago(id_pedido):
 def ver_factura(id_pedido):
     ruta = f"static/facturas/factura_{id_pedido}.pdf"
     return render_template("factura_lista.html", ruta=ruta, id_pedido=id_pedido)
-
 
 
 # ----------------------------
