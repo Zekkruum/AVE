@@ -23,7 +23,8 @@
         <p class="precio">$ {{ '{:,.0f}'.format(producto.precio|float) }} <span
             style="font-size: 13px; font-weight: normal;">COP</span></p>
       </div>
-      <hr style="background-color: black; width: 200px; height: 1px; border-radius: 10px; border-color: black; opacity: 70%;">
+      <hr
+        style="background-color: black; width: 200px; height: 1px; border-radius: 10px; border-color: black; opacity: 70%;">
       <div class="informacion">
         <p><strong>Tipo de joya:</strong> {{ producto.tipo_joya or 'N/A' }}</p>
         <p><strong>Material:</strong> {{ producto.material or 'N/A' }}</p>
@@ -53,6 +54,10 @@
         <input type="number" id="cantidad" name="cantidad" value="1" min="1">
         <button type="submit" class="btn-primary">Agregar al carrito</button>
       </form>
+      <a class="btn-descargar" href="{{ url_for('descargar_ficha', id_producto=producto.id_producto) }}">
+        Descargar ficha técnica (PDF)
+      </a>
+
     </div>
 
   </div>
