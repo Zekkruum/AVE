@@ -213,6 +213,22 @@ input:focus, select:focus {
     background: linear-gradient(135deg, #6d6d6c, #afafae);
     transform: translateY(-2px);
 }
+.hidden {
+    display: none;
+}
+
+.card-number-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-logo {
+    width: 40px;
+    height: 25px;
+    object-fit: contain;
+}
+
 
 
 /* ---------- Footer ---------- */
