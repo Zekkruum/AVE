@@ -37,18 +37,23 @@
       <!-- STOCK POR TALLA -->
       <h3>Disponibilidad por talla</h3>
       {% if producto.tallas and producto.tallas|length > 0 %}
-      <ul class="lista-tallas">
-        {% for t in producto.tallas %}
-        <li>
-          <strong>Talla {{ t.talla }}</strong>: {{ t.stock }} unidades
-        </li>
-        {% endfor %}
-      </ul>
+      <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
+        <ul class="lista-tallas">
+          {% for t in producto.tallas %}
+          <li>
+            <strong>Talla {{ t.talla }}</strong>: {{ t.stock }} unidades
+            <input type="number" name="cantidad_talla_{{ t.talla }}" value="0" min="0" max="{{ t.stock }}">
+          </li>
+          {% endfor %}
+        </ul>
+        <button type="submit" class="btn-primary">Agregar al carrito</button>
+      </form>
       {% else %}
       <p>No hay tallas registradas.</p>
       {% endif %}
 
-      <!-- FORMULARIO AGREGAR AL CARRITO -->
+
+      <!-- FORMULARIO AGREGAR AL CARRITO
       <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
         <label for="cantidad">Cantidad:</label>
         <input type="number" id="cantidad" name="cantidad" value="1" min="1">
@@ -56,7 +61,7 @@
       </form>
       <a class="btn-descargar" href="{{ url_for('descargar_ficha', id_producto=producto.id_producto) }}">
         Descargar ficha técnica (PDF)
-      </a>
+      </a> -->
 
     </div>
 
