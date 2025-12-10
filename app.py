@@ -999,23 +999,60 @@ def reporte_inventario():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
+    # Traer stock por talla
     cursor.execute("""
-        SELECT nombre, descripcion, precio, stock, umbral_alerta, peso, alto, ancho, largo
-        FROM productos WHERE id_usuario=%s
+        SELECT 
+            p.nombre,
+            p.descripcion,
+            p.precio,
+            s.talla,
+            s.stock AS stock_talla,
+            p.umbral_alerta,
+            p.peso,
+            p.alto,
+            p.ancho,
+            p.largo
+        FROM productos p
+        LEFT JOIN stock_tallas s ON p.id_producto = s.id_producto
+        WHERE p.id_usuario = %s
+        ORDER BY p.nombre, s.talla
     """, (usuario['id_usuario'],))
     productos = cursor.fetchall()
-    cursor.close(); conn.close()
+    cursor.close()
+    conn.close()
 
-    wb = Workbook()# type: ignore
-    ws = wb.active; ws.title = "Inventario"
-    ws.append(["Nombre","Descripción","Precio","Stock","Umbral","Peso","Alto","Ancho","Largo"])
+    # Generar Excel
+    wb = Workbook()  # type: ignore
+    ws = wb.active
+    ws.title = "Inventario"
+    ws.append(["Nombre", "Descripción", "Precio", "Talla", "Stock", "Umbral", "Peso", "Alto", "Ancho", "Largo"])
+
     for p in productos:
-        ws.append([p['nombre'], p['descripcion'], p['precio'], p['stock'],
-                   p['umbral_alerta'], p['peso'], p['alto'], p['ancho'], p['largo']])
-    output = io.BytesIO() # type: ignore
-    wb.save(output); output.seek(0)
-    return send_file(output, as_attachment=True, download_name="reporte_inventario.xlsx", # type: ignore
-                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        ws.append([
+            p['nombre'],
+            p['descripcion'],
+            p['precio'],
+            p['talla'] or "N/A",
+            p['stock_talla'] or 0,
+            p['umbral_alerta'],
+            p['peso'],
+            p['alto'],
+            p['ancho'],
+            p['largo']
+        ])
+
+    output = io.BytesIO()  # type: ignore
+    wb.save(output)
+    output.seek(0)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="reporte_inventario.xlsx",  # type: ignore
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 
 # ---------------------------------------------------------
 # Estadísticas reales del vendedor
