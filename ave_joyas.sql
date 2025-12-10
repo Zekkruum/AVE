@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-11-2025 a las 23:02:43
+-- Tiempo de generación: 10-12-2025 a las 06:10:32
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -440,7 +440,8 @@ CREATE TABLE `detalle_pedido` (
 
 INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `id_talla`, `cantidad`, `precio_unitario`) VALUES
 (50, 42, 58, NULL, 2, 5500000.00),
-(51, 43, 76, NULL, 10, 55.00);
+(51, 43, 76, NULL, 10, 55.00),
+(52, 44, 75, NULL, 1, 12000.00);
 
 -- --------------------------------------------------------
 
@@ -670,6 +671,9 @@ CREATE TABLE `pagos` (
   `monto` decimal(10,2) NOT NULL,
   `estado` varchar(30) DEFAULT 'Pendiente',
   `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
+  `numero_tarjeta` varchar(50) DEFAULT NULL,
+  `vencimiento` varchar(10) DEFAULT NULL,
+  `cvc` varchar(10) DEFAULT NULL,
   `referencia_pago` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -677,30 +681,31 @@ CREATE TABLE `pagos` (
 -- Volcado de datos para la tabla `pagos`
 --
 
-INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `estado`, `fecha`, `referencia_pago`) VALUES
-(1, 7, '', 95000.00, 'Pagado', '2025-09-16 00:36:29', NULL),
-(2, 13, 'Efectivo', 98000.00, 'Pagado', '2025-10-01 22:48:24', NULL),
-(3, 14, 'Transferencia', 98000.00, 'Pagado', '2025-10-01 22:48:52', NULL),
-(4, 15, 'Tarjeta', 98000.00, 'Pagado', '2025-10-01 22:54:56', NULL),
-(5, 16, 'efectivo', 470000.00, 'Pagado', '2025-10-01 23:07:51', NULL),
-(6, 19, 'efectivo', 470000.00, 'Pagado', '2025-10-01 23:27:15', NULL),
-(7, 20, 'transferencia', 95000.00, 'Pagado', '2025-10-02 02:15:22', NULL),
-(8, 21, 'tarjeta', 90000.00, 'Pagado', '2025-10-02 03:54:36', NULL),
-(9, 22, 'tarjeta', 95000.00, 'Pagado', '2025-10-02 03:54:51', NULL),
-(10, 23, 'tarjeta', 720000.00, 'Pagado', '2025-10-02 13:20:36', NULL),
-(11, 24, 'transferencia', 116620.00, 'Pagado', '2025-10-02 15:56:34', NULL),
-(12, 25, 'contraentrega', 116620.00, 'Pagado', '2025-10-02 16:01:01', NULL),
-(13, 26, 'tarjeta', 142800.00, 'Pagado', '2025-10-02 16:16:09', NULL),
-(14, 27, 'tarjeta', 249900.00, 'Pagado', '2025-10-02 16:31:39', NULL),
-(15, 28, 'tarjeta', 815150.00, 'Pagado', '2025-10-02 16:32:20', NULL),
-(16, 32, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:34:15', NULL),
-(17, 32, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:34:35', NULL),
-(18, 33, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:50:08', NULL),
-(19, 39, 'tarjeta', 416500.00, 'Pagado', '2025-11-11 07:08:00', NULL),
-(20, 40, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:17:22', NULL),
-(21, 41, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:35:52', NULL),
-(22, 42, 'tarjeta', 13090000.00, 'pagado', '2025-11-21 18:19:17', NULL),
-(23, 43, 'tarjeta', 654.50, 'pagado', '2025-11-21 19:02:56', NULL);
+INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `estado`, `fecha`, `numero_tarjeta`, `vencimiento`, `cvc`, `referencia_pago`) VALUES
+(1, 7, '', 95000.00, 'Pagado', '2025-09-16 00:36:29', NULL, NULL, NULL, NULL),
+(2, 13, 'Efectivo', 98000.00, 'Pagado', '2025-10-01 22:48:24', NULL, NULL, NULL, NULL),
+(3, 14, 'Transferencia', 98000.00, 'Pagado', '2025-10-01 22:48:52', NULL, NULL, NULL, NULL),
+(4, 15, 'Tarjeta', 98000.00, 'Pagado', '2025-10-01 22:54:56', NULL, NULL, NULL, NULL),
+(5, 16, 'efectivo', 470000.00, 'Pagado', '2025-10-01 23:07:51', NULL, NULL, NULL, NULL),
+(6, 19, 'efectivo', 470000.00, 'Pagado', '2025-10-01 23:27:15', NULL, NULL, NULL, NULL),
+(7, 20, 'transferencia', 95000.00, 'Pagado', '2025-10-02 02:15:22', NULL, NULL, NULL, NULL),
+(8, 21, 'tarjeta', 90000.00, 'Pagado', '2025-10-02 03:54:36', NULL, NULL, NULL, NULL),
+(9, 22, 'tarjeta', 95000.00, 'Pagado', '2025-10-02 03:54:51', NULL, NULL, NULL, NULL),
+(10, 23, 'tarjeta', 720000.00, 'Pagado', '2025-10-02 13:20:36', NULL, NULL, NULL, NULL),
+(11, 24, 'transferencia', 116620.00, 'Pagado', '2025-10-02 15:56:34', NULL, NULL, NULL, NULL),
+(12, 25, 'contraentrega', 116620.00, 'Pagado', '2025-10-02 16:01:01', NULL, NULL, NULL, NULL),
+(13, 26, 'tarjeta', 142800.00, 'Pagado', '2025-10-02 16:16:09', NULL, NULL, NULL, NULL),
+(14, 27, 'tarjeta', 249900.00, 'Pagado', '2025-10-02 16:31:39', NULL, NULL, NULL, NULL),
+(15, 28, 'tarjeta', 815150.00, 'Pagado', '2025-10-02 16:32:20', NULL, NULL, NULL, NULL),
+(16, 32, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:34:15', NULL, NULL, NULL, NULL),
+(17, 32, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:34:35', NULL, NULL, NULL, NULL),
+(18, 33, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:50:08', NULL, NULL, NULL, NULL),
+(19, 39, 'tarjeta', 416500.00, 'Pagado', '2025-11-11 07:08:00', NULL, NULL, NULL, NULL),
+(20, 40, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:17:22', NULL, NULL, NULL, NULL),
+(21, 41, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:35:52', NULL, NULL, NULL, NULL),
+(22, 42, 'tarjeta', 13090000.00, 'pagado', '2025-11-21 18:19:17', NULL, NULL, NULL, NULL),
+(23, 43, 'tarjeta', 654.50, 'pagado', '2025-11-21 19:02:56', NULL, NULL, NULL, NULL),
+(24, 44, 'tarjeta', 14280.00, 'pagado', '2025-12-10 05:09:14', '5453453453453455', '12/31', '123', NULL);
 
 --
 -- Disparadores `pagos`
@@ -786,7 +791,8 @@ INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_env
 (40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
 (41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
 (42, NULL, '2025-11-21', 'Pagado', NULL, NULL, 13090000.00, 'pagado', 30, 11000000.00, 2090000.00, NULL, '', '', '', '', 'PED-20251121-000001'),
-(43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002');
+(43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002'),
+(44, NULL, '2025-12-10', 'Pagado', NULL, NULL, 14280.00, 'pagado', 28, 12000.00, 2280.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000001');
 
 -- --------------------------------------------------------
 
@@ -903,7 +909,7 @@ INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso
 (72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 0, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1),
 (73, 'anillo xd', 'ewsrjhfliafhywahfl', 1200000.00, 10, 12.00, 5.00, 4.00, NULL, NULL, 0, 5, 1, 2, 5, NULL, 28, NULL, NULL, 0, 1),
 (74, 'uwu', 'hszrjtre', 254524.00, 5, 5.00, 5.00, 5.00, NULL, NULL, 0, 5, 2, 3, 6, NULL, 28, NULL, NULL, 0, 1),
-(75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 100, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1),
+(75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 99, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1),
 (76, 'anillo plateado', 'anillo con buen estilo y brillo', 55.00, 555, 55.00, 55.00, 55.00, NULL, NULL, 20, 5, 4, 2, 5, NULL, 28, NULL, NULL, 0, 0);
 
 -- --------------------------------------------------------
@@ -1775,7 +1781,7 @@ ALTER TABLE `bitacora`
 -- AUTO_INCREMENT de la tabla `carrito_usuario`
 --
 ALTER TABLE `carrito_usuario`
-  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1805,7 +1811,7 @@ ALTER TABLE `detalle_orden`
 -- AUTO_INCREMENT de la tabla `detalle_pedido`
 --
 ALTER TABLE `detalle_pedido`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT de la tabla `devoluciones`
@@ -1859,13 +1865,13 @@ ALTER TABLE `ordenes_compra`
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_personalizados`
