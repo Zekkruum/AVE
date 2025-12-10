@@ -1647,32 +1647,42 @@ def registrar_entrada_stock(id_producto):
     cursor.execute("SELECT * FROM productos WHERE id_producto = %s", (id_producto,))
     producto = cursor.fetchone()
 
+    # Traer tallas disponibles
+    cursor.execute("SELECT talla, stock FROM stock_tallas WHERE id_producto = %s", (id_producto,))
+    tallas = cursor.fetchall()
+
     if not producto:
         cursor.close()
         conn.close()
         return "Producto no encontrado", 404
 
     if request.method == 'POST':
+        talla = request.form['talla']  # seleccionada por el vendedor
         cantidad = int(request.form['cantidad'])
-        motivo = request.form.get('observacion', '')  # aquí recoges el form
+        motivo = request.form.get('observacion', '')
 
-        id_usuario = session.get('usuario_id')  # si no hay sesión, forzar al vendedor con id 2
+        if cantidad <= 0:
+            return render_template('registrar_entrada_stock.html', producto=producto, tallas=tallas, error="Cantidad debe ser mayor a 0.")
 
-        if not id_usuario:
-            return redirect(url_for('login'))  # seguridad extra
-
-        # 1. Insertar en movimientos_inventario
+        # 1. Insertar en movimientos_inventario con talla
         cursor.execute("""
-            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario)
-            VALUES (%s, 'entrada', %s, %s, %s)
-        """, (id_producto, cantidad, motivo, id_usuario))
+            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario, talla)
+            VALUES (%s, 'entrada', %s, %s, %s, %s)
+        """, (id_producto, cantidad, motivo, usuario['id_usuario'], talla))
 
-        # 2. Actualizar stock en la tabla productos
+        # 2. Actualizar stock de esa talla
+        cursor.execute("""
+            UPDATE stock_tallas
+            SET stock = stock + %s
+            WHERE id_producto = %s AND talla = %s
+        """, (cantidad, id_producto, talla))
+
+        # 3. Actualizar stock total en productos
         cursor.execute("""
             UPDATE productos
-            SET stock = stock + %s
+            SET stock = (SELECT COALESCE(SUM(stock),0) FROM stock_tallas WHERE id_producto = %s)
             WHERE id_producto = %s
-        """, (cantidad, id_producto))
+        """, (id_producto, id_producto))
 
         conn.commit()
         cursor.close()
@@ -1682,7 +1692,8 @@ def registrar_entrada_stock(id_producto):
 
     cursor.close()
     conn.close()
-    return render_template('registrar_entrada_stock.html', producto=producto, usuario=usuario)
+    return render_template('registrar_entrada_stock.html', producto=producto, tallas=tallas, usuario=usuario)
+
 
 
 #-----------------------------
@@ -1691,7 +1702,7 @@ def registrar_entrada_stock(id_producto):
 @app.route('/producto/<int:id_producto>/registrar_salida', methods=['GET', 'POST'])
 def registrar_salida_stock(id_producto):
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 2:  # Solo vendedores/admins
+    if not usuario or usuario['id_rol'] != 2:
         return redirect(url_for('login'))
 
     conn = get_db_connection()
@@ -1699,29 +1710,44 @@ def registrar_salida_stock(id_producto):
     cursor.execute("SELECT * FROM productos WHERE id_producto = %s", (id_producto,))
     producto = cursor.fetchone()
 
+    # Traer tallas disponibles
+    cursor.execute("SELECT talla, stock FROM stock_tallas WHERE id_producto = %s", (id_producto,))
+    tallas = cursor.fetchall()
+
     if request.method == 'POST':
+        talla = request.form['talla']
         cantidad = int(request.form['cantidad'])
-        motivo = request.form['motivo']
+        motivo = request.form.get('motivo', '')
 
-        # Validar stock disponible
+        # Validar stock
+        cursor.execute("SELECT stock FROM stock_tallas WHERE id_producto = %s AND talla = %s", (id_producto, talla))
+        fila = cursor.fetchone()
+        stock_talla = fila['stock'] if fila else 0
+
         if cantidad <= 0:
-            return render_template("registrar_salida_stock.html", producto=producto, error="La cantidad debe ser mayor a 0.")
-        if cantidad > producto['stock']:
-            return render_template("registrar_salida_stock.html", producto=producto, error="No hay suficiente stock disponible.")
+            return render_template('registrar_salida_stock.html', producto=producto, tallas=tallas, error="Cantidad debe ser mayor a 0.")
+        if cantidad > stock_talla:
+            return render_template('registrar_salida_stock.html', producto=producto, tallas=tallas, error=f"No hay suficiente stock de la talla {talla}.")
 
-        # Insertar movimiento de salida
-
-        id_usuario = session.get('id_usuario')
-
+        # Registrar movimiento
         cursor.execute("""
-            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario)
-            VALUES (%s, 'salida', %s, %s, %s)
-        """, (id_producto, cantidad, motivo, usuario['id_usuario']))
+            INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario, talla)
+            VALUES (%s, 'salida', %s, %s, %s, %s)
+        """, (id_producto, cantidad, motivo, usuario['id_usuario'], talla))
 
-        # Actualizar stock del producto
+        # Actualizar stock de esa talla
         cursor.execute("""
-            UPDATE productos SET stock = stock - %s WHERE id_producto = %s
-        """, (cantidad, id_producto))
+            UPDATE stock_tallas
+            SET stock = stock - %s
+            WHERE id_producto = %s AND talla = %s
+        """, (cantidad, id_producto, talla))
+
+        # Actualizar stock total en productos
+        cursor.execute("""
+            UPDATE productos
+            SET stock = (SELECT COALESCE(SUM(stock),0) FROM stock_tallas WHERE id_producto = %s)
+            WHERE id_producto = %s
+        """, (id_producto, id_producto))
 
         conn.commit()
         cursor.close()
@@ -1731,7 +1757,8 @@ def registrar_salida_stock(id_producto):
 
     cursor.close()
     conn.close()
-    return render_template("registrar_salida_stock.html", producto=producto, usuario=usuario)
+    return render_template('registrar_salida_stock.html', producto=producto, tallas=tallas, usuario=usuario)
+
 
 # ----------------------------
 # generador de devoluciones 2.0

@@ -89,3 +89,17 @@ form button:hover {
 .btn-cancelar:hover {
     background: #444;
 }
+
+form input, form select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+form input:focus, form select:focus {
+    border-color: #222;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.15);
+}
