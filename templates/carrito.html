@@ -8,18 +8,27 @@
     {% if carrito %}
     <div class="carrito-lista">
         {% for item in carrito %}
-<div class="carrito-item">
-    <img src="{{ item.imagen_src }}" alt="{{ item.nombre }}">
+        <div class="carrito-item">
+            <img src="{{ item.imagen_src }}" alt="{{ item.nombre }}">
 
-    <div>
-        <h3>{{ item.nombre }}</h3>
-        <p>Precio: ${{ item.precio }}</p>
-        <p>Cantidad: {{ item.cantidad }}</p>
-        <p>Subtotal: ${{ item.precio * item.cantidad }}</p>
-        <a href="{{ url_for('eliminar_carrito', id_producto=item.id_producto) }}" class="btn-eliminar">Eliminar</a>
-    </div>
-</div>
-{% endfor %}
+            <div>
+                <h3>{{ item.nombre }}</h3>
+                <p>Talla: {{ item.talla }}</p>
+                <p>Precio: ${{ '{:,.0f}'.format(item.precio|float) }}</p>
+                <p>Cantidad: {{ item.cantidad }}</p>
+                <p>Subtotal: ${{ '{:,.0f}'.format(item.precio * item.cantidad) }}</p>
+
+                <!-- Botón eliminar toda la fila de esta talla -->
+                <form action="{{ url_for('eliminar_talla', id_producto=item.id_producto, talla=item.talla) }}"
+                    method="POST" style="display:inline;"> <button type="submit" class="btn-eliminar">Eliminar
+                        talla</button> 
+                </form>
+
+
+            </div>
+        </div>
+        {% endfor %}
+
 
     </div>
 
@@ -45,4 +54,3 @@
     {% endif %}
 </main>
 {% endblock %}
-  
