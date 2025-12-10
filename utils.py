@@ -63,7 +63,8 @@ def generar_factura_pdf(pedido, detalles, ruta_salida):
 
     c.setFont("Helvetica-Bold", 12)
     c.drawString(50, y, "Producto")
-    c.drawString(250, y, "Cant.")
+    c.drawString(210, y, "Cant.")
+    c.drawString(260, y, "Talla")
     c.drawString(300, y, "P.Unit")
     c.drawString(380, y, "Subtotal")
     y -= 15
@@ -75,7 +76,8 @@ def generar_factura_pdf(pedido, detalles, ruta_salida):
     # Productos
     for item in detalles:
         c.drawString(50, y, str(item['nombre']))
-        c.drawString(260, y, str(item['cantidad']))
+        c.drawString(210, y, str(item['cantidad']))
+        c.drawString(260, y, str(item['talla']))
         c.drawString(300, y, f"${item['precio_unitario']}")
         c.drawString(380, y, f"${item['subtotal']}")
         y -= 20

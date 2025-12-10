@@ -1420,7 +1420,7 @@ def registrar_pago(id_pedido):
         cursor.execute("""
             SELECT d.id_producto, d.cantidad, d.precio_unitario,
                    (d.cantidad * d.precio_unitario) AS subtotal,
-                   p.nombre
+                   p.nombre, d.talla
             FROM detalle_pedido d
             JOIN productos p ON p.id_producto = d.id_producto
             WHERE d.id_pedido = %s
@@ -1546,10 +1546,10 @@ def crear_pedido():
 
     # Obtener carrito
     cursor.execute("""
-        SELECT c.id_producto, c.cantidad, p.precio, p.stock
-        FROM carrito_usuario c
-        JOIN productos p ON c.id_producto = p.id_producto
-        WHERE c.id_usuario = %s
+    SELECT c.id_producto, c.cantidad, c.talla, p.precio, p.stock
+    FROM carrito_usuario c
+    JOIN productos p ON c.id_producto = p.id_producto
+    WHERE c.id_usuario = %s
     """, (usuario['id_usuario'],))
     carrito = cursor.fetchall()
 
@@ -1611,9 +1611,9 @@ def crear_pedido():
     # Insertar detalles y descontar stock
     for item in carrito:
         cursor.execute("""
-            INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
-            VALUES (%s, %s, %s, %s)
-        """, (id_pedido, item['id_producto'], item['cantidad'], item['precio']))
+            INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario, talla)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (id_pedido, item['id_producto'], item['cantidad'], item['precio'], item['talla']))
 
         cursor.execute("""
             UPDATE productos SET stock = stock - %s
