@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-12-2025 a las 06:10:32
+-- Tiempo de generación: 10-12-2025 a las 08:30:52
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -324,8 +324,16 @@ CREATE TABLE `carrito_usuario` (
   `id_usuario` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
   `cantidad` int(11) NOT NULL,
-  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
+  `talla` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `carrito_usuario`
+--
+
+INSERT INTO `carrito_usuario` (`id_carrito`, `id_usuario`, `id_producto`, `cantidad`, `fecha`, `talla`) VALUES
+(37, 28, 72, 1, '2025-12-10 07:30:34', '45cm');
 
 -- --------------------------------------------------------
 
@@ -429,19 +437,21 @@ CREATE TABLE `detalle_pedido` (
   `id_detalle` int(11) NOT NULL,
   `id_pedido` int(11) DEFAULT NULL,
   `id_producto` int(11) DEFAULT NULL,
-  `id_talla` int(11) DEFAULT NULL,
   `cantidad` int(11) DEFAULT NULL,
-  `precio_unitario` decimal(10,2) DEFAULT NULL
+  `precio_unitario` decimal(10,2) DEFAULT NULL,
+  `talla` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `detalle_pedido`
 --
 
-INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `id_talla`, `cantidad`, `precio_unitario`) VALUES
-(50, 42, 58, NULL, 2, 5500000.00),
-(51, 43, 76, NULL, 10, 55.00),
-(52, 44, 75, NULL, 1, 12000.00);
+INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `cantidad`, `precio_unitario`, `talla`) VALUES
+(50, 42, 58, 2, 5500000.00, ''),
+(51, 43, 76, 10, 55.00, ''),
+(52, 44, 75, 1, 12000.00, ''),
+(53, 45, 72, 10, 49990.00, '45cm'),
+(54, 46, 72, 5, 49990.00, '45cm');
 
 -- --------------------------------------------------------
 
@@ -628,10 +638,18 @@ CREATE TABLE `movimientos_inventario` (
   `id_producto` int(11) NOT NULL,
   `tipo` enum('entrada','salida') NOT NULL,
   `cantidad` int(11) NOT NULL,
+  `talla` varchar(50) DEFAULT NULL,
   `motivo` varchar(255) DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
   `fecha` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `movimientos_inventario`
+--
+
+INSERT INTO `movimientos_inventario` (`id_movimiento`, `id_producto`, `tipo`, `cantidad`, `talla`, `motivo`, `id_usuario`, `fecha`) VALUES
+(7, 72, 'entrada', 60, '45cm', '', 28, '2025-12-10 07:27:32');
 
 -- --------------------------------------------------------
 
@@ -705,7 +723,9 @@ INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `estado`, `
 (21, 41, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:35:52', NULL, NULL, NULL, NULL),
 (22, 42, 'tarjeta', 13090000.00, 'pagado', '2025-11-21 18:19:17', NULL, NULL, NULL, NULL),
 (23, 43, 'tarjeta', 654.50, 'pagado', '2025-11-21 19:02:56', NULL, NULL, NULL, NULL),
-(24, 44, 'tarjeta', 14280.00, 'pagado', '2025-12-10 05:09:14', '5453453453453455', '12/31', '123', NULL);
+(24, 44, 'tarjeta', 14280.00, 'pagado', '2025-12-10 05:09:14', '5453453453453455', '12/31', '123', NULL),
+(25, 45, 'tarjeta', 594881.00, 'pagado', '2025-12-10 07:27:53', '4353453453453454', '12/31', '213', NULL),
+(26, 46, 'tarjeta', 297440.50, 'pagado', '2025-12-10 07:30:19', '523423123123123', '21/31', '213', NULL);
 
 --
 -- Disparadores `pagos`
@@ -792,7 +812,9 @@ INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_env
 (41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
 (42, NULL, '2025-11-21', 'Pagado', NULL, NULL, 13090000.00, 'pagado', 30, 11000000.00, 2090000.00, NULL, '', '', '', '', 'PED-20251121-000001'),
 (43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002'),
-(44, NULL, '2025-12-10', 'Pagado', NULL, NULL, 14280.00, 'pagado', 28, 12000.00, 2280.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000001');
+(44, NULL, '2025-12-10', 'Pagado', NULL, NULL, 14280.00, 'pagado', 28, 12000.00, 2280.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000001'),
+(45, NULL, '2025-12-10', 'Pagado', NULL, NULL, 594881.00, 'pagado', 28, 499900.00, 94981.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000002'),
+(46, NULL, '2025-12-10', 'Pagado', NULL, NULL, 297440.50, 'pagado', 28, 249950.00, 47490.50, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000003');
 
 -- --------------------------------------------------------
 
@@ -906,7 +928,7 @@ INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso
 (64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, 0, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1),
 (66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, 0, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1),
 (67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, 0, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1),
-(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 0, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1),
+(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 44, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1),
 (73, 'anillo xd', 'ewsrjhfliafhywahfl', 1200000.00, 10, 12.00, 5.00, 4.00, NULL, NULL, 0, 5, 1, 2, 5, NULL, 28, NULL, NULL, 0, 1),
 (74, 'uwu', 'hszrjtre', 254524.00, 5, 5.00, 5.00, 5.00, NULL, NULL, 0, 5, 2, 3, 6, NULL, 28, NULL, NULL, 0, 1),
 (75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 99, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1),
@@ -955,17 +977,6 @@ CREATE TABLE `producto_piedras` (
 CREATE TABLE `producto_promocion` (
   `id_producto` int(11) NOT NULL,
   `id_promocion` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `producto_talla`
---
-
-CREATE TABLE `producto_talla` (
-  `id_producto` int(11) NOT NULL,
-  `id_talla` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1111,7 +1122,7 @@ INSERT INTO `stock_tallas` (`id_stock`, `id_producto`, `talla`, `stock`) VALUES
 (23, 64, '45 cm', 0),
 (26, 66, 'Única', 0),
 (27, 67, 'Única', 0),
-(32, 72, '45cm', 0),
+(32, 72, '45cm', 44),
 (33, 73, '5', 0),
 (34, 73, '4', 0),
 (35, 74, '5', 22),
@@ -1121,35 +1132,10 @@ INSERT INTO `stock_tallas` (`id_stock`, `id_producto`, `talla`, `stock`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tallas`
---
-
-CREATE TABLE `tallas` (
-  `id_talla` int(11) NOT NULL,
-  `nombre_talla` varchar(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `tallas`
---
-
-INSERT INTO `tallas` (`id_talla`, `nombre_talla`) VALUES
-(1, 'XS'),
-(2, 'S'),
-(3, 'M'),
-(4, 'L'),
-(5, 'XL');
-
--- --------------------------------------------------------
-
---
 -- Estructura Stand-in para la vista `tallas_disponibles_producto`
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `tallas_disponibles_producto` (
-`id_producto` int(11)
-,`nombre` varchar(100)
-,`nombre_talla` varchar(20)
 );
 
 -- --------------------------------------------------------
@@ -1304,11 +1290,6 @@ CREATE TABLE `vista_clientes_contacto` (
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `vista_detalle_pedido_extendido` (
-`id_pedido` int(11)
-,`producto` varchar(100)
-,`cantidad` int(11)
-,`precio_unitario` decimal(10,2)
-,`id_talla` int(11)
 );
 
 -- --------------------------------------------------------
@@ -1571,8 +1552,7 @@ ALTER TABLE `detalle_orden`
 ALTER TABLE `detalle_pedido`
   ADD PRIMARY KEY (`id_detalle`),
   ADD KEY `id_pedido` (`id_pedido`),
-  ADD KEY `id_producto` (`id_producto`),
-  ADD KEY `id_talla` (`id_talla`);
+  ADD KEY `id_producto` (`id_producto`);
 
 --
 -- Indices de la tabla `devoluciones`
@@ -1702,13 +1682,6 @@ ALTER TABLE `producto_promocion`
   ADD KEY `id_promocion` (`id_promocion`);
 
 --
--- Indices de la tabla `producto_talla`
---
-ALTER TABLE `producto_talla`
-  ADD PRIMARY KEY (`id_producto`,`id_talla`),
-  ADD KEY `id_talla` (`id_talla`);
-
---
 -- Indices de la tabla `promociones`
 --
 ALTER TABLE `promociones`
@@ -1732,12 +1705,6 @@ ALTER TABLE `roles`
 ALTER TABLE `stock_tallas`
   ADD PRIMARY KEY (`id_stock`),
   ADD KEY `id_producto` (`id_producto`);
-
---
--- Indices de la tabla `tallas`
---
-ALTER TABLE `tallas`
-  ADD PRIMARY KEY (`id_talla`);
 
 --
 -- Indices de la tabla `tipos_joya`
@@ -1781,7 +1748,7 @@ ALTER TABLE `bitacora`
 -- AUTO_INCREMENT de la tabla `carrito_usuario`
 --
 ALTER TABLE `carrito_usuario`
-  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1811,7 +1778,7 @@ ALTER TABLE `detalle_orden`
 -- AUTO_INCREMENT de la tabla `detalle_pedido`
 --
 ALTER TABLE `detalle_pedido`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT de la tabla `devoluciones`
@@ -1853,7 +1820,7 @@ ALTER TABLE `materiales`
 -- AUTO_INCREMENT de la tabla `movimientos_inventario`
 --
 ALTER TABLE `movimientos_inventario`
-  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `ordenes_compra`
@@ -1865,13 +1832,13 @@ ALTER TABLE `ordenes_compra`
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_personalizados`
@@ -1920,12 +1887,6 @@ ALTER TABLE `roles`
 --
 ALTER TABLE `stock_tallas`
   MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
-
---
--- AUTO_INCREMENT de la tabla `tallas`
---
-ALTER TABLE `tallas`
-  MODIFY `id_talla` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `tipos_joya`
@@ -1985,8 +1946,7 @@ ALTER TABLE `detalle_orden`
 --
 ALTER TABLE `detalle_pedido`
   ADD CONSTRAINT `detalle_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
-  ADD CONSTRAINT `detalle_pedido_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
-  ADD CONSTRAINT `detalle_pedido_ibfk_3` FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`);
+  ADD CONSTRAINT `detalle_pedido_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
 
 --
 -- Filtros para la tabla `devoluciones`
@@ -2084,13 +2044,6 @@ ALTER TABLE `producto_piedras`
 ALTER TABLE `producto_promocion`
   ADD CONSTRAINT `producto_promocion_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
   ADD CONSTRAINT `producto_promocion_ibfk_2` FOREIGN KEY (`id_promocion`) REFERENCES `promociones` (`id_promocion`);
-
---
--- Filtros para la tabla `producto_talla`
---
-ALTER TABLE `producto_talla`
-  ADD CONSTRAINT `producto_talla_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
-  ADD CONSTRAINT `producto_talla_ibfk_2` FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`);
 
 --
 -- Filtros para la tabla `stock_tallas`
