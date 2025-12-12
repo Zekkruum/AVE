@@ -6,8 +6,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pedidos.css') }}">
 </head>
 
-
-</head>
 <body>
     <!-- Header -->
     <header>
@@ -20,68 +18,68 @@
         </div>
     </header>
 
-    <!-- Contenido principal -->
+    <!-- Contenido -->
     <main class="container">
         <h1 class="titulo">Gestión de Pedidos</h1>
-        <p class="subtitle">Aquí podrás revisar, enviar y marcar como entregados los pedidos realizados sobre tus productos.</p>
+        <p class="subtitle">Administra, controla y actualiza el estado de los pedidos asociados a tus productos.</p>
 
         {% if pedidos %}
-        <table class="tabla-pedidos">
-            <thead>
-                <tr>
-                    <th>ID Pedido</th>
-                    <th>Cliente</th>
-                    <th>Productos</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
+        <div class="table-wrapper">
+            <table class="tabla-pro">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {% for pedido in pedidos %}
-                <tr>
-                    <td>{{ pedido.id_pedido }}</td>
-                    <td>{{ pedido.cliente }}</td>
-                    <td>{{ pedido.productos }}</td>
-                    <td>{{ pedido.fecha }}</td>
-                    <td>
-                        {% if pedido.estado == "Pendiente" %}
-                            <span class="estado pendiente">Pendiente</span>
-                        {% elif pedido.estado == "Enviado" %}
-                            <span class="estado enviado">Enviado</span>
-                        {% elif pedido.estado == "Entregado" %}
-                            <span class="estado entregado">Entregado ✔</span>
-                        {% endif %}
-                    </td>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>#{{ pedido.id_pedido }}</td>
+                        <td>{{ pedido.cliente }}</td>
+                        <td class="productos-cell">{{ pedido.productos }}</td>
+                        <td>{{ pedido.fecha }}</td>
 
-                    <td>
-                        {% if pedido.estado == "Pendiente" %}
-                            <a href="{{ url_for('marcar_enviado', id_pedido=pedido.id_pedido) }}" 
-                               class="btn btn-enviar">Marcar Enviado</a>
-                        {% endif %}
+                        <td>
+                            <span class="estado estado-{{ pedido.nombre_estado | lower | replace(' ','-') }}">
+                                {{ pedido.nombre_estado }}
+                            </span>
+                        </td>
 
-                        {% if pedido.estado == "Enviado" %}
-                            <a href="{{ url_for('marcar_entregado', id_pedido=pedido.id_pedido) }}" 
-                               class="btn btn-entregar">Marcar Entregado</a>
-                        {% endif %}
+                        <td>
+                            <form 
+                                action="{{ url_for('ruta_actualizar_estado_pedido', id_pedido=pedido.id_pedido, nuevo_estado='__PLACEHOLDER__') }}" 
+                                method="POST"
+                                onsubmit="this.action = this.action.replace('__PLACEHOLDER__', this.estado.value)"
+                            >
+                                <select name="estado" class="select-estado">
+                                    <option value="Pendiente de preparación">Pendiente de preparación</option>
+                                    <option value="En preparación">En preparación</option>
+                                    <option value="Enviado">Enviado</option>
+                                    <option value="Entregado">Entregado</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                    <option value="Devuelto">Devuelto</option>
+                                </select>
 
-                        {% if pedido.estado == "Entregado" %}
-                            <span class="badge badge-success">Completado</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                <button class="btn btn-estado">Actualizar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         {% else %}
-            <p class="no-pedidos">No tienes pedidos asociados a tus productos.</p>
+            <p class="no-pedidos">No tienes pedidos registrados aún.</p>
         {% endif %}
-
     </main>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; 2025 AVE Joyas - Todos los derechos reservados</p>
     </footer>

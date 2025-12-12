@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="rastreo-container">
+
+    <h2 class="titulo">Rastreo de Pedido</h2>
+    <p class="codigo">Código: <b>{{ pedido.numero_pedido or pedido.codigo_seguimiento }}</b></p>
+
+    <!-- Información del pedido -->
+    <div class="pedido-info">
+        <p><b>Estado actual:</b> {{ pedido.nombre_estado }}</p>
+        <p><b>Fecha del pedido:</b> {{ pedido.fecha }}</p>
+        <p><b>Total:</b> ${{ pedido.total }}</p>
+    </div>
+
+    <!-- Línea de progreso -->
+    <h3 class="subtitulo">Progreso del Pedido</h3>
+
+    <div class="timeline">
+        {% for estado in historial %}
+        <div class="step {% if estado.id_estado == pedido.id_estado %}active{% endif %}">
+            <div class="circle"></div>
+            <p>{{ estado.nombre_estado }}</p>
+            <span class="fecha">{{ estado.fecha }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Detalles del pedido -->
+    <h3 class="subtitulo">Artículos del Pedido</h3>
+
+    <table class="tabla-detalles">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Talla</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detalles %}
+            <tr>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ item.talla }}</td>
+                <td>${{ item.precio_unitario }}</td>
+                <td>${{ item.cantidad * item.precio_unitario }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Historial -->
+    <h3 class="subtitulo">Historial del Pedido</h3>
+
+    <div class="historial-box">
+        {% for h in historial %}
+        <div class="historial-item">
+            <p><b>{{ h.nombre_estado }}</b></p>
+            <p class="fecha">{{ h.fecha }}</p>
+            <p><i>Actualizado por: {{ h.usuario }}</i></p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

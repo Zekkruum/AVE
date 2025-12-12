@@ -22,86 +22,148 @@ from reportlab.lib.pagesizes import letter
 
 
 def generar_factura_pdf(pedido, detalles, ruta_salida):
-    """Genera un PDF de factura basado en los datos del pedido y su detalle."""
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
 
-    # Crear el lienzo
-    c = canvas.Canvas(ruta_salida, pagesize=letter)
-    width, height = letter
+    doc = SimpleDocTemplate(
+        ruta_salida,
+        pagesize=letter,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
 
-    y = height - 50
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='Heading1Center', parent=styles['Heading1'], alignment=1))
+    styles.add(ParagraphStyle(name='BoldLeft', parent=styles['Normal'], fontName='Helvetica-Bold'))
 
-    # Encabezado
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, y, "AVE JOYAS - FACTURA DE COMPRA")
-    y -= 40
+    story = []
 
-    c.setFont("Helvetica", 12)
-    c.drawString(50, y, f"Factura Nº: {pedido['id_pedido']}")
-    y -= 20
-    c.drawString(50, y, f"Fecha de emisión: {str(pedido['fecha'])}")
-    y -= 30
+    # ---------------------
+    # LOGO
+    # ---------------------
+    logo_path = "static/img/logoave.png"
+    if os.path.exists(logo_path):
+        story.append(Image(logo_path, width=140, height=60))
+        story.append(Spacer(1, 12))
 
-    # Datos del cliente
-    c.setFont("Helvetica-Bold", 13)
-    c.drawString(50, y, "Datos del Cliente:")
-    y -= 20
+    # ---------------------
+    # TÍTULO DE FACTURA
+    # ---------------------
+    story.append(Paragraph("<b>FACTURA DE COMPRA</b>", styles["Heading1Center"]))
+    story.append(Spacer(1, 20))
 
-    c.setFont("Helvetica", 12)
-    c.drawString(50, y, f"Nombre: {pedido['nombre_cliente']}")
-    y -= 20
-    c.drawString(50, y, f"Dirección: {pedido['direccion_entrega']}")
-    y -= 20
-    c.drawString(50, y, f"Correo: {pedido['correo_cliente']}")
-    y -= 20
-    c.drawString(50, y, f"Teléfono: {pedido['telefono_cliente']}")
-    y -= 30
+    # ---------------------
+    # DATOS GENERALES
+    # ---------------------
+    info_pedido = [
+        ["Factura Nº:", str(pedido["id_pedido"])],
+        ["Número de Pedido:", pedido.get("numero_pedido", "N/A")],
+        ["Fecha de Compra:", str(pedido["fecha"])],
+        ["Código de Seguimiento:", pedido.get("codigo_seguimiento", pedido.get("numero_pedido"))],
+    ]
 
-    # Encabezado tabla
-    c.setFont("Helvetica-Bold", 13)
-    c.drawString(50, y, "Detalle de Productos:")
-    y -= 20
+    table_info = Table(info_pedido, colWidths=[150, 350])
+    table_info.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#dcd6ff")),
+        ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.gray),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+    ]))
 
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, y, "Producto")
-    c.drawString(210, y, "Cant.")
-    c.drawString(260, y, "Talla")
-    c.drawString(300, y, "P.Unit")
-    c.drawString(380, y, "Subtotal")
-    y -= 15
-    c.line(50, y, 500, y)
-    y -= 25
+    story.append(table_info)
+    story.append(Spacer(1, 20))
 
-    c.setFont("Helvetica", 12)
+    # ---------------------
+    # DATOS DEL CLIENTE
+    # ---------------------
+    story.append(Paragraph("<b>Datos del Cliente:</b>", styles["Heading2"]))
+    story.append(Spacer(1, 10))
 
-    # Productos
+    datos_cliente = [
+        ["Nombre:", pedido["nombre_cliente"]],
+        ["Dirección:", pedido["direccion_entrega"]],
+        ["Correo:", pedido["correo_cliente"]],
+        ["Teléfono:", pedido["telefono_cliente"]],
+    ]
+
+    tabla_cliente = Table(datos_cliente, colWidths=[120, 380])
+    tabla_cliente.setStyle(TableStyle([
+        ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ('GRID', (0, 0), (-1, -1), 0.25, colors.gray),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#f7f7f7")),
+    ]))
+
+    story.append(tabla_cliente)
+    story.append(Spacer(1, 20))
+
+    # ---------------------
+    # DETALLE DE PRODUCTOS
+    # ---------------------
+    story.append(Paragraph("<b>Detalle de Productos:</b>", styles["Heading2"]))
+    story.append(Spacer(1, 12))
+
+    encabezado = ["Producto", "Cantidad", "Talla", "Precio Unit.", "Subtotal"]
+
+    filas = [encabezado]
     for item in detalles:
-        c.drawString(50, y, str(item['nombre']))
-        c.drawString(210, y, str(item['cantidad']))
-        c.drawString(260, y, str(item['talla']))
-        c.drawString(300, y, f"${item['precio_unitario']}")
-        c.drawString(380, y, f"${item['subtotal']}")
-        y -= 20
+        filas.append([
+            item["nombre"],
+            str(item["cantidad"]),
+            item["talla"],
+            f"${item['precio_unitario']}",
+            f"${item['subtotal']}"
+        ])
 
-    y -= 20
-    c.line(50, y, 500, y)
-    y -= 30
+    tabla_productos = Table(filas, colWidths=[180, 70, 60, 100, 100])
+    tabla_productos.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#dcd6ff")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+    ]))
 
-    # Totales
-    c.setFont("Helvetica-Bold", 13)
-    c.drawString(300, y, f"Subtotal: ${pedido['subtotal']}")
-    y -= 20
-    c.drawString(300, y, f"Impuesto (19%): ${pedido['impuesto']}")
-    y -= 20
-    c.drawString(300, y, f"Total pagado: ${pedido['total']}")
-    y -= 40
+    story.append(tabla_productos)
+    story.append(Spacer(1, 20))
 
-    # Nota legal
-    c.setFont("Helvetica", 10)
-    c.drawString(50, y, "Este documento es válido como comprobante de pago conforme a la legislación vigente.")
+    # ---------------------
+    # TOTAL A PAGAR
+    # ---------------------
+    totales = [
+        ["Subtotal:", f"${pedido['subtotal']}"],
+        ["Impuesto (19%):", f"${pedido['impuesto']}"],
+        ["Total Pagado:", f"<b>${pedido['total']}</b>"],
+    ]
 
-    # Guardar PDF
-    c.save()
-    return ruta_salida
+    tabla_totales = Table(totales, colWidths=[200, 140])
+    tabla_totales.setStyle(TableStyle([
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (1, -1), 'Helvetica'),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#f9f9ff")),
+        ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ('GRID', (0, 0), (-1, -1), 0.25, colors.gray),
+    ]))
+
+    story.append(tabla_totales)
+    story.append(Spacer(1, 40))
+
+    # ---------------------
+    # NOTA LEGAL
+    # ---------------------
+    story.append(Paragraph(
+        "Gracias por tu compra. Este documento es válido como comprobante fiscal.",
+        styles["Italic"]
+    ))
+
+    doc.build(story)
+
 
 
 # ----------------------------
@@ -246,3 +308,10 @@ def generar_numero_pedido():
     
     return numero_pedido
 
+import random
+import string
+
+def generar_codigo_unico():
+    prefijo = "PRD"
+    aleatorio = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    return f"{prefijo}-{aleatorio}"
