@@ -46,3 +46,14 @@
 .grafico {
     margin-top: 20px;
 }
+
+.grafico {
+    width: 100%;
+    height: 400px;   /* <── CONTROL DEL ALTO */
+    margin-top: 30px;
+}
+
+#graficoProductos {
+    width: 100% !important;
+    height: 100% !important;
+}

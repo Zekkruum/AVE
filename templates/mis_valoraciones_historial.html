@@ -9,35 +9,38 @@
     <p class="subtitulo">Aquí puedes ver las valoraciones que has dejado en tus compras.</p>
 
     {% if valoraciones and valoraciones|length > 0 %}
-    
-        <div class="lista-valoraciones">
-            {% for v in valoraciones %}
-            <div class="valoracion-card">
 
-                <img src="{{ url_for('static', filename='img/' + (v.imagen or 'ejemplo.jpg')) }}" 
-                     alt="{{ v.nombre }}" 
-                     class="producto-img">
+    <div class="lista-valoraciones">
+        {% for v in valoraciones %}
+        <div class="valoracion-card">
 
-                <div class="valoracion-info">
-                    <h3>{{ v.nombre }}</h3>
+            <!-- 🔥 Mostrar imagen del producto -->
+            <img 
+                src="{{ url_for('static', filename=v.imagen or 'uploads/default.png') }}"
+                alt="{{ v.nombre }}"
+                class="producto-img"
+            >
 
-                    <div class="estrellas">
-                        {% for i in range(v.calificacion) %}
-                            ⭐
-                        {% endfor %}
-                    </div>
+            <div class="valoracion-info">
+                <h3>{{ v.nombre }}</h3>
 
-                    <p class="comentario">"{{ v.comentario }}"</p>
-                    <p class="fecha">📅 {{ v.fecha }}</p>
+                <div class="estrellas">
+                    {% for i in range(v.calificacion | int) %}
+                    ⭐
+                    {% endfor %}
                 </div>
 
+                <p class="comentario">"{{ v.comentario }}"</p>
+                <p class="fecha">📅 {{ v.fecha }}</p>
             </div>
-            {% endfor %}
+
         </div>
+        {% endfor %}
+    </div>
 
     {% else %}
 
-        <p class="no-valoraciones">Aún no has realizado valoraciones.</p>
+    <p class="no-valoraciones">Aún no has realizado valoraciones.</p>
 
     {% endif %}
 

@@ -28,7 +28,7 @@
             <tr>
                 <td>{{ p.producto }}</td>
                 <td>{{ p.cantidad_vendida }}</td>
-                <td>${{ "%.2f"|format(p.total_facturado) }}</td>
+                <td>$ {{ '{:,.0f}'.format(p.total_facturado|float) }}</td>
             </tr>
             {% else %}
             <tr>
@@ -41,43 +41,110 @@
     <!-- Gráfico -->
     <section class="grafico">
         <h3>Visualización de Ventas</h3>
-        <canvas id="graficoProductos"></canvas>
+        <div style="width: 100%; height: 450px;">
+            <canvas id="graficoProductos"></canvas>
+        </div>
     </section>
-</main>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const labels = {{ productos | map(attribute='producto') | list | tojson }};
-    const dataCantidad = {{ productos | map(attribute='cantidad_vendida') | list | tojson }};
-    const dataFacturado = {{ productos | map(attribute='total_facturado') | list | tojson }};
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = {{ productos | map(attribute = 'producto') | list | tojson }};
+        const cantidades = {{ productos | map(attribute = 'cantidad_vendida') | list | tojson }};
+        const facturado = {{ productos | map(attribute = 'total_facturado') | list | tojson }};
 
-    new Chart(document.getElementById('graficoProductos'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Cantidad Vendida',
-                    data: dataCantidad,
-                    backgroundColor: 'rgba(34, 150, 243, 0.7)'
-                },
-                {
-                    label: 'Total Facturado ($)',
-                    data: dataFacturado,
-                    backgroundColor: 'rgba(243, 111, 34, 0.7)'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { labels: { color: '#222' } }
-            },
-            scales: {
-                x: { ticks: { color: '#222' } },
-                y: { ticks: { color: '#222' } }
-            }
+        // Formato COP compacto
+        function abreviar(valor) {
+            if (valor >= 1_000_000) return (valor / 1_000_000).toFixed(1) + "M";
+            if (valor >= 1_000) return (valor / 1_000).toFixed(1) + "K";
+            return valor;
         }
-    });
-</script>
-{% endblock %}
+
+        const ctx = document.getElementById('graficoProductos');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Cantidad Vendida',
+                        data: cantidades,
+                        backgroundColor: 'rgba(41, 128, 185, 0.85)',
+                        borderRadius: 6,
+                        yAxisID: 'cantidadAxis'
+                    },
+                    {
+                        label: 'Total Facturado (COP)',
+                        data: facturado,
+                        backgroundColor: 'rgba(39, 174, 96, 0.85)',
+                        borderRadius: 6,
+                        yAxisID: 'facturadoAxis'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { font: { size: 14, weight: 'bold' } }
+                    },
+                    tooltip: {
+                        backgroundColor: "#1e1e1e",
+                        titleColor: "#fff",
+                        bodyColor: "#eee",
+                        padding: 12,
+                        callbacks: {
+                            label: (ctx) => {
+                                let value = ctx.raw;
+                                if (ctx.dataset.label.includes("Facturado")) {
+                                    return `${ctx.dataset.label}: $ ${value.toLocaleString("es-CO")}`;
+                                }
+                                return `${ctx.dataset.label}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { size: 12 } }
+                    },
+
+                    // 👉 EJE IZQUIERDO (Cantidad vendida)
+                    cantidadAxis: {
+                        type: 'linear',
+                        position: 'left',
+                        ticks: {
+                            callback: value => value,
+                            font: { size: 12 }
+                        },
+                        title: {
+                            display: true,
+                            text: "Cantidad Vendida",
+                            font: { weight: "bold" }
+                        }
+                    },
+
+                    // 👉 EJE DERECHO (Total facturado COP)
+                    facturadoAxis: {
+                        type: 'logarithmic',
+                        position: 'right',
+                        ticks: {
+                            callback: (value) => {
+                                if (value === 0) return "$0";
+                                return "$" + abreviar(value);
+                            }
+                        },
+                        grid: { drawOnChartArea: false },
+                        title: {
+                            display: true,
+                            text: "Total Facturado (COP)",
+                            font: { weight: "bold" }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    {% endblock %}

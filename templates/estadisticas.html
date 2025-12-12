@@ -1,108 +1,140 @@
 {% extends "base.html" %}
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/estadisticas_dashboard.css') }}">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estadisticas.css') }}">
 
 <main class="dashboard-container">
-    
-    <!-- TÍTULO -->
-    <h1 class="dashboard-title">Panel de Estadísticas – AVE Joyas</h1>
-    <p class="subtitle">Analiza las ventas por periodo, productos destacados y comportamiento del negocio.</p>
+
+    <h2 class="dashboard-title">📊 Estadísticas de Ventas</h2>
+    <p class="subtitle">Visualización del rendimiento comercial</p>
 
     <!-- FILTROS -->
-    <form class="filtros-form" method="GET" action="{{ url_for('estadisticas') }}">
-        <label>Rango de Fechas:</label>
-        <input type="date" name="inicio" value="{{ fecha_inicio }}">
-        <input type="date" name="fin" value="{{ fecha_fin }}">
+    <form method="POST" class="filtros-form">
+        <div>
+            <label>Desde:</label>
+            <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}">
+        </div>
 
-        <label>Agrupar por:</label>
-        <select name="modo">
-            <option value="dia" {% if modo=='dia' %}selected{% endif %}>Día</option>
-            <option value="semana" {% if modo=='semana' %}selected{% endif %}>Semana</option>
-            <option value="mes" {% if modo=='mes' %}selected{% endif %}>Mes</option>
-        </select>
+        <div>
+            <label>Hasta:</label>
+            <input type="date" name="fecha_fin" value="{{ fecha_fin }}">
+        </div>
 
-        <button type="submit" class="btn-filtrar">Aplicar Filtro</button>
+        <div>
+            <label>Agrupar por:</label>
+            <select name="modo">
+                <option value="dia" {% if modo == "dia" %}selected{% endif %}>Día</option>
+                <option value="semana" {% if modo == "semana" %}selected{% endif %}>Semana</option>
+                <option value="mes" {% if modo == "mes" %}selected{% endif %}>Mes</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-filtrar">Aplicar</button>
     </form>
 
-    <!-- TARJETAS RESUMEN -->
+    <!-- TARJETAS DE RESUMEN -->
     <section class="resumen-cards">
         <div class="card">
-            <h3>Total Vendido</h3>
-            <p class="valor">${{ '%.2f'|format(total_vendido|float) }}</p>
+            <h3>Total Facturado</h3>
+            <p class="valor">${{ "{:,.0f}".format(total_vendido) }}</p>
         </div>
 
         <div class="card">
-            <h3>Pedidos Realizados</h3>
+            <h3>Total Pedidos</h3>
             <p class="valor">{{ total_pedidos }}</p>
         </div>
 
         <div class="card">
-            <h3>Productos Vendidos</h3>
+            <h3>Unidades Vendidas</h3>
             <p class="valor">{{ total_items_vendidos }}</p>
         </div>
     </section>
 
-    <!-- GRÁFICO 1 -->
+    <!-- GRÁFICO PRINCIPAL -->
     <section class="grafico-box">
-        <h2>Ingresos por {{ modo|capitalize }}</h2>
-        <canvas id="graficoIngresos"></canvas>
+        <h3>💰 Ingresos por {{ modo|capitalize }}</h3>
+        <div style="width: 100%; height: 360px;">
+            <canvas id="graficoIngresos"></canvas>
+        </div>
     </section>
 
-    <!-- GRÁFICO 2 -->
+    <!-- TOP 5 PRODUCTOS -->
     <section class="grafico-box">
-        <h2>Top 5 Productos Más Vendidos</h2>
-        <canvas id="graficoProductos"></canvas>
+        <h3>🏆 Top 5 Productos Más Vendidos</h3>
+        <div style="width: 100%; height: 360px;">
+            <canvas id="graficoTop"></canvas>
+        </div>
     </section>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    // ==========================
-    // Gráfico 1: Ingresos por periodo
-    // ==========================
-    const ingresosLabels = {{ ingresos_periodo | map(attribute='label') | list | tojson }};
-    const ingresosData = {{ ingresos_periodo | map(attribute='total') | list | tojson }};
+    /* ---------------------------
+       DATOS INGRESOS POR PERIODO
+    -----------------------------*/
+    const labelsIngresos = {{ ingresos_periodo | map(attribute='label') | list | tojson }};
+    const valoresIngresos = {{ ingresos_periodo | map(attribute='total') | list | tojson }};
 
-    new Chart(document.getElementById('graficoIngresos'), {
-        type: 'line',
+    /* ---------------------------
+       TOP 5 PRODUCTOS
+    ------------------------------*/
+    const labelsTop = {{ top_productos | map(attribute='nombre') | list | tojson }};
+    const valoresTop = {{ top_productos | map(attribute='total_vendidos') | list | tojson }};
+
+    /* ---------------------------
+       FORMATEO COP
+    ------------------------------*/
+    function abreviar(v) {
+        if (v >= 1_000_000) return (v/1_000_000).toFixed(1) + "M";
+        if (v >= 1_000) return (v/1_000).toFixed(1) + "K";
+        return v;
+    }
+
+    /* ----------------------------------
+       GRÁFICO DE INGRESOS (BARRAS)
+    -----------------------------------*/
+    new Chart(document.getElementById("graficoIngresos"), {
+        type: "bar",
         data: {
-            labels: ingresosLabels,
+            labels: labelsIngresos,
             datasets: [{
-                label: 'Ingresos ($)',
-                data: ingresosData,
-                borderWidth: 3,
-                borderColor: '#7d4cf5',
-                backgroundColor: 'rgba(125,76,245,0.25)',
-                fill: true,
-                tension: 0.3
+                label: "Ingresos (COP)",
+                data: valoresIngresos,
+                backgroundColor: "rgba(125, 76, 245, 0.8)",
+                borderRadius: 8
             }]
         },
         options: {
             responsive: true,
-            scales: { y: { beginAtZero: true } }
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    ticks: {
+                        callback: value => abreviar(value)
+                    }
+                }
+            }
         }
     });
 
-    // ==========================
-    // Gráfico 2: Top productos
-    // ==========================
-    const productosLabels = {{ top_productos | map(attribute='nombre') | list | tojson }};
-    const productosData = {{ top_productos | map(attribute='total_vendidos') | list | tojson }};
-
-    new Chart(document.getElementById('graficoProductos'), {
-        type: 'bar',
+    /* ----------------------------------
+       GRÁFICO TOP PRODUCTOS (BARRAS)
+    -----------------------------------*/
+    new Chart(document.getElementById("graficoTop"), {
+        type: "bar",
         data: {
-            labels: productosLabels,
+            labels: labelsTop,
             datasets: [{
-                label: 'Unidades Vendidas',
-                data: productosData,
-                backgroundColor: ['#7d4cf5', '#9a72fa', '#b998ff', '#d7c0ff', '#ede2ff']
+                label: "Unidades Vendidas",
+                data: valoresTop,
+                backgroundColor: "rgba(52, 152, 219, 0.8)",
+                borderRadius: 8
             }]
         },
         options: {
             responsive: true,
-            scales: { y: { beginAtZero: true } }
+            maintainAspectRatio: false
         }
     });
 </script>

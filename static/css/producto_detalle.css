@@ -100,3 +100,36 @@ form {
 .btn-descargar:hover {
     background: #757575;
 }
+
+.valoracion-card {
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.valoracion-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-usuario {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+.comentario {
+    margin-top: 10px;
+    font-style: italic;
+}
+
+.fecha {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #777;
+}

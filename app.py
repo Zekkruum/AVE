@@ -561,7 +561,7 @@ def producto_detalle(id_producto):
     """, (id_producto,))
     producto["tallas"] = cursor.fetchall()
 
-    # ---- STOCK TOTAL SUMANDO LAS TALLAS ----
+    # ---- STOCK TOTAL ----
     cursor.execute("""
         SELECT COALESCE(SUM(stock), 0) AS total_stock
         FROM stock_tallas
@@ -570,10 +570,64 @@ def producto_detalle(id_producto):
     result = cursor.fetchone()
     producto['stock'] = result['total_stock']
 
+    # ---- VALORACIONES ----
+    cursor.execute("""
+    SELECT 
+        v.estrellas,
+        v.comentario,
+        v.fecha,
+        u.nombre_completo AS usuario,
+        u.foto_perfil
+    FROM valoraciones v
+    JOIN usuarios u ON v.id_usuario = u.id_usuario
+    WHERE v.id_producto = %s
+    ORDER BY v.fecha DESC
+""", (id_producto,))
+    valoraciones = cursor.fetchall()
+
+    # ---- PROMEDIO ----
+    cursor.execute("""
+        SELECT 
+            COALESCE(AVG(estrellas), 0) AS promedio,
+            COUNT(*) AS total
+        FROM valoraciones
+        WHERE id_producto = %s
+    """, (id_producto,))
+    stats = cursor.fetchone()
+
     cursor.close()
     conn.close()
+    
+    def normalize_user_image(src):
+        if not src:
+            return url_for('static', filename='img/user.png')  # avatar por defecto
 
-    return render_template("producto_detalle.html", usuario=usuario, producto=producto)
+    # Si ya viene en una ruta absoluta HTTP
+        if src.startswith("http://") or src.startswith("https://"):
+            return src
+
+    # Si ya viene con 'uploads/perfiles/...'
+        if src.startswith("uploads/perfiles/"):
+            return url_for('static', filename=src)
+
+    # Si viene como 'uploads/nombre.jpg' => agregar carpeta perfiles
+        if src.startswith("uploads/"):
+            return url_for('static', filename='uploads/perfiles/' + src.replace("uploads/", "", 1))
+
+    # Si viene como 'foto.jpg' => asumir perfiles
+        return url_for('static', filename='uploads/perfiles/' + src)
+
+    for v in valoraciones:
+        v["foto_perfil"] = normalize_user_image(v.get("foto_perfil"))
+
+    return render_template(
+        "producto_detalle.html",
+        usuario=usuario,
+        producto=producto,
+        valoraciones=valoraciones,
+        stats=stats
+    )
+
 
 
 
@@ -1537,8 +1591,16 @@ def registrar_pago(id_pedido):
 
 @app.route('/factura/<int:id_pedido>')
 def ver_factura(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+    
     ruta = f"static/facturas/factura_{id_pedido}.pdf"
-    return render_template("factura_lista.html", ruta=ruta, id_pedido=id_pedido)
+    return render_template("factura_lista.html",
+                           ruta=ruta,
+                           id_pedido=id_pedido,
+                           usuario=usuario)
+
 
 # ----------------------------
 # Historial de Pagos
@@ -1918,10 +1980,6 @@ def registrar_devolucion(id_producto):
     return render_template('registrar_devolucion.html', usuario=usuario, producto=producto)
 
 
-# ----------------------------
-# Reportes de ventas (RF024)
-# ----------------------------
-
 @app.route('/vendedor/reportes', methods=['GET', 'POST'])
 def reportes_ventas():
     usuario = obtener_usuario()
@@ -1942,17 +2000,17 @@ def reportes_ventas():
             SELECT 
                 p.id_pedido,
                 p.fecha,
-                u.nombre_completo AS cliente,
-                p.estado,
+                p.nombre_cliente AS cliente,
+                ep.nombre_estado AS estado,
                 SUM(dp.cantidad * dp.precio_unitario) AS total,
                 GROUP_CONCAT(CONCAT(pr.nombre, ' (x', dp.cantidad, ')') SEPARATOR ', ') AS productos
             FROM pedidos p
-            INNER JOIN usuarios u ON p.id_usuario = u.id_usuario
+            INNER JOIN estados_pedido ep ON ep.id_estado = p.id_estado
             INNER JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
             INNER JOIN productos pr ON dp.id_producto = pr.id_producto
             WHERE DATE(p.fecha) BETWEEN %s AND %s
-              AND pr.id_usuario = %s
-            GROUP BY p.id_pedido, p.fecha, u.nombre_completo, p.estado
+              AND p.id_vendedor = %s  -- 🔥 Solo ventas de este vendedor
+            GROUP BY p.id_pedido
             ORDER BY p.fecha ASC
         """, (fecha_inicio, fecha_fin, usuario['id_usuario']))
 
@@ -1965,6 +2023,7 @@ def reportes_ventas():
                            reportes=reportes,
                            fecha_inicio=fecha_inicio,
                            fecha_fin=fecha_fin)
+
 
 # ----------------------------
 # Estadísticas visuales (RF025)
@@ -2113,6 +2172,7 @@ def faq_eliminar(id_faq):
     conn.close()
 
     return redirect(url_for('admin_faq'))
+
 # ----------------------------
 # RF026 - Productos más vendidos
 # ----------------------------
@@ -2944,37 +3004,42 @@ def datos_envio():
 @app.route('/mis_valoraciones')
 def mis_valoraciones():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:  # solo clientes
+    if not usuario or usuario['id_rol'] != 3:
         return redirect(url_for('login'))
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT DISTINCT 
-            dp.id_producto,
-            p.nombre,
-            p.imagen,
-            p.precio,
-            ped.estado
-        FROM detalle_pedido dp
-        JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
-        JOIN productos p ON dp.id_producto = p.id_producto
-        WHERE ped.id_usuario = %s
-          AND ped.estado = 'Entregado'
-          AND dp.id_producto NOT IN (
-              SELECT id_producto FROM valoraciones WHERE id_usuario = %s
-          );
+       SELECT DISTINCT 
+    dp.id_producto,
+    p.nombre,
+    COALESCE(img.url, '') AS imagen,
+    p.precio,
+    ep.nombre_estado
+FROM detalle_pedido dp
+JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
+JOIN productos p ON dp.id_producto = p.id_producto
+JOIN estados_pedido ep ON ep.id_estado = ped.id_estado
+LEFT JOIN imagenes img ON img.id_producto = p.id_producto
+WHERE ped.id_usuario = %s
+  AND ped.id_estado = 4   -- ENTREGADO
+  AND dp.id_producto NOT IN (
+      SELECT id_producto FROM valoraciones WHERE id_usuario = %s
+  )
+GROUP BY dp.id_producto;
     """
     cursor.execute(query, (usuario['id_usuario'], usuario['id_usuario']))
-    productos_para_valorar = cursor.fetchall()
+    productos = cursor.fetchall()
 
-    cursor.close()
     conn.close()
 
-    return render_template("mis_valoraciones.html",
-                           usuario=usuario,
-                           productos=productos_para_valorar)
+    return render_template(
+        "mis_valoraciones.html",
+        usuario=usuario,
+        productos=productos
+    )
+
     
 # -------------------------------------------------------------------
 # Formulario de valoración
@@ -2985,9 +3050,12 @@ def valorar_producto(id_producto):
     if not usuario or usuario['id_rol'] != 3:
         return redirect(url_for('login'))
 
-    return render_template("valorar_producto.html",
-                           usuario=usuario,
-                           id_producto=id_producto)
+    return render_template(
+        "valorar_producto.html",
+        id_producto=id_producto,
+        usuario=usuario
+    )
+
 
 # -------------------------------------------------------------------
 # Guardar valoración
@@ -2998,24 +3066,30 @@ def guardar_valoracion(id_producto):
     if not usuario:
         return redirect(url_for('login'))
 
-    calificacion = request.form.get("calificacion")
+    estrellas = int(request.form.get("calificacion"))
     comentario = request.form.get("comentario")
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     query = """
-        INSERT INTO valoraciones (id_usuario, id_producto, calificacion, comentario)
+        INSERT INTO valoraciones (id_usuario, id_producto, estrellas, comentario)
         VALUES (%s, %s, %s, %s)
     """
 
-    cursor.execute(query, (usuario['id_usuario'], id_producto, calificacion, comentario))
-    conn.commit()
+    cursor.execute(query, (
+        usuario['id_usuario'],
+        id_producto,
+        estrellas,
+        comentario
+    ))
 
-    cursor.close()
+    conn.commit()
     conn.close()
 
+    flash("Valoración registrada correctamente", "success")
     return redirect(url_for('mis_valoraciones'))
+
 
 @app.route('/cliente/mis_valoraciones')
 def mis_valoraciones_historial():
@@ -3027,12 +3101,13 @@ def mis_valoraciones_historial():
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT v.calificacion, v.comentario, v.fecha,
-               p.nombre, p.imagen
-        FROM valoraciones v
-        JOIN productos p ON v.id_producto = p.id_producto
-        WHERE v.id_usuario = %s
-        ORDER BY v.fecha DESC
+        SELECT v.estrellas AS calificacion, v.comentario, v.fecha,
+       p.nombre, img.url AS imagen
+FROM valoraciones v
+JOIN productos p ON v.id_producto = p.id_producto
+LEFT JOIN imagenes img ON img.id_producto = p.id_producto
+WHERE v.id_usuario = %s
+ORDER BY v.fecha DESC
     """
     cursor.execute(query, (usuario['id_usuario'],))
     valoraciones = cursor.fetchall()

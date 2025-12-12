@@ -77,3 +77,9 @@ BEGIN
     INSERT INTO historial_pedido (id_pedido, id_estado, descripcion)
     VALUES (NEW.id_pedido, 7, 'Pago registrado');
 END;
+
+
+12/12/2025
+
+ALTER TABLE pedidos
+ADD id_vendedor INT NULL;

@@ -6,8 +6,8 @@
 <div class="productos-grid">
     {% for p in productos %}
     <div class="producto-card">
-        <img src="{{ url_for('static', filename='uploads/' + (p.imagen if p.imagen else 'ejemplo.jpg')) }}"
-            alt="{{ p.nombre }}" class="producto-img">
+        <img src="{{ url_for('static', filename=(p.imagen or 'uploads/default.png')) }}" alt="{{ p.nombre }}"
+            class="producto-img">
         <h3>{{ p.nombre }}</h3>
         <p>${{ p.precio }}</p>
 
