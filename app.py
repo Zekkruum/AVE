@@ -3,7 +3,7 @@ from flask import Response, send_from_directory
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
-from utils import get_db_connection, enviar_correo, generar_token, save_profile_image, hash_password, verify_password
+from utils import generar_codigo_unico, get_db_connection, enviar_correo, generar_token, save_profile_image, hash_password, verify_password
 from flask import request, jsonify , current_app
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -561,7 +561,7 @@ def producto_detalle(id_producto):
     """, (id_producto,))
     producto["tallas"] = cursor.fetchall()
 
-    # ---- STOCK TOTAL SUMANDO LAS TALLAS ----
+    # ---- STOCK TOTAL ----
     cursor.execute("""
         SELECT COALESCE(SUM(stock), 0) AS total_stock
         FROM stock_tallas
@@ -570,10 +570,64 @@ def producto_detalle(id_producto):
     result = cursor.fetchone()
     producto['stock'] = result['total_stock']
 
+    # ---- VALORACIONES ----
+    cursor.execute("""
+    SELECT 
+        v.estrellas,
+        v.comentario,
+        v.fecha,
+        u.nombre_completo AS usuario,
+        u.foto_perfil
+    FROM valoraciones v
+    JOIN usuarios u ON v.id_usuario = u.id_usuario
+    WHERE v.id_producto = %s
+    ORDER BY v.fecha DESC
+""", (id_producto,))
+    valoraciones = cursor.fetchall()
+
+    # ---- PROMEDIO ----
+    cursor.execute("""
+        SELECT 
+            COALESCE(AVG(estrellas), 0) AS promedio,
+            COUNT(*) AS total
+        FROM valoraciones
+        WHERE id_producto = %s
+    """, (id_producto,))
+    stats = cursor.fetchone()
+
     cursor.close()
     conn.close()
+    
+    def normalize_user_image(src):
+        if not src:
+            return url_for('static', filename='img/user.png')  # avatar por defecto
 
-    return render_template("producto_detalle.html", usuario=usuario, producto=producto)
+    # Si ya viene en una ruta absoluta HTTP
+        if src.startswith("http://") or src.startswith("https://"):
+            return src
+
+    # Si ya viene con 'uploads/perfiles/...'
+        if src.startswith("uploads/perfiles/"):
+            return url_for('static', filename=src)
+
+    # Si viene como 'uploads/nombre.jpg' => agregar carpeta perfiles
+        if src.startswith("uploads/"):
+            return url_for('static', filename='uploads/perfiles/' + src.replace("uploads/", "", 1))
+
+    # Si viene como 'foto.jpg' => asumir perfiles
+        return url_for('static', filename='uploads/perfiles/' + src)
+
+    for v in valoraciones:
+        v["foto_perfil"] = normalize_user_image(v.get("foto_perfil"))
+
+    return render_template(
+        "producto_detalle.html",
+        usuario=usuario,
+        producto=producto,
+        valoraciones=valoraciones,
+        stats=stats
+    )
+
 
 
 
@@ -871,6 +925,9 @@ def registrar_producto():
     if not usuario or usuario['id_rol'] != 2:  # Solo vendedores
         return redirect(url_for('login'))
 
+    # Generar código único cada vez que se abre el formulario
+    codigo_generado = generar_codigo_unico()
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -898,18 +955,25 @@ def registrar_producto():
         id_material = request.form.get('id_material')
         id_color = request.form.get('id_color')
         id_piedra = request.form.get('id_piedra')
+        codigo_producto = request.form['codigo_producto']  # 🔥 Ya viene del formulario
 
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
 
-        # Insertar producto sin stock total aún
+        # Validar unicidad por seguridad
+        cursor.execute("SELECT id_producto FROM productos WHERE codigo_producto = %s", (codigo_producto,))
+        if cursor.fetchone():
+            flash("❌ Error: El código del producto ya existe. Intente de nuevo.", "danger")
+            return redirect(url_for('registrar_producto'))
+
+        # Insertar producto con código único
         cursor.execute("""
             INSERT INTO productos
                 (nombre, descripcion, precio, peso, alto, ancho, largo,
-                 id_tipo, id_material, id_color, id_piedra, id_usuario)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                 id_tipo, id_material, id_color, id_piedra, id_usuario, codigo_producto)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (nombre, descripcion, precio, peso, alto, ancho, largo,
-              id_tipo, id_material, id_color, id_piedra, usuario['id_usuario']))
+              id_tipo, id_material, id_color, id_piedra, usuario['id_usuario'], codigo_producto))
 
         id_producto = cursor.lastrowid
 
@@ -950,12 +1014,16 @@ def registrar_producto():
         flash("✅ Producto registrado con éxito", "success")
         return redirect(url_for('mis_productos'))
 
-    return render_template("registrar_producto.html",
-                           usuario=usuario,
-                           colores=lista_colores,
-                           piedras=lista_piedras,
-                           tipos=lista_tipos,
-                           materiales=lista_materiales)
+    return render_template(
+        "registrar_producto.html",
+        usuario=usuario,
+        colores=lista_colores,
+        piedras=lista_piedras,
+        tipos=lista_tipos,
+        materiales=lista_materiales,
+        codigo_producto=codigo_generado  # 🔥 Se envía al template
+    )
+
 
 
 
@@ -1169,9 +1237,6 @@ def estadisticas():
 
 
 
-# ---------------------------------------------------------
-# Gestionar pedidos reales del vendedor (con cambio de estado)
-# ---------------------------------------------------------
 @app.route('/vendedor/pedidos')
 def gestionar_pedidos():
     usuario = obtener_usuario()
@@ -1183,20 +1248,23 @@ def gestionar_pedidos():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Traer solo los pedidos que tienen productos de este vendedor
+    # Traer pedidos asociados a los productos del vendedor
     cursor.execute("""
         SELECT 
             p.id_pedido,
             p.fecha,
-            p.estado,
+            p.numero_pedido,
+            p.codigo_seguimiento,
+            e.nombre_estado,
             u.nombre_completo AS cliente,
             GROUP_CONCAT(prod.nombre SEPARATOR ', ') AS productos
         FROM pedidos p
+        LEFT JOIN estados_pedido e ON p.id_estado = e.id_estado
         JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
         JOIN productos prod ON dp.id_producto = prod.id_producto
         JOIN usuarios u ON p.id_usuario = u.id_usuario
         WHERE prod.id_usuario = %s
-        GROUP BY p.id_pedido, p.fecha, p.estado, cliente
+        GROUP BY p.id_pedido, p.fecha, e.nombre_estado, cliente
         ORDER BY p.fecha DESC
     """, (id_vendedor,))
 
@@ -1206,6 +1274,7 @@ def gestionar_pedidos():
     conn.close()
 
     return render_template('pedidos.html', usuario=usuario, pedidos=pedidos)
+
 
 # ---------------------------------------------------------
 # Cambiar estado a "Enviado"
@@ -1414,7 +1483,7 @@ def registrar_pago(id_pedido):
 
         metodo = request.form['metodo']
         monto = float(request.form['monto'])
-        estado = "pagado"
+        estado = "pagado"  # tu columna estado_pago
 
         # -------------------------------
         # OBTENER DATOS DE TARJETA SI APLICA
@@ -1439,19 +1508,47 @@ def registrar_pago(id_pedido):
 
         id_pago = cursor.lastrowid
 
-        # Actualizar estado del pedido
+        # ------------------------------------------
+        # ACTUALIZAR ESTADO DEL PEDIDO (SISTEMA ANTIGUO)
+        # ------------------------------------------
         cursor.execute("""
             UPDATE pedidos 
-            SET estado_pago='pagado'
-            WHERE id_pedido=%s
+            SET estado_pago = 'pagado'
+            WHERE id_pedido = %s
         """, (id_pedido,))
+
+        # ------------------------------------------
+        # NUEVO SISTEMA DE ESTADOS (id_estado)
+        # ------------------------------------------
+        # Buscar id del estado 'Pagado'
+        cursor.execute("""
+            SELECT id_estado 
+            FROM estados_pedido 
+            WHERE nombre_estado = 'Pagado'
+            LIMIT 1
+        """)
+        estado_row = cursor.fetchone()
+
+        if estado_row:
+            id_estado = estado_row['id_estado']
+
+            # Actualizar pedido
+            cursor.execute("""
+                UPDATE pedidos
+                SET id_estado = %s
+                WHERE id_pedido = %s
+            """, (id_estado, id_pedido))
+
+            # Registrar historial
+            cursor.execute("""
+                INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario)
+                VALUES (%s, %s, %s, %s)
+            """, (id_pedido, id_estado, usuario['id_usuario'], "Pago registrado"))
 
         # -------------------------------
         # Información para generar factura
         # -------------------------------
-        cursor.execute("""
-            SELECT * FROM pedidos WHERE id_pedido = %s
-        """, (id_pedido,))
+        cursor.execute("SELECT * FROM pedidos WHERE id_pedido = %s", (id_pedido,))
         pedido = cursor.fetchone()
 
         cursor.execute("""
@@ -1483,47 +1580,26 @@ def registrar_pago(id_pedido):
 
         flash("Pago registrado correctamente. Tu factura está disponible.", "success")
         return redirect(url_for('ver_factura', id_pedido=id_pedido))
-    
 
     # ======================
-    # MÉTODO GET (MOSTRAR FORMULARIO)
+    # MÉTODO GET (FORMULARIO)
     # ======================
     cursor.close()
     conn.close()
     return render_template('pago_form.html', usuario=usuario, pedido=pedido)
 
+
 @app.route('/factura/<int:id_pedido>')
 def ver_factura(id_pedido):
-    ruta = f"static/facturas/factura_{id_pedido}.pdf"
-    return render_template("factura_lista.html", ruta=ruta, id_pedido=id_pedido)
-
-
-# ----------------------------
-# Confirmación de Pago
-# ----------------------------
-@app.route('/pago/<int:id_pago>/exito')
-def pago_exito(id_pago):
     usuario = obtener_usuario()
-    # ✅ Ahora permitimos clientes (3) y vendedores (2)
-    if not usuario or usuario['id_rol'] not in [1, 2, 3]:
+    if not usuario:
         return redirect(url_for('login'))
-
-
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM pagos WHERE id_pago = %s", (id_pago,))
-    pago = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-
-    if not pago:
-        return "Pago no encontrado", 404
-
-
-    return render_template('pago_exito.html', usuario=usuario, pago=pago)
-
-
+    
+    ruta = f"static/facturas/factura_{id_pedido}.pdf"
+    return render_template("factura_lista.html",
+                           ruta=ruta,
+                           id_pedido=id_pedido,
+                           usuario=usuario)
 
 
 # ----------------------------
@@ -1565,8 +1641,7 @@ def mis_pagos():
 # ----------------------------
 @app.route('/crear_pedido', methods=['POST'])
 def crear_pedido():
-    from utils import generar_numero_pedido  # 🔥 Import directo
-
+    from utils import generar_numero_pedido  # Tu función original
     usuario = obtener_usuario()
     if not usuario:
         return redirect(url_for('login'))
@@ -1576,7 +1651,6 @@ def crear_pedido():
     direccion_entrega = request.form.get('direccion_entrega')
     telefono_cliente = request.form.get('telefono_cliente')
     correo_cliente = request.form.get('correo_cliente')
-    
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -1595,7 +1669,7 @@ def crear_pedido():
         conn.close()
         return redirect(url_for('carrito'))
 
-    # Verificar stock disponible con manejo de None
+    # Validar stock
     for item in carrito:
         stock = item['stock']
         if stock is None:
@@ -1608,15 +1682,20 @@ def crear_pedido():
             conn.close()
             return f"Stock insuficiente para el producto {item['id_producto']}.", 400
 
-    # Calcular subtotal, impuesto y total
+    # Calcular totales
     subtotal = sum(float(item['precio']) * int(item['cantidad']) for item in carrito)
-    impuesto = round(subtotal * 0.19, 2)  
+    impuesto = round(subtotal * 0.19, 2)
     total = subtotal + impuesto
 
-    # 🔥 Generar número único de pedido
-    numero_pedido = generar_numero_pedido()
+    # ------------------------------------
+    # GENERAR CÓDIGO ÚNICO DEL PEDIDO
+    # ------------------------------------
+    numero_pedido = generar_numero_pedido()  # 🔥 tu sistema actual
+    codigo_seguimiento = numero_pedido       # 🔥 mismo valor (como me dijiste)
 
-    # Insertar pedido con número único
+    # ------------------------------------
+    # Insertar el pedido
+    # ------------------------------------
     cursor.execute("""
     INSERT INTO pedidos (
         id_usuario, 
@@ -1624,28 +1703,55 @@ def crear_pedido():
         direccion_entrega,
         telefono_cliente,
         correo_cliente,
-        fecha, 
-        estado, 
-        subtotal, 
-        impuesto, 
-        total, 
-        numero_pedido
+        fecha,
+        id_estado,
+        subtotal,
+        impuesto,
+        total,
+        numero_pedido,
+        codigo_seguimiento
     )
-    VALUES (%s, %s, %s, %s, %s, NOW(), 'Pendiente', %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, NOW(), %s, %s, %s, %s, %s, %s)
 """, (
     usuario['id_usuario'],
     nombre_cliente,
     direccion_entrega,
     telefono_cliente,
     correo_cliente,
+    1,  # Estado inicial
     subtotal,
     impuesto,
     total,
-    numero_pedido
+    numero_pedido,
+    numero_pedido  # 🔥 Son iguales según tu sistema
 ))
+
     id_pedido = cursor.lastrowid
 
+    # ------------------------------------
+    # Estado inicial según la nueva tabla estados_pedido
+    # ------------------------------------
+    cursor.execute("SELECT id_estado FROM estados_pedido WHERE nombre_estado = 'Pendiente' LIMIT 1")
+    estado_row = cursor.fetchone()
+
+    if estado_row:
+        id_estado = estado_row['id_estado']
+
+        cursor.execute("""
+            UPDATE pedidos
+            SET id_estado = %s
+            WHERE id_pedido = %s
+        """, (id_estado, id_pedido))
+
+        # Registrar en historial
+        cursor.execute("""
+            INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario)
+            VALUES (%s, %s, %s, %s)
+        """, (id_pedido, id_estado, usuario['id_usuario'], "Pedido creado"))
+
+    # ------------------------------------
     # Insertar detalles y descontar stock
+    # ------------------------------------
     for item in carrito:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario, talla)
@@ -1665,6 +1771,7 @@ def crear_pedido():
     conn.close()
 
     return redirect(url_for('registrar_pago', id_pedido=id_pedido))
+
 
 
 
@@ -1873,10 +1980,6 @@ def registrar_devolucion(id_producto):
     return render_template('registrar_devolucion.html', usuario=usuario, producto=producto)
 
 
-# ----------------------------
-# Reportes de ventas (RF024)
-# ----------------------------
-
 @app.route('/vendedor/reportes', methods=['GET', 'POST'])
 def reportes_ventas():
     usuario = obtener_usuario()
@@ -1897,17 +2000,17 @@ def reportes_ventas():
             SELECT 
                 p.id_pedido,
                 p.fecha,
-                u.nombre_completo AS cliente,
-                p.estado,
+                p.nombre_cliente AS cliente,
+                ep.nombre_estado AS estado,
                 SUM(dp.cantidad * dp.precio_unitario) AS total,
                 GROUP_CONCAT(CONCAT(pr.nombre, ' (x', dp.cantidad, ')') SEPARATOR ', ') AS productos
             FROM pedidos p
-            INNER JOIN usuarios u ON p.id_usuario = u.id_usuario
+            INNER JOIN estados_pedido ep ON ep.id_estado = p.id_estado
             INNER JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
             INNER JOIN productos pr ON dp.id_producto = pr.id_producto
             WHERE DATE(p.fecha) BETWEEN %s AND %s
-              AND pr.id_usuario = %s
-            GROUP BY p.id_pedido, p.fecha, u.nombre_completo, p.estado
+              AND p.id_vendedor = %s  -- 🔥 Solo ventas de este vendedor
+            GROUP BY p.id_pedido
             ORDER BY p.fecha ASC
         """, (fecha_inicio, fecha_fin, usuario['id_usuario']))
 
@@ -1920,6 +2023,7 @@ def reportes_ventas():
                            reportes=reportes,
                            fecha_inicio=fecha_inicio,
                            fecha_fin=fecha_fin)
+
 
 # ----------------------------
 # Estadísticas visuales (RF025)
@@ -2068,6 +2172,7 @@ def faq_eliminar(id_faq):
     conn.close()
 
     return redirect(url_for('admin_faq'))
+
 # ----------------------------
 # RF026 - Productos más vendidos
 # ----------------------------
@@ -2899,37 +3004,42 @@ def datos_envio():
 @app.route('/mis_valoraciones')
 def mis_valoraciones():
     usuario = obtener_usuario()
-    if not usuario or usuario['id_rol'] != 3:  # solo clientes
+    if not usuario or usuario['id_rol'] != 3:
         return redirect(url_for('login'))
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT DISTINCT 
-            dp.id_producto,
-            p.nombre,
-            p.imagen,
-            p.precio,
-            ped.estado
-        FROM detalle_pedido dp
-        JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
-        JOIN productos p ON dp.id_producto = p.id_producto
-        WHERE ped.id_usuario = %s
-          AND ped.estado = 'Entregado'
-          AND dp.id_producto NOT IN (
-              SELECT id_producto FROM valoraciones WHERE id_usuario = %s
-          );
+       SELECT DISTINCT 
+    dp.id_producto,
+    p.nombre,
+    COALESCE(img.url, '') AS imagen,
+    p.precio,
+    ep.nombre_estado
+FROM detalle_pedido dp
+JOIN pedidos ped ON dp.id_pedido = ped.id_pedido
+JOIN productos p ON dp.id_producto = p.id_producto
+JOIN estados_pedido ep ON ep.id_estado = ped.id_estado
+LEFT JOIN imagenes img ON img.id_producto = p.id_producto
+WHERE ped.id_usuario = %s
+  AND ped.id_estado = 4   -- ENTREGADO
+  AND dp.id_producto NOT IN (
+      SELECT id_producto FROM valoraciones WHERE id_usuario = %s
+  )
+GROUP BY dp.id_producto;
     """
     cursor.execute(query, (usuario['id_usuario'], usuario['id_usuario']))
-    productos_para_valorar = cursor.fetchall()
+    productos = cursor.fetchall()
 
-    cursor.close()
     conn.close()
 
-    return render_template("mis_valoraciones.html",
-                           usuario=usuario,
-                           productos=productos_para_valorar)
+    return render_template(
+        "mis_valoraciones.html",
+        usuario=usuario,
+        productos=productos
+    )
+
     
 # -------------------------------------------------------------------
 # Formulario de valoración
@@ -2940,9 +3050,12 @@ def valorar_producto(id_producto):
     if not usuario or usuario['id_rol'] != 3:
         return redirect(url_for('login'))
 
-    return render_template("valorar_producto.html",
-                           usuario=usuario,
-                           id_producto=id_producto)
+    return render_template(
+        "valorar_producto.html",
+        id_producto=id_producto,
+        usuario=usuario
+    )
+
 
 # -------------------------------------------------------------------
 # Guardar valoración
@@ -2953,24 +3066,30 @@ def guardar_valoracion(id_producto):
     if not usuario:
         return redirect(url_for('login'))
 
-    calificacion = request.form.get("calificacion")
+    estrellas = int(request.form.get("calificacion"))
     comentario = request.form.get("comentario")
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     query = """
-        INSERT INTO valoraciones (id_usuario, id_producto, calificacion, comentario)
+        INSERT INTO valoraciones (id_usuario, id_producto, estrellas, comentario)
         VALUES (%s, %s, %s, %s)
     """
 
-    cursor.execute(query, (usuario['id_usuario'], id_producto, calificacion, comentario))
-    conn.commit()
+    cursor.execute(query, (
+        usuario['id_usuario'],
+        id_producto,
+        estrellas,
+        comentario
+    ))
 
-    cursor.close()
+    conn.commit()
     conn.close()
 
+    flash("Valoración registrada correctamente", "success")
     return redirect(url_for('mis_valoraciones'))
+
 
 @app.route('/cliente/mis_valoraciones')
 def mis_valoraciones_historial():
@@ -2982,12 +3101,13 @@ def mis_valoraciones_historial():
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT v.calificacion, v.comentario, v.fecha,
-               p.nombre, p.imagen
-        FROM valoraciones v
-        JOIN productos p ON v.id_producto = p.id_producto
-        WHERE v.id_usuario = %s
-        ORDER BY v.fecha DESC
+        SELECT v.estrellas AS calificacion, v.comentario, v.fecha,
+       p.nombre, img.url AS imagen
+FROM valoraciones v
+JOIN productos p ON v.id_producto = p.id_producto
+LEFT JOIN imagenes img ON img.id_producto = p.id_producto
+WHERE v.id_usuario = %s
+ORDER BY v.fecha DESC
     """
     cursor.execute(query, (usuario['id_usuario'],))
     valoraciones = cursor.fetchall()
@@ -3019,18 +3139,28 @@ def descargar_ficha(id_producto):
     if os.path.exists(ruta_pdf):
         return send_from_directory(carpeta_pdf, nombre_pdf, as_attachment=True)
 
-    # -------------------------
-    # Obtener datos del producto
-    # -------------------------
+    # ----------------------------------------
+    # OBTENER DATOS DEL PRODUCTO
+    # ----------------------------------------
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT p.*, 
-               t.nombre_tipo AS tipo_joya,
-               m.nombre_material AS material,
-               c.nombre AS color,
-               pi.nombre AS piedra
+        SELECT 
+            p.id_producto,
+            p.codigo_producto,
+            p.nombre,
+            p.descripcion,
+            p.precio,
+            p.stock,
+            p.peso,
+            p.alto,
+            p.ancho,
+            p.largo,
+            t.nombre_tipo AS tipo_joya,
+            m.nombre_material AS material,
+            c.nombre AS color,
+            pi.nombre AS piedra
         FROM productos p
         LEFT JOIN tipos_joya t ON p.id_tipo = t.id_tipo
         LEFT JOIN materiales m ON p.id_material = m.id_material
@@ -3038,7 +3168,7 @@ def descargar_ficha(id_producto):
         LEFT JOIN piedras pi ON p.id_piedra = pi.id_piedra
         WHERE p.id_producto = %s
     """, (id_producto,))
-    
+
     producto = cursor.fetchone()
 
     # Obtener tallas
@@ -3050,10 +3180,11 @@ def descargar_ficha(id_producto):
     """, (id_producto,))
     tallas = cursor.fetchall()
 
-    # Intentar obtener imagen adicional desde tabla imagenes
+    # Obtener UNA imagen desde tabla imagenes
     cursor.execute("""
         SELECT url FROM imagenes
         WHERE id_producto = %s
+        ORDER BY id_imagen ASC
         LIMIT 1
     """, (id_producto,))
     imagen_extra = cursor.fetchone()
@@ -3064,41 +3195,43 @@ def descargar_ficha(id_producto):
     if not producto:
         return "Producto no encontrado", 404
 
-    # -------------------------
-    # RUTAS DE IMAGENES
-    # -------------------------
-
-    # Imagen principal desde productos.imagen
+    # ----------------------------------------
+    # PROCESAR IMÁGENES
+    # ----------------------------------------
     imagen_producto = None
-    if producto["imagen"]:
-        posible = os.path.join("static", producto["imagen"])  # ejemplo: static/uploads/img.jpg
+
+    # 1) Si la tabla productos tuviera columna imagen (no la tienes pero no dará error)
+    imagen_principal = producto.get("imagen")
+
+    if imagen_principal:
+        posible = os.path.join("static", imagen_principal)
         if os.path.exists(posible):
             imagen_producto = posible
 
-    # Si no existe, usar imagen desde tabla imagenes
+    # 2) Imagen desde tabla imagenes
     if not imagen_producto and imagen_extra:
         posible = os.path.join("static", imagen_extra["url"])
         if os.path.exists(posible):
             imagen_producto = posible
 
-    # -------------------------
-    # Crear PDF
-    # -------------------------
+    # ----------------------------------------
+    # CREAR EL PDF
+    # ----------------------------------------
     doc = SimpleDocTemplate(ruta_pdf, pagesize=letter)
     story = []
     styles = getSampleStyleSheet()
 
-    # LOGO DE LA EMPRESA
+    # Logo
     logo_path = "static/img/logoave.png"
     if os.path.exists(logo_path):
         story.append(Image(logo_path, width=140, height=60))
         story.append(Spacer(1, 12))
 
-    # TÍTULO
+    # Título
     story.append(Paragraph("<b>Ficha Técnica del Producto</b>", styles["Title"]))
     story.append(Spacer(1, 20))
 
-    # IMAGEN DEL PRODUCTO
+    # Imagen del producto
     if imagen_producto and os.path.exists(imagen_producto):
         story.append(Image(imagen_producto, width=250, height=250))
         story.append(Spacer(1, 20))
@@ -3106,7 +3239,7 @@ def descargar_ficha(id_producto):
     # TABLA DE INFORMACIÓN
     info = [
         ["Nombre", producto["nombre"]],
-        ["Código", producto["id_producto"]],
+        ["Código", producto["codigo_producto"]],
         ["Tipo de joya", producto["tipo_joya"]],
         ["Material", producto["material"]],
         ["Color", producto["color"]],
@@ -3127,7 +3260,7 @@ def descargar_ficha(id_producto):
     story.append(tabla_info)
     story.append(Spacer(1, 20))
 
-    # DESCRIPCIÓN
+    # Descripción
     story.append(Paragraph("<b>Descripción del Producto:</b>", styles["Heading3"]))
     story.append(Paragraph(producto["descripcion"], styles["BodyText"]))
     story.append(Spacer(1, 20))
@@ -3150,6 +3283,205 @@ def descargar_ficha(id_producto):
     doc.build(story)
 
     return send_from_directory(carpeta_pdf, nombre_pdf, as_attachment=True)
+
+from datetime import datetime
+
+def obtener_id_estado(cursor, nombre_estado):
+    cursor.execute("SELECT id_estado FROM estados_pedido WHERE nombre_estado = %s LIMIT 1", (nombre_estado,))
+    row = cursor.fetchone()
+    return row['id_estado'] if row else None
+
+def registrar_historial(cursor, id_pedido, id_estado, id_usuario=None, comentario=None):
+    cursor.execute("""
+        INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario)
+        VALUES (%s, %s, %s, %s)
+    """, (id_pedido, id_estado, id_usuario, comentario))
+    
+
+def actualizar_estado_pedido(id_pedido, nuevo_estado, id_usuario=None, comentario=None):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Obtener id del estado nuevo
+    cursor.execute("""
+        SELECT id_estado 
+        FROM estados_pedido 
+        WHERE nombre_estado = %s
+        LIMIT 1
+    """, (nuevo_estado,))
+    
+    row = cursor.fetchone()
+    if not row:
+        cursor.close()
+        conn.close()
+        raise ValueError(f"Estado '{nuevo_estado}' no existe en la tabla estados_pedido")
+
+    id_estado = row['id_estado']
+
+    # Actualizar pedido
+    cursor.execute("""
+        UPDATE pedidos
+        SET id_estado = %s
+        WHERE id_pedido = %s
+    """, (id_estado, id_pedido))
+
+    # Registrar en historial
+    cursor.execute("""
+        INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario)
+        VALUES (%s, %s, %s, %s)
+    """, (id_pedido, id_estado, id_usuario, comentario))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+@app.route('/pedido/<int:id_pedido>/estado/<string:nuevo_estado>', methods=['POST'])
+def ruta_actualizar_estado_pedido(id_pedido, nuevo_estado):
+    usuario = obtener_usuario()
+
+    # Solo admin (1) y vendedor (2)
+    if not usuario or usuario['id_rol'] not in [1, 2]:
+        return redirect(url_for('login'))
+
+    try:
+        actualizar_estado_pedido(
+            id_pedido=id_pedido,
+            nuevo_estado=nuevo_estado,
+            id_usuario=usuario['id_usuario'],
+            comentario=f"Estado cambiado a {nuevo_estado}"
+        )
+
+        flash(f"El pedido ahora está en estado: {nuevo_estado}", "success")
+
+    except ValueError as e:
+        flash(str(e), "danger")
+
+    return redirect(url_for('gestionar_pedidos'))
+
+@app.route('/rastreo/<codigo>')
+def rastreo_publico(codigo):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT p.*, e.nombre_estado
+        FROM pedidos p
+        LEFT JOIN estados_pedido e ON p.id_estado = e.id_estado
+        WHERE p.numero_pedido = %s OR p.codigo_seguimiento = %s
+        LIMIT 1
+    """, (codigo, codigo))
+
+    pedido = cursor.fetchone()
+
+    cursor.execute("""
+        SELECT d.*, pr.nombre
+        FROM detalle_pedido d
+        LEFT JOIN productos pr ON pr.id_producto = d.id_producto
+        WHERE d.id_pedido = %s
+    """, (pedido["id_pedido"],))
+
+    detalles = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT h.*, e.nombre_estado, u.nombre_completo AS usuario
+        FROM historial_pedido h
+        LEFT JOIN estados_pedido e ON e.id_estado = h.id_estado
+        LEFT JOIN usuarios u ON u.id_usuario = h.id_usuario
+        WHERE h.id_pedido = %s
+        ORDER BY h.fecha ASC
+    """, (pedido["id_pedido"],))
+
+    historial = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "rastreo_publico.html",
+        usuario=usuario,  # 🔥 NECESARIO PARA EL HEADER
+        pedido=pedido,
+        detalles=detalles,
+        historial=historial
+    )
+
+    
+@app.route('/mi-pedido/<codigo>')
+def mi_pedido(codigo):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Buscar pedido por código, pero SOLO si pertenece al usuario logueado
+    cursor.execute("""
+        SELECT p.*, e.nombre_estado
+        FROM pedidos p
+        LEFT JOIN estados_pedido e ON p.id_estado = e.id_estado
+        WHERE (p.numero_pedido = %s OR p.codigo_seguimiento = %s)
+          AND p.id_usuario = %s
+        LIMIT 1
+    """, (codigo, codigo, usuario['id_usuario']))
+
+    pedido = cursor.fetchone()
+
+    # Si el pedido no pertenece al usuario o no existe
+    if not pedido:
+        cursor.close()
+        conn.close()
+        flash("No puedes ver este pedido o no existe.", "danger")
+        return redirect(url_for('mis_pedidos'))
+
+    # Obtener los productos del pedido
+    cursor.execute("""
+        SELECT d.*, pr.nombre
+        FROM detalle_pedido d
+        LEFT JOIN productos pr ON pr.id_producto = d.id_producto
+        WHERE d.id_pedido = %s
+    """, (pedido['id_pedido'],))
+
+    detalles = cursor.fetchall()
+
+    # Obtener historial completo
+    cursor.execute("""
+        SELECT h.*, e.nombre_estado, u.nombre_completo AS usuario
+        FROM historial_pedido h
+        LEFT JOIN estados_pedido e ON e.id_estado = h.id_estado
+        LEFT JOIN usuarios u ON u.id_usuario = h.id_usuario
+        WHERE h.id_pedido = %s
+        ORDER BY h.fecha ASC
+    """, (pedido['id_pedido'],))
+
+    historial = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        'mi_pedido.html',
+        usuario=usuario,
+        pedido=pedido,
+        detalles=detalles,
+        historial=historial
+    )
+
+@app.route('/rastreo', methods=['GET', 'POST'])
+def buscar_rastreo():
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        codigo = request.form.get("codigo")
+        return redirect(url_for('rastreo_publico', codigo=codigo))
+
+    return render_template("rastreo_buscar.html", usuario=usuario)
+
 
 # ----------------------------
 # Run app

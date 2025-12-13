@@ -819,3 +819,113 @@ nav {
     vertical-align: middle;
 }
 
+/* Contenedor */
+.rastreo-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px 35px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.titulo {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.codigo {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.pedido-info {
+    background: #f4f3ff;
+    border: 1px solid #dcd9ff;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.subtitulo {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+/* Timeline */
+.timeline {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    position: relative;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #ddd;
+    z-index: 1;
+}
+
+.step {
+    text-align: center;
+    width: 20%;
+    position: relative;
+    z-index: 2;
+}
+
+.step .circle {
+    width: 22px;
+    height: 22px;
+    background: #ccc;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    transition: 0.2s;
+}
+
+.step.active .circle {
+    background: #6b4dfb;
+    box-shadow: 0 0 10px rgba(107, 77, 251, 0.5);
+}
+
+.step p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.fecha {
+    font-size: 12px;
+    color: #777;
+}
+
+/* Tabla de productos */
+.tabla-detalles {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabla-detalles th,
+.tabla-detalles td {
+    padding: 10px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+/* Historial */
+.historial-box {
+    margin-top: 15px;
+    border-radius: 10px;
+    background: #fafafa;
+    padding: 10px 15px;
+}
+
+.historial-item {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e2e2;
+}

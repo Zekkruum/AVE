@@ -38,6 +38,9 @@
             <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
             <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
             <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            {% if session.get('rol') == 3 %}
+            <li><a href="{{ url_for('buscar_rastreo') }}">Rastrear pedido</a></li>
+            {% endif %}
 
             {% if session.get('rol') == 3 %}
             <li>

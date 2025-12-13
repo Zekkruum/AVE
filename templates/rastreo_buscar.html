@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="rastreo-container" style="max-width:450px; margin:50px auto; text-align:center;">
+    <h2>Consultar estado de tu pedido</h2>
+    <p>Ingresa el número de pedido o código de seguimiento.</p>
+
+    <form method="POST">
+        <input 
+            type="text" 
+            name="codigo" 
+            placeholder="Ej: AVE12345 o TRK-009821" 
+            required
+            style="width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; margin-bottom:15px;"
+        >
+        <button 
+            type="submit" 
+            style="width:100%; padding:12px; background:#6b4dfb; color:white; border:none; 
+                   border-radius:8px; font-size:16px; cursor:pointer;">
+            Buscar Pedido
+        </button>
+    </form>
+</div>
+
+{% endblock %}

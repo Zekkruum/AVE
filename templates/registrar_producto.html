@@ -42,7 +42,7 @@
     <select id="id_tipo" name="id_tipo" required>
       <option value="">-- Selecciona un tipo --</option>
       {% for tipo in tipos %}
-        <option value="{{ tipo.id_tipo }}">{{ tipo.nombre_tipo }}</option>
+      <option value="{{ tipo.id_tipo }}">{{ tipo.nombre_tipo }}</option>
       {% endfor %}
     </select>
 
@@ -51,7 +51,7 @@
     <select id="id_material" name="id_material" required>
       <option value="">-- Selecciona un material --</option>
       {% for material in materiales %}
-        <option value="{{ material.id_material }}">{{ material.nombre_material }}</option>
+      <option value="{{ material.id_material }}">{{ material.nombre_material }}</option>
       {% endfor %}
     </select>
 
@@ -60,7 +60,7 @@
     <select id="id_color" name="id_color">
       <option value="">-- Selecciona un color --</option>
       {% for color in colores %}
-        <option value="{{ color.id_color }}">{{ color.nombre }}</option>
+      <option value="{{ color.id_color }}">{{ color.nombre }}</option>
       {% endfor %}
     </select>
 
@@ -69,7 +69,7 @@
     <select id="id_piedra" name="id_piedra" disabled>
       <option value="">-- Selecciona una piedra --</option>
       {% for piedra in piedras %}
-        <option value="{{ piedra.id_piedra }}">{{ piedra.nombre }}</option>
+      <option value="{{ piedra.id_piedra }}">{{ piedra.nombre }}</option>
       {% endfor %}
     </select>
 
@@ -88,6 +88,14 @@
     <label for="imagenes">Imágenes:</label>
     <input type="file" id="imagenes" name="imagenes" multiple onchange="previewImages()">
 
+    <!-- Código único -->
+    <label for="codigo_producto_visible">Código único del producto:</label>
+<input type="text" id="codigo_producto_visible" value="{{ codigo_producto }}" readonly class="codigo-box">
+
+<!-- Campo real que viaja al backend -->
+<input type="hidden" id="codigo_producto" name="codigo_producto" value="{{ codigo_producto }}">
+
+
     <!-- Preview de imágenes -->
     <div id="preview" class="image-preview"></div>
 
@@ -102,7 +110,7 @@
   const materialSelect = document.getElementById('id_material');
   const piedraSelect = document.getElementById('id_piedra');
 
-  materialSelect.addEventListener('change', function() {
+  materialSelect.addEventListener('change', function () {
     if (this.value === '4') { // Piedra preciosa
       piedraSelect.disabled = false;
       piedraSelect.required = true;

@@ -18,13 +18,16 @@
     <!-- INFORMACIÓN DEL PRODUCTO -->
     <div class="detalle-info">
       <h2>{{ producto.nombre }}</h2>
-      <div>
-        <p class="descripcion">{{ producto.descripcion }}</p>
-        <p class="precio">$ {{ '{:,.0f}'.format(producto.precio|float) }} <span
-            style="font-size: 13px; font-weight: normal;">COP</span></p>
-      </div>
-      <hr
-        style="background-color: black; width: 200px; height: 1px; border-radius: 10px; border-color: black; opacity: 70%;">
+
+      <p class="descripcion">{{ producto.descripcion }}</p>
+
+      <p class="precio">
+        $ {{ '{:,.0f}'.format(producto.precio|float) }}
+        <span style="font-size: 13px; font-weight: normal;">COP</span>
+      </p>
+
+      <hr class="separator">
+
       <div class="informacion">
         <p><strong>Tipo de joya:</strong> {{ producto.tipo_joya or 'N/A' }}</p>
         <p><strong>Material:</strong> {{ producto.material or 'N/A' }}</p>
@@ -34,8 +37,10 @@
         <p><strong>Peso:</strong> {{ producto.peso or 'N/A' }} g</p>
         <p><strong>Dimensiones:</strong> {{ producto.dimensiones }}</p>
       </div>
+
       <!-- STOCK POR TALLA -->
       <h3>Disponibilidad por talla</h3>
+
       {% if producto.tallas and producto.tallas|length > 0 %}
       <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
         <ul class="lista-tallas">
@@ -52,19 +57,57 @@
       <p>No hay tallas registradas.</p>
       {% endif %}
 
-
-      <!-- FORMULARIO AGREGAR AL CARRITO
-      <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
-        <label for="cantidad">Cantidad:</label>
-        <input type="number" id="cantidad" name="cantidad" value="1" min="1">
-        <button type="submit" class="btn-primary">Agregar al carrito</button>
-      </form>
       <a class="btn-descargar" href="{{ url_for('descargar_ficha', id_producto=producto.id_producto) }}">
         Descargar ficha técnica (PDF)
-      </a> -->
+      </a>
 
+    </div> <!-- FIN INFO PRODUCTO -->
+
+  </div> <!-- FIN CONTAINER -->
+
+
+  <!-- ============================== -->
+  <!--        VALORACIONES            -->
+  <!-- ============================== -->
+
+  <section class="valoraciones-section">
+
+    <h2 class="titulo-valoraciones">Valoraciones del Producto</h2>
+
+    {% if stats.total > 0 %}
+    <p class="promedio">
+      ⭐ <strong>{{ "%.1f"|format(stats.promedio) }}</strong> promedio
+      ({{ stats.total }} valoraciones)
+    </p>
+    {% endif %}
+
+    {% if valoraciones and valoraciones|length > 0 %}
+
+    {% for val in valoraciones %}
+    <div class="valoracion-card">
+
+      <div class="valoracion-header">
+        <img src="{{ val.foto_perfil }}" class="avatar-usuario" alt="Foto de usuario">
+
+        <div>
+          <strong>{{ val.usuario }}</strong>
+          <div class="stars">
+            {% for i in range(val.estrellas) %} ⭐ {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <p class="comentario">"{{ val.comentario }}"</p>
+      <span class="fecha">{{ val.fecha }}</span>
     </div>
+    <hr>
+    {% endfor %}
 
-  </div>
+    {% else %}
+    <p class="sin-valoraciones">Este producto aún no tiene valoraciones.</p>
+    {% endif %}
+
+  </section>
+
 </main>
 {% endblock %}

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_ventas.css') }}">
 
 <main class="reportes-container">
-    <h2> Reportes de Ventas</h2>
+    <h2>Reportes de Ventas</h2>
 
     <!-- 🔎 Filtro por rango de fechas -->
     <form method="POST" class="filtro-fechas">
@@ -16,22 +17,24 @@
         <button type="submit">Generar Reporte</button>
     </form>
 
-    <!-- Botón para ir a productos más vendidos -->
+    <!-- Botón para productos más vendidos -->
     {% if fecha_inicio and fecha_fin %}
     <div class="extra-opciones">
-        <a href="{{ url_for('productos_mas_vendidos', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}"
-            class="btn-extra"> Ver productos más vendidos en este rango</a>
+        <a href="{{ url_for('productos_mas_vendidos', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}" 
+           class="btn-extra">
+            Ver productos más vendidos en este rango
+        </a>
     </div>
     {% endif %}
 
-
-    <!-- 🔗 Nuevo botón para estadísticas visuales -->
+    <!-- 🔗 Estadísticas visuales -->
     <div class="acciones-extra">
         <a href="{{ url_for('estadisticas') }}" class="btn-visual">
-             Ver Estadísticas Visuales
+            Ver Estadísticas Visuales
         </a>
     </div>
 
+    <!-- Tabla de resultados -->
     {% if reportes %}
     <table class="tabla-reportes">
         <thead>
@@ -44,6 +47,7 @@
                 <th>Estado</th>
             </tr>
         </thead>
+
         <tbody>
             {% for r in reportes %}
             <tr>
@@ -51,14 +55,16 @@
                 <td>{{ r.fecha }}</td>
                 <td>{{ r.cliente }}</td>
                 <td>{{ r.productos }}</td>
-                <td>${{ r.total }}</td>
+                <td>${{ '{:,.0f}'.format(r.total|float) }}</td>
                 <td>{{ r.estado }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
     {% else %}
     <p class="sin-resultados">No se encontraron ventas en el rango seleccionado.</p>
     {% endif %}
+
 </main>
 {% endblock %}
