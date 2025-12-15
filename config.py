@@ -1,14 +1,19 @@
 # ----------------------------
 # Configuración de la base de datos
 # ----------------------------
-DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",          
-    "password": "NuevaClave",        
-    "database": "ave_joyas",
-    "charset" :'utf8mb4',
-    "use_unicode": True
-}
+
+import os
+import mysql.connector
+
+mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT")),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME"),
+    ssl_disabled=True
+)
+
 
 #-----------------------------
 # Comando para iniciar MariaDB
