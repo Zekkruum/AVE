@@ -1,0 +1,159 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.dashboard-container {
+    max-width: 1150px;
+    margin: 40px auto;
+    padding: 32px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== TÍTULOS ===== */
+.dashboard-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f1f1f;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 28px;
+}
+
+/* ===== TABLA ===== */
+.tabla-incidencias {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+/* CABECERA */
+.tabla-incidencias thead {
+    background: linear-gradient(135deg, #7c4dff, #5b2eea);
+    color: #ffffff;
+}
+
+.tabla-incidencias th {
+    padding: 16px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    text-align: left;
+}
+
+/* FILAS */
+.tabla-incidencias td {
+    padding: 16px 18px;
+    font-size: 14px;
+    color: #2d2d2d;
+    vertical-align: middle;
+}
+
+.tabla-incidencias tbody tr {
+    background: #fafafa;
+    transition: all 0.25s ease;
+}
+
+.tabla-incidencias tbody tr:nth-child(even) {
+    background: #f3f4f6;
+}
+
+.tabla-incidencias tbody tr:hover {
+    background: #ede9fe;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(124, 77, 255, 0.15);
+}
+
+/* ===== DESCRIPCIÓN ===== */
+.tabla-incidencias td:nth-child(4) {
+    line-height: 1.5;
+    color: #444;
+}
+
+/* ===== SELECT ESTADO ===== */
+.tabla-incidencias select {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+.tabla-incidencias select:hover {
+    border-color: #7c4dff;
+}
+
+/* Focus */
+.tabla-incidencias select:focus {
+    outline: none;
+    border-color: #5b2eea;
+    box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.2);
+}
+
+/* Colores según estado */
+.tabla-incidencias select option[value="En revisión"] {
+    color: #856404;
+}
+
+.tabla-incidencias select option[value="Aceptada"] {
+    color: #1e7e34;
+}
+
+.tabla-incidencias select option[value="Rechazada"] {
+    color: #b02a37;
+}
+
+.tabla-incidencias select option[value="Resuelta"] {
+    color: #0f5132;
+}
+
+/* ===== MENSAJE VACÍO ===== */
+.dashboard-container p {
+    color: #6b7280;
+    font-size: 15px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .tabla-incidencias thead {
+        display: none;
+    }
+
+    .tabla-incidencias,
+    .tabla-incidencias tbody,
+    .tabla-incidencias tr,
+    .tabla-incidencias td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-incidencias tr {
+        margin-bottom: 18px;
+        padding: 16px;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    .tabla-incidencias td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+    }
+
+    .tabla-incidencias td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #555;
+    }
+}

@@ -1332,17 +1332,35 @@ def registrar_incidencia_form(id_pedido):
     if not usuario:
         return redirect(url_for("login"))
 
-    # Verificar que el pedido exista y sea del usuario
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM pagos WHERE id_pago = %s AND id_usuario = %s", 
-                   (id_pedido, usuario['id_usuario']))
+
+    # Validar que el pedido exista y pertenezca al usuario
+    cursor.execute("""
+    SELECT 
+        p.id_pedido,
+        p.numero_pedido,
+        p.fecha,
+        pa.id_pago,
+        pa.monto
+    FROM pedidos p
+    INNER JOIN pagos pa ON pa.id_pedido = p.id_pedido
+    WHERE p.id_pedido = %s
+""", (id_pedido,))
+
     pedido = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
 
     if not pedido:
         return "Pedido no encontrado o no pertenece al usuario", 404
 
-    return render_template("registrar_incidencia.html", pedido=pedido, usuario=usuario)
+    return render_template(
+        "registrar_incidencia.html",
+        pedido=pedido,
+        usuario=usuario
+    )
 
 @app.route("/mis-incidencias")
 def incidencias_historial():
@@ -1354,9 +1372,13 @@ def incidencias_historial():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT i.*, p.monto, p.fecha_pago
+        SELECT 
+            i.*,
+            pe.fecha AS fecha_pedido,
+            pa.monto AS monto_pago
         FROM incidencias i
-        INNER JOIN pagos p ON i.id_pedido = p.id_pago
+        JOIN pedidos pe ON i.id_pedido = pe.id_pedido
+        LEFT JOIN pagos pa ON pa.id_pedido = pe.id_pedido
         WHERE i.id_usuario = %s
         ORDER BY i.fecha_registro DESC
     """, (usuario['id_usuario'],))
@@ -1366,7 +1388,102 @@ def incidencias_historial():
     cursor.close()
     conn.close()
 
-    return render_template("incidencias_historial.html", incidencias=incidencias)
+    return render_template(
+        "incidencias_historial.html",
+        incidencias=incidencias,
+        usuario=usuario
+    )
+
+@app.route("/incidencia/<int:id_pedido>/guardar", methods=["POST"])
+def registrar_incidencia_guardar(id_pedido):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for("login"))
+
+    # 🔹 Datos del formulario
+    tipo = request.form["tipo"]
+    comentario = request.form["comentario"]
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO incidencias (id_pedido, id_usuario, tipo, comentario, fecha_registro)
+        VALUES (%s, %s, %s, %s, NOW())
+    """, (
+        id_pedido,
+        usuario["id_usuario"],
+        tipo,
+        comentario
+    ))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for("incidencias_historial"))
+
+
+@app.route("/vendedor/incidencias")
+def incidencias_vendedor():
+    usuario = obtener_usuario()
+    if not usuario or usuario["id_rol"] != 2:
+        return redirect(url_for("login"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+    SELECT DISTINCT
+        i.id_incidencia,
+        i.tipo,
+        i.comentario,
+        i.estado,
+        i.fecha_registro,
+        p.id_pedido AS numero_pedido,
+        u.nombre_completo AS cliente
+    FROM incidencias i
+    JOIN pedidos p ON i.id_pedido = p.id_pedido
+    JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+    JOIN productos pr ON dp.id_producto = pr.id_producto
+    JOIN usuarios u ON i.id_usuario = u.id_usuario
+    WHERE pr.id_usuario = %s
+    ORDER BY i.fecha_registro DESC
+""", (usuario["id_usuario"],))
+
+
+    incidencias = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "incidencias_vendedor.html",
+        incidencias=incidencias,
+        usuario=usuario
+    )
+
+@app.route("/vendedor/incidencias/<int:id>/estado", methods=["POST"])
+def actualizar_estado_incidencia(id):
+    usuario = obtener_usuario()
+    if not usuario or usuario["id_rol"] != 2:
+        return redirect(url_for("login"))
+
+    estado = request.form["estado"]
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE incidencias
+        SET estado = %s
+        WHERE id_incidencia = %s
+    """, (estado, id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for("incidencias_vendedor"))
+
 
 # ----------------------------
 # Producto - Detalle (VENDEDOR)
@@ -3360,9 +3477,7 @@ def ruta_actualizar_estado_pedido(id_pedido, nuevo_estado):
 
 @app.route('/rastreo/<codigo>')
 def rastreo_publico(codigo):
-    usuario = obtener_usuario()
-    if not usuario:
-        return redirect(url_for('login'))
+    usuario = obtener_usuario()  # puede ser None
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -3377,13 +3492,17 @@ def rastreo_publico(codigo):
 
     pedido = cursor.fetchone()
 
+    if not pedido:
+        cursor.close()
+        conn.close()
+        return render_template("rastreo_error.html", usuario=usuario)
+
     cursor.execute("""
         SELECT d.*, pr.nombre
         FROM detalle_pedido d
         LEFT JOIN productos pr ON pr.id_producto = d.id_producto
         WHERE d.id_pedido = %s
     """, (pedido["id_pedido"],))
-
     detalles = cursor.fetchall()
 
     cursor.execute("""
@@ -3392,9 +3511,9 @@ def rastreo_publico(codigo):
         LEFT JOIN estados_pedido e ON e.id_estado = h.id_estado
         LEFT JOIN usuarios u ON u.id_usuario = h.id_usuario
         WHERE h.id_pedido = %s
-        ORDER BY h.fecha ASC
+        GROUP BY h.id_estado
+        ORDER BY MIN(h.fecha) ASC
     """, (pedido["id_pedido"],))
-
     historial = cursor.fetchall()
 
     cursor.close()
@@ -3402,11 +3521,12 @@ def rastreo_publico(codigo):
 
     return render_template(
         "rastreo_publico.html",
-        usuario=usuario,  # 🔥 NECESARIO PARA EL HEADER
+        usuario=usuario,  # puede ser None
         pedido=pedido,
         detalles=detalles,
         historial=historial
     )
+
 
     
 @app.route('/mi-pedido/<codigo>')
@@ -3473,8 +3593,6 @@ def mi_pedido(codigo):
 @app.route('/rastreo', methods=['GET', 'POST'])
 def buscar_rastreo():
     usuario = obtener_usuario()
-    if not usuario:
-        return redirect(url_for('login'))
 
     if request.method == 'POST':
         codigo = request.form.get("codigo")

@@ -23,8 +23,8 @@
             <!-- Accesos -->
             <div class="acceso">
                 {% if usuario %}
-                <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
-                <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                <span>Hola, {{ usuario.nombre_completo }}</span>
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
                 {% else %}
                 <a href="{{ url_for('login') }}">Iniciar sesión</a>
                 <a href="{{ url_for('signin') }}">Registrarse</a>
@@ -51,6 +51,7 @@
                     <li><a href="{{ url_for('mis_valoraciones_historial') }}">Historial de Valoraciones</a></li>
                     <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
                     <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado</a></li>
+                    <li><a href="{{ url_for('incidencias_historial') }}">Ver incidencias</a></li>
                 </ul>
             </li>
             <li><a href="{{ url_for('faq') }}">Preguntas Frecuentes</a></li>
@@ -63,6 +64,9 @@
                     <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
                     <li><a href="{{ url_for('pedidos_recibidos') }}">Pedidos Recibidos</a></li>
                     <li><a href="{{ url_for('estadisticas') }}">Estadísticas</a></li>
+                    <li><a href="{{ url_for('incidencias_vendedor') }}">Ver incidencias</li>
+                    </a>
+
                 </ul>
             </li>
             {% endif %}

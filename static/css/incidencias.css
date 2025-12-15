@@ -1,0 +1,83 @@
+/* CONTENEDOR PRINCIPAL */
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* TÍTULO */
+.container h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2c2c2c;
+    font-size: 26px;
+}
+
+/* INFO DEL PEDIDO */
+.container p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+/* LABELS */
+.container label {
+    display: block;
+    margin-bottom: 6px;
+    margin-top: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* INPUTS Y SELECT */
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* EFECTO FOCUS */
+.form-control:focus {
+    border-color: #b88a44;
+    box-shadow: 0 0 0 3px rgba(184, 138, 68, 0.2);
+    outline: none;
+}
+
+/* TEXTAREA */
+textarea.form-control {
+    resize: vertical;
+}
+
+/* BOTÓN */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #b88a44, #d4af37);
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* HOVER BOTÓN */
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(184, 138, 68, 0.4);
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 15px;
+    }
+}
