@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/incidencias_vendedor.css') }}">
+
+<div class="dashboard-container">
+
+    <h2 class="dashboard-title">Incidencias de Clientes</h2>
+    <p class="subtitle">Pedidos con problemas reportados</p>
+
+    {% if incidencias %}
+    <table class="tabla-incidencias">
+        <thead>
+            <tr>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in incidencias %}
+            <tr>
+                <td>#{{ i.numero_pedido }}</td>
+                <td>{{ i.cliente }}</td>
+                <td>{{ i.tipo }}</td>
+                <td>{{ i.comentario }}</td>
+                <td>
+                    <form action="{{ url_for('actualizar_estado_incidencia', id=i.id_incidencia) }}" method="POST">
+                        <select name="estado" onchange="this.form.submit()">
+                            <option {% if i.estado=='En revisión' %}selected{% endif %}>En revisión</option>
+                            <option {% if i.estado=='Aceptada' %}selected{% endif %}>Aceptada</option>
+                            <option {% if i.estado=='Rechazada' %}selected{% endif %}>Rechazada</option>
+                            <option {% if i.estado=='Resuelta' %}selected{% endif %}>Resuelta</option>
+                        </select>
+                    </form>
+
+                </td>
+                <td>{{ i.fecha_registro.strftime('%d/%m/%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes incidencias registradas.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -929,3 +929,16 @@ nav {
     padding-bottom: 10px;
     border-bottom: 1px solid #e2e2e2;
 }
+
+.btn-rastreo {
+    background: #7d4cf5;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.btn-rastreo:hover {
+    background: #5f38c7;
+}
