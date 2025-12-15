@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-12-2025 a las 08:30:52
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Tiempo de generación: 15-12-2025 a las 03:56:00
+-- Versión del servidor: 11.8.4-MariaDB
+-- Versión de PHP: 8.1.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -328,13 +328,6 @@ CREATE TABLE `carrito_usuario` (
   `talla` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `carrito_usuario`
---
-
-INSERT INTO `carrito_usuario` (`id_carrito`, `id_usuario`, `id_producto`, `cantidad`, `fecha`, `talla`) VALUES
-(37, 28, 72, 1, '2025-12-10 07:30:34', '45cm');
-
 -- --------------------------------------------------------
 
 --
@@ -451,7 +444,19 @@ INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `cantida
 (51, 43, 76, 10, 55.00, ''),
 (52, 44, 75, 1, 12000.00, ''),
 (53, 45, 72, 10, 49990.00, '45cm'),
-(54, 46, 72, 5, 49990.00, '45cm');
+(54, 46, 72, 5, 49990.00, '45cm'),
+(55, 47, 72, 1, 49990.00, '45cm'),
+(56, 47, 78, 3, 130000.00, '7'),
+(57, 48, 78, 3, 130000.00, '7'),
+(58, 49, 78, 7, 130000.00, '7'),
+(59, 50, 76, 3, 55.00, '5'),
+(60, 51, 79, 5, 150000.00, '8'),
+(61, 51, 79, 3, 150000.00, '7'),
+(62, 52, 72, 4, 49990.00, '45cm'),
+(63, 53, 72, 5, 49990.00, '45cm'),
+(64, 54, 79, 5, 150000.00, '8'),
+(65, 55, 79, 10, 150000.00, '7'),
+(66, 56, 78, 1, 130000.00, '7');
 
 -- --------------------------------------------------------
 
@@ -469,6 +474,31 @@ CREATE TABLE `devoluciones` (
   `estado` varchar(50) DEFAULT 'Pendiente',
   `estado_fisico` varchar(20) NOT NULL DEFAULT 'bueno'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estados_pedido`
+--
+
+CREATE TABLE `estados_pedido` (
+  `id_estado` int(11) NOT NULL,
+  `nombre_estado` varchar(50) NOT NULL,
+  `descripcion` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Volcado de datos para la tabla `estados_pedido`
+--
+
+INSERT INTO `estados_pedido` (`id_estado`, `nombre_estado`, `descripcion`) VALUES
+(1, 'Pendiente de preparación', NULL),
+(2, 'En preparación', NULL),
+(3, 'Enviado', NULL),
+(4, 'Entregado', NULL),
+(5, 'Cancelado', NULL),
+(6, 'Devuelto', NULL),
+(7, 'Pagado', NULL);
 
 -- --------------------------------------------------------
 
@@ -556,6 +586,131 @@ INSERT INTO `faq` (`id_faq`, `pregunta`, `respuesta`, `fecha_creacion`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `historial_pedido`
+--
+
+CREATE TABLE `historial_pedido` (
+  `id_historial` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `id_estado` int(11) NOT NULL,
+  `id_usuario` int(11) DEFAULT NULL,
+  `comentario` varchar(255) DEFAULT NULL,
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Volcado de datos para la tabla `historial_pedido`
+--
+
+INSERT INTO `historial_pedido` (`id_historial`, `id_pedido`, `id_estado`, `id_usuario`, `comentario`, `fecha`) VALUES
+(1, 1, 3, NULL, 'Estado inicial (migrado): Enviado', '2025-12-12 01:10:53'),
+(2, 2, 1, NULL, 'Estado inicial (migrado): Preparando', '2025-12-12 01:10:53'),
+(3, 3, 4, NULL, 'Estado inicial (migrado): Entregado', '2025-12-12 01:10:53'),
+(4, 4, 3, NULL, 'Estado inicial (migrado): Enviado', '2025-12-12 01:10:53'),
+(5, 5, 1, NULL, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(6, 6, 1, 11, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(7, 7, 1, 11, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(8, 8, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(9, 9, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(10, 10, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(11, 11, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(12, 12, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(13, 13, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(14, 14, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(15, 15, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(16, 16, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(17, 17, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(18, 18, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(19, 19, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(20, 20, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(21, 21, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(22, 22, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(23, 23, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(24, 24, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(25, 25, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(26, 26, 1, 24, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(27, 27, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(28, 28, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(29, 29, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(30, 30, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(31, 31, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(32, 32, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(33, 33, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(34, 34, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(35, 35, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(36, 36, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(37, 37, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(38, 38, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(39, 39, 7, 29, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(40, 40, 7, 29, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(41, 41, 7, 29, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(42, 42, 7, 30, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(43, 43, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(44, 44, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(45, 45, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(46, 46, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(64, 47, 7, 28, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:06:51'),
+(65, 47, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:06:51'),
+(66, 47, 7, 28, 'Pago registrado', '2025-12-12 04:06:51'),
+(67, 47, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:10:09'),
+(68, 47, 7, 28, 'Pago registrado', '2025-12-12 04:10:09'),
+(69, 48, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:11:05'),
+(70, 48, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:11:05'),
+(71, 48, 7, 30, 'Pago registrado', '2025-12-12 04:11:05'),
+(72, 47, 1, 28, 'Cambio desde trigger. Antes: 7 -> Ahora: 1', '2025-12-12 04:22:24'),
+(73, 47, 1, 28, 'Estado cambiado a Pendiente de preparación', '2025-12-12 04:22:24'),
+(74, 47, 2, 28, 'Cambio desde trigger. Antes: 1 -> Ahora: 2', '2025-12-12 04:26:00'),
+(75, 47, 2, 28, 'Estado cambiado a En preparación', '2025-12-12 04:26:00'),
+(76, 47, 5, 28, 'Cambio desde trigger. Antes: 2 -> Ahora: 5', '2025-12-12 04:30:35'),
+(77, 47, 5, 28, 'Estado cambiado a Cancelado', '2025-12-12 04:30:35'),
+(78, 49, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:35:45'),
+(79, 49, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:35:45'),
+(80, 49, 7, 30, 'Pago registrado', '2025-12-12 04:35:45'),
+(81, 50, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:41:53'),
+(82, 50, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:41:53'),
+(83, 50, 7, 30, 'Pago registrado', '2025-12-12 04:41:53'),
+(84, 51, 7, 28, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 05:00:09'),
+(85, 51, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 05:00:09'),
+(86, 51, 7, 28, 'Pago registrado', '2025-12-12 05:00:09'),
+(87, 48, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:02:40'),
+(88, 48, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:02:40'),
+(89, 52, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 14:12:30'),
+(90, 52, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 14:12:30'),
+(91, 52, 7, 30, 'Pago registrado', '2025-12-12 14:12:30'),
+(92, 52, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:16:52'),
+(93, 52, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:16:52'),
+(94, 53, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 14:33:07'),
+(95, 53, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 14:33:07'),
+(96, 53, 7, 30, 'Pago registrado', '2025-12-12 14:33:07'),
+(97, 53, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:33:33'),
+(98, 53, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:33:33'),
+(99, 54, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 14:34:36'),
+(100, 54, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 14:34:36'),
+(101, 54, 7, 30, 'Pago registrado', '2025-12-12 14:34:36'),
+(102, 54, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:35:42'),
+(103, 54, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:35:42'),
+(104, 49, 2, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 2', '2025-12-14 22:52:54'),
+(105, 49, 2, 28, 'Estado cambiado a En preparación', '2025-12-14 22:52:54'),
+(106, 49, 3, 30, 'Cambio desde trigger. Antes: 2 -> Ahora: 3', '2025-12-14 22:53:00'),
+(107, 49, 3, 28, 'Estado cambiado a Enviado', '2025-12-14 22:53:00'),
+(108, 49, 4, 30, 'Cambio desde trigger. Antes: 3 -> Ahora: 4', '2025-12-14 22:53:07'),
+(109, 49, 4, 28, 'Estado cambiado a Entregado', '2025-12-14 22:53:07'),
+(110, 55, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-15 00:39:16'),
+(111, 55, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-15 00:39:16'),
+(112, 55, 7, 30, 'Pago registrado', '2025-12-15 00:39:16'),
+(113, 56, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-15 02:25:17'),
+(114, 56, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-15 02:25:17'),
+(115, 56, 7, 30, 'Pago registrado', '2025-12-15 02:25:17'),
+(116, 56, 2, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 2', '2025-12-15 02:25:44'),
+(117, 56, 2, 28, 'Estado cambiado a En preparación', '2025-12-15 02:25:44'),
+(118, 56, 3, 30, 'Cambio desde trigger. Antes: 2 -> Ahora: 3', '2025-12-15 02:25:48'),
+(119, 56, 3, 28, 'Estado cambiado a Enviado', '2025-12-15 02:25:48'),
+(120, 56, 4, 30, 'Cambio desde trigger. Antes: 3 -> Ahora: 4', '2025-12-15 02:25:54'),
+(121, 56, 4, 28, 'Estado cambiado a Entregado', '2025-12-15 02:25:54');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `imagenes`
 --
 
@@ -574,7 +729,9 @@ INSERT INTO `imagenes` (`id_imagen`, `id_producto`, `url`) VALUES
 (8, 73, 'uploads/e0b70094177e4019af85264ef3bb9224_anilloxd.webp'),
 (9, 74, 'uploads/bd41bd6f0fc0458aa2a520764bdaaa29_anilloxd.webp'),
 (10, 75, 'uploads/3ccb3805fabb46f4abb2b2b4c2b1e2e3_anilloxd.webp'),
-(11, 76, 'uploads/1f6d743d52f3457c86c7115d7a267374_anilloxd.webp');
+(11, 76, 'uploads/1f6d743d52f3457c86c7115d7a267374_anilloxd.webp'),
+(12, 78, 'uploads/0a5e14ede01148fb8a41884d669e0d8c_D_NQ_NP_2X_813873-MCO94057788362_102025-F.jpg'),
+(13, 79, 'uploads/dca8fbd5d22f4fab971ff0e5830f07f3_D_NQ_NP_2X_813873-MCO94057788362_102025-F.jpg');
 
 -- --------------------------------------------------------
 
@@ -591,6 +748,14 @@ CREATE TABLE `incidencias` (
   `fecha_registro` datetime DEFAULT current_timestamp(),
   `estado` varchar(50) DEFAULT 'En revisión'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `incidencias`
+--
+
+INSERT INTO `incidencias` (`id_incidencia`, `id_pedido`, `id_usuario`, `tipo`, `comentario`, `fecha_registro`, `estado`) VALUES
+(4, 55, 30, 'Producto dañado', 'El producto me llego destrozado a mi apto', '2025-12-14 20:06:39', 'Resuelta'),
+(5, 56, 30, 'Producto dañado', 'naisodnaspdo', '2025-12-14 21:26:46', 'Resuelta');
 
 -- --------------------------------------------------------
 
@@ -725,15 +890,40 @@ INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `estado`, `
 (23, 43, 'tarjeta', 654.50, 'pagado', '2025-11-21 19:02:56', NULL, NULL, NULL, NULL),
 (24, 44, 'tarjeta', 14280.00, 'pagado', '2025-12-10 05:09:14', '5453453453453455', '12/31', '123', NULL),
 (25, 45, 'tarjeta', 594881.00, 'pagado', '2025-12-10 07:27:53', '4353453453453454', '12/31', '213', NULL),
-(26, 46, 'tarjeta', 297440.50, 'pagado', '2025-12-10 07:30:19', '523423123123123', '21/31', '213', NULL);
+(26, 46, 'tarjeta', 297440.50, 'pagado', '2025-12-10 07:30:19', '523423123123123', '21/31', '213', NULL),
+(27, 47, 'tarjeta', 523588.10, 'pagado', '2025-12-12 04:06:51', '4871239128730909', '25/25', '123', NULL),
+(28, 47, 'tarjeta', 523588.10, 'pagado', '2025-12-12 04:10:09', '4871239128730909', '25/25', '123', NULL),
+(29, 48, 'tarjeta', 464100.00, 'pagado', '2025-12-12 04:11:05', '5278234982740293', '25/25', '123', NULL),
+(30, 49, 'tarjeta', 1082900.00, 'pagado', '2025-12-12 04:35:45', '3183712897371209', '25/26', '123', NULL),
+(31, 50, 'tarjeta', 196.35, 'pagado', '2025-12-12 04:41:53', '3457875789876897', '24/24', '321', NULL),
+(32, 51, 'tarjeta', 1428000.00, 'pagado', '2025-12-12 05:00:09', '3456783213109809', '45/45', '723', NULL),
+(33, 52, 'tarjeta', 237952.40, 'pagado', '2025-12-12 14:12:30', '4120947320973801', '25/25', '123', NULL),
+(34, 53, 'tarjeta', 297440.50, 'pagado', '2025-12-12 14:33:07', '3984374298342096', '24/24', '123', NULL),
+(35, 54, 'tarjeta', 892500.00, 'pagado', '2025-12-12 14:34:36', '3489273189273123', '25/25', '123', NULL),
+(36, 55, 'tarjeta', 1785000.00, 'pagado', '2025-12-15 00:39:16', '4345676767873526', '12/25', '123', NULL),
+(37, 56, 'tarjeta', 154700.00, 'pagado', '2025-12-15 02:25:17', '4567897985432346', '12/34', '123', NULL);
 
 --
 -- Disparadores `pagos`
 --
 DELIMITER $$
 CREATE TRIGGER `actualizar_estado_pedido` AFTER INSERT ON `pagos` FOR EACH ROW BEGIN
-    UPDATE pedidos SET estado = 'Pagado'
+  DECLARE v_id_estado INT;
+
+  SELECT id_estado INTO v_id_estado 
+  FROM estados_pedido 
+  WHERE nombre_estado = 'Pagado'
+  LIMIT 1;
+
+  IF v_id_estado IS NOT NULL THEN
+    UPDATE pedidos 
+    SET id_estado = v_id_estado
     WHERE id_pedido = NEW.id_pedido;
+
+    INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario)
+    VALUES (NEW.id_pedido, v_id_estado, NULL, 'Pago recibido - trigger pagos');
+  END IF;
+
 END
 $$
 DELIMITER ;
@@ -761,60 +951,85 @@ CREATE TABLE `pedidos` (
   `direccion_entrega` varchar(255) NOT NULL,
   `telefono_cliente` varchar(30) NOT NULL,
   `correo_cliente` varchar(120) NOT NULL,
-  `numero_pedido` varchar(30) DEFAULT NULL
+  `numero_pedido` varchar(30) DEFAULT NULL,
+  `id_estado` int(11) NOT NULL DEFAULT 1,
+  `id_vendedor` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`, `nombre_cliente`, `direccion_entrega`, `telefono_cliente`, `correo_cliente`, `numero_pedido`) VALUES
-(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL),
-(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL),
-(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL),
-(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
-(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL, '', '', '', '', NULL),
-(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL, '', '', '', '', NULL),
-(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
-(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
-(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
-(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
-(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
-(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL, '', '', '', '', NULL),
-(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
-(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL, '', '', '', '', NULL),
-(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
-(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL),
-(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', '', NULL),
-(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
-(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL),
-(42, NULL, '2025-11-21', 'Pagado', NULL, NULL, 13090000.00, 'pagado', 30, 11000000.00, 2090000.00, NULL, '', '', '', '', 'PED-20251121-000001'),
-(43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002'),
-(44, NULL, '2025-12-10', 'Pagado', NULL, NULL, 14280.00, 'pagado', 28, 12000.00, 2280.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000001'),
-(45, NULL, '2025-12-10', 'Pagado', NULL, NULL, 594881.00, 'pagado', 28, 499900.00, 94981.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000002'),
-(46, NULL, '2025-12-10', 'Pagado', NULL, NULL, 297440.50, 'pagado', 28, 249950.00, 47490.50, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000003');
+INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`, `nombre_cliente`, `direccion_entrega`, `telefono_cliente`, `correo_cliente`, `numero_pedido`, `id_estado`, `id_vendedor`) VALUES
+(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 3, NULL),
+(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 4, NULL),
+(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 3, NULL),
+(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL, 1, NULL),
+(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL, 1, NULL),
+(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL, '', '', '', '', NULL, 1, NULL),
+(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL, '', '', '', '', NULL, 1, NULL),
+(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL, '', '', '', '', NULL, 1, NULL),
+(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL, 1, NULL),
+(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL, '', '', '', '', NULL, 1, NULL),
+(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL, 1, NULL),
+(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL, 1, NULL),
+(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', '', NULL, 7, NULL),
+(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL, 7, NULL),
+(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL, 7, NULL),
+(42, NULL, '2025-11-21', 'Pagado', NULL, NULL, 13090000.00, 'pagado', 30, 11000000.00, 2090000.00, NULL, '', '', '', '', 'PED-20251121-000001', 7, NULL),
+(43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002', 7, NULL),
+(44, NULL, '2025-12-10', 'Pagado', NULL, NULL, 14280.00, 'pagado', 28, 12000.00, 2280.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000001', 7, NULL),
+(45, NULL, '2025-12-10', 'Pagado', NULL, NULL, 594881.00, 'pagado', 28, 499900.00, 94981.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000002', 7, NULL),
+(46, NULL, '2025-12-10', 'Pagado', NULL, NULL, 297440.50, 'pagado', 28, 249950.00, 47490.50, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000003', 7, NULL),
+(47, NULL, '2025-12-11', NULL, NULL, NULL, 523588.10, 'pagado', 28, 439990.00, 83598.10, 'PED-20251211-000001', 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251211-000001', 5, NULL),
+(48, NULL, '2025-12-11', NULL, NULL, NULL, 464100.00, 'pagado', 30, 390000.00, 74100.00, 'PED-20251211-000002', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251211-000002', 4, NULL),
+(49, NULL, '2025-12-11', NULL, NULL, NULL, 1082900.00, 'pagado', 30, 910000.00, 172900.00, 'PED-20251211-000003', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251211-000003', 4, NULL),
+(50, NULL, '2025-12-11', NULL, NULL, NULL, 196.35, 'pagado', 30, 165.00, 31.35, 'PED-20251211-000004', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251211-000004', 7, NULL),
+(51, NULL, '2025-12-11', NULL, NULL, NULL, 1428000.00, 'pagado', 28, 1200000.00, 228000.00, 'PED-20251211-000005', 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251211-000005', 7, NULL),
+(52, NULL, '2025-12-12', NULL, NULL, NULL, 237952.40, 'pagado', 30, 199960.00, 37992.40, 'PED-20251212-000001', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251212-000001', 4, NULL),
+(53, NULL, '2025-12-12', NULL, NULL, NULL, 297440.50, 'pagado', 30, 249950.00, 47490.50, 'PED-20251212-000002', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251212-000002', 4, NULL),
+(54, NULL, '2025-12-12', NULL, NULL, NULL, 892500.00, 'pagado', 30, 750000.00, 142500.00, 'PED-20251212-000003', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251212-000003', 4, NULL),
+(55, NULL, '2025-12-14', NULL, NULL, NULL, 1785000.00, 'pagado', 30, 1500000.00, 285000.00, 'PED-20251214-000001', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251214-000001', 7, NULL),
+(56, NULL, '2025-12-14', NULL, NULL, NULL, 154700.00, 'pagado', 30, 130000.00, 24700.00, 'PED-20251214-000002', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251214-000002', 4, NULL);
+
+--
+-- Disparadores `pedidos`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_pedidos_estado_after_update` AFTER UPDATE ON `pedidos` FOR EACH ROW BEGIN
+  IF NEW.id_estado <> OLD.id_estado THEN
+    INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario, fecha)
+    VALUES (NEW.id_pedido, NEW.id_estado, NEW.id_usuario, CONCAT('Cambio desde trigger. Antes: ', OLD.id_estado, ' -> Ahora: ', NEW.id_estado), NOW());
+  END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -911,28 +1126,31 @@ CREATE TABLE `productos` (
   `imagen` varchar(255) DEFAULT NULL,
   `categoria` varchar(100) DEFAULT NULL,
   `destacado` tinyint(1) DEFAULT 0,
-  `activo` tinyint(1) DEFAULT 1
+  `activo` tinyint(1) DEFAULT 1,
+  `codigo_producto` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `alto`, `ancho`, `largo`, `dimensiones`, `referencia`, `stock`, `umbral_alerta`, `id_tipo`, `id_material`, `id_color`, `id_piedra`, `id_usuario`, `imagen`, `categoria`, `destacado`, `activo`) VALUES
-(58, 'Anillo Solitario \"Aurora\"', 'Anillo de oro amarillo con diamante central talla brillante, sofisticado.', 5500000.00, 5, 0.50, 2.00, 2.00, NULL, NULL, 30, 5, 1, 1, 1, 1, 28, 'uploads/anillo_aurora.jpg', NULL, 0, 1),
-(59, 'Collar \"Verde Imperial\"', 'Collar de plata con colgante de esmeralda en corte ovalado, elegante.', 3900000.00, 20, 0.50, 1.00, 45.00, NULL, NULL, 0, 5, 2, 2, 2, 3, 28, 'uploads/collar_verde_imperial.jpg', NULL, 0, 1),
-(60, 'Pulsera \"Cielo Azul\"', 'Pulsera de acero inoxidable con topacios azules engarzados finamente.', 1850000.00, 15, 0.50, 0.50, 18.00, NULL, NULL, 0, 5, 3, 3, 3, 6, 28, 'uploads/pulsera_cielo_azul.jpg', NULL, 0, 1),
-(61, 'Aretes \"Rubí Encanto\"', 'Aretes de oro con rubíes rojos en forma de gota, clásico y refinado.', 2750000.00, 4, 0.50, 0.50, 1.00, NULL, NULL, 0, 5, 4, 1, 4, 4, 28, 'uploads/aretes_rubi_encanto.jpg', NULL, 0, 1),
-(62, 'Broche \"Perla Majestuosa\"', 'Broche de plata con perla natural central, ideal para ocasiones especiales.', 1370000.00, 10, 0.50, 3.00, 4.00, NULL, NULL, 0, 5, 5, 2, 5, 10, 28, 'uploads/broche_perla_majestuosa.jpg', NULL, 0, 1),
-(63, 'Pendientes \"Ágata Serenidad\"', 'Pendientes largos de acero con ágata verde, estilo bohemio elegante.', 1000000.00, 6, 1.00, 1.00, 7.00, NULL, NULL, 0, 5, 6, 3, 6, 12, 28, 'uploads/pendientes_agata_serenidad.jpg', NULL, 0, 1),
-(64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, 0, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1),
-(66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, 0, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1),
-(67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, 0, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1),
-(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 44, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1),
-(73, 'anillo xd', 'ewsrjhfliafhywahfl', 1200000.00, 10, 12.00, 5.00, 4.00, NULL, NULL, 0, 5, 1, 2, 5, NULL, 28, NULL, NULL, 0, 1),
-(74, 'uwu', 'hszrjtre', 254524.00, 5, 5.00, 5.00, 5.00, NULL, NULL, 0, 5, 2, 3, 6, NULL, 28, NULL, NULL, 0, 1),
-(75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 99, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1),
-(76, 'anillo plateado', 'anillo con buen estilo y brillo', 55.00, 555, 55.00, 55.00, 55.00, NULL, NULL, 20, 5, 4, 2, 5, NULL, 28, NULL, NULL, 0, 0);
+INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `alto`, `ancho`, `largo`, `dimensiones`, `referencia`, `stock`, `umbral_alerta`, `id_tipo`, `id_material`, `id_color`, `id_piedra`, `id_usuario`, `imagen`, `categoria`, `destacado`, `activo`, `codigo_producto`) VALUES
+(58, 'Anillo Solitario \"Aurora\"', 'Anillo de oro amarillo con diamante central talla brillante, sofisticado.', 5500000.00, 5, 0.50, 2.00, 2.00, NULL, NULL, 30, 5, 1, 1, 1, 1, 28, 'uploads/anillo_aurora.jpg', NULL, 0, 1, NULL),
+(59, 'Collar \"Verde Imperial\"', 'Collar de plata con colgante de esmeralda en corte ovalado, elegante.', 3900000.00, 20, 0.50, 1.00, 45.00, NULL, NULL, 0, 5, 2, 2, 2, 3, 28, 'uploads/collar_verde_imperial.jpg', NULL, 0, 1, NULL),
+(60, 'Pulsera \"Cielo Azul\"', 'Pulsera de acero inoxidable con topacios azules engarzados finamente.', 1850000.00, 15, 0.50, 0.50, 18.00, NULL, NULL, 0, 5, 3, 3, 3, 6, 28, 'uploads/pulsera_cielo_azul.jpg', NULL, 0, 1, NULL),
+(61, 'Aretes \"Rubí Encanto\"', 'Aretes de oro con rubíes rojos en forma de gota, clásico y refinado.', 2750000.00, 4, 0.50, 0.50, 1.00, NULL, NULL, 0, 5, 4, 1, 4, 4, 28, 'uploads/aretes_rubi_encanto.jpg', NULL, 0, 1, NULL),
+(62, 'Broche \"Perla Majestuosa\"', 'Broche de plata con perla natural central, ideal para ocasiones especiales.', 1370000.00, 10, 0.50, 3.00, 4.00, NULL, NULL, 0, 5, 5, 2, 5, 10, 28, 'uploads/broche_perla_majestuosa.jpg', NULL, 0, 1, NULL),
+(63, 'Pendientes \"Ágata Serenidad\"', 'Pendientes largos de acero con ágata verde, estilo bohemio elegante.', 1000000.00, 6, 1.00, 1.00, 7.00, NULL, NULL, 0, 5, 6, 3, 6, 12, 28, 'uploads/pendientes_agata_serenidad.jpg', NULL, 0, 1, NULL),
+(64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, 0, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1, NULL),
+(66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, 0, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1, NULL),
+(67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, 0, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1, NULL),
+(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 30, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1, NULL),
+(73, 'anillo xd', 'ewsrjhfliafhywahfl', 1200000.00, 10, 12.00, 5.00, 4.00, NULL, NULL, 0, 5, 1, 2, 5, NULL, 28, NULL, NULL, 0, 1, NULL),
+(74, 'uwu', 'hszrjtre', 254524.00, 5, 5.00, 5.00, 5.00, NULL, NULL, 0, 5, 2, 3, 6, NULL, 28, NULL, NULL, 0, 1, NULL),
+(75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 99, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1, NULL),
+(76, 'anillo plateado', 'anillo con buen estilo y brillo', 55.00, 555, 55.00, 55.00, 55.00, NULL, NULL, 17, 5, 4, 2, 5, NULL, 28, NULL, NULL, 0, 0, NULL),
+(78, 'Anillo Hombre Acero Inoxidable Elegante', 'anillo para hombre de acero inoxidable de color negro mate', 130000.00, 10, 5.00, 5.00, 5.00, NULL, NULL, 8, 5, 1, 3, 5, NULL, 28, NULL, NULL, 0, 1, 'PRD-F8661E'),
+(79, 'Anillo', 'Anillito normalito bien negrito', 150000.00, 10, 5.00, 5.00, 5.00, NULL, NULL, 20, 5, 1, 3, 5, NULL, 28, NULL, NULL, 0, 1, 'PRD-OV3N4V');
 
 -- --------------------------------------------------------
 
@@ -1054,6 +1272,20 @@ INSERT INTO `proveedores` (`id_proveedor`, `nombre`, `nit`, `telefono`, `correo`
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `respuestas_incidencia`
+--
+
+CREATE TABLE `respuestas_incidencia` (
+  `id_respuesta` int(11) NOT NULL,
+  `id_incidencia` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `mensaje` text NOT NULL,
+  `fecha` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura Stand-in para la vista `resumen_carrito`
 -- (Véase abajo para la vista actual)
 --
@@ -1122,21 +1354,16 @@ INSERT INTO `stock_tallas` (`id_stock`, `id_producto`, `talla`, `stock`) VALUES
 (23, 64, '45 cm', 0),
 (26, 66, 'Única', 0),
 (27, 67, 'Única', 0),
-(32, 72, '45cm', 44),
+(32, 72, '45cm', 35),
 (33, 73, '5', 0),
 (34, 73, '4', 0),
 (35, 74, '5', 22),
 (36, 75, '5', 22),
-(37, 76, '5', 23);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `tallas_disponibles_producto`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `tallas_disponibles_producto` (
-);
+(37, 76, '5', 20),
+(39, 78, '7', 9),
+(40, 79, '7', 10),
+(41, 79, '8', 10),
+(42, 79, '10', 10);
 
 -- --------------------------------------------------------
 
@@ -1240,7 +1467,7 @@ INSERT INTO `usuarios` (`id_usuario`, `nombre_completo`, `correo`, `telefono_con
 (25, 'Juan Bonilla', 'juancgb.drive@gmail.com', '+57984208924', 'scrypt:32768:8:1$UGkjjjVuIq1JfxFa$2b7572d5a3ab4cf801b3b27a63b70063b0eaab97c1398040451113f0423da161795894ca8608e6650c102bf82d25e74e80dce47c4cc87e8d663061bb32a74a34', 'Mi casita ', NULL, 1, 3, NULL, NULL),
 (28, 'José Muñoz', 'jose@test.com', '+573005006005', 'scrypt:32768:8:1$qKYD6cYrfcVfDI1n$466d8feca983bda4ba580d8c22919c18c270f82592b83a18b6ada3a508093a8183bff5a841b9351bc5893d288cf834f44e323ed816fe1ac011c2258a69e22461', 'Calle 1 #81 - 29', 'anime-koe-no-katachi-shouya-ishida-hd-wallpaper-thumb_20251113031914714479.jpg', 1, 2, '2008-08-21', '2025-11-13 03:29:16'),
 (29, 'Alan David Perez Guerra', 'alandavidperezguerra@gmail.com', '+57 3209551825', 'scrypt:32768:8:1$jzelyapmyAZmPSK0$82e7f1cf08cd081745dc547766b130e71f1dc5321ce9c388b29c183a8c2ae4bdb73ab439652a4726c052c42007e60cddaa60a2a9605f47c45f80fbd023ad4d82', 'calle 65bis#89-30', NULL, 1, 3, NULL, NULL),
-(30, 'Juan', 'cliente@test.com', '+5710000000', 'scrypt:32768:8:1$cXb2tg71QSHAZ1EW$041369a5d6a068eb15a1d0806a735c9272afbe4285340426d0a31c0fb2751730af81444e3f9f61443a12896d450ce75a9f82af56957e8971eecff6dc54a28edd', 'Cerca de mi vecino', NULL, 1, 3, NULL, NULL);
+(30, 'Juan', 'cliente@test.com', '+5710000000', 'scrypt:32768:8:1$cXb2tg71QSHAZ1EW$041369a5d6a068eb15a1d0806a735c9272afbe4285340426d0a31c0fb2751730af81444e3f9f61443a12896d450ce75a9f82af56957e8971eecff6dc54a28edd', 'Cerca de mi vecino', 'homer-uchiha-v0-zh5brm4usx2e1_20251212143231286462.jpg', 1, 3, NULL, '2025-12-12 14:32:31');
 
 -- --------------------------------------------------------
 
@@ -1256,6 +1483,15 @@ CREATE TABLE `valoraciones` (
   `comentario` text NOT NULL,
   `fecha` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `valoraciones`
+--
+
+INSERT INTO `valoraciones` (`id_valoracion`, `id_usuario`, `id_producto`, `estrellas`, `comentario`, `fecha`) VALUES
+(1, 30, 78, 5, 'Me encanto la manillita', '2025-12-12 14:03:20'),
+(2, 30, 72, 5, 'El Jolou Nai', '2025-12-12 14:20:40'),
+(3, 30, 79, 5, 'Uwu', '2025-12-12 14:36:08');
 
 -- --------------------------------------------------------
 
@@ -1281,15 +1517,6 @@ CREATE TABLE `vista_clientes_contacto` (
 `nombre_completo` varchar(100)
 ,`correo` varchar(100)
 ,`telefono_contacto` varchar(20)
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_detalle_pedido_extendido`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_detalle_pedido_extendido` (
 );
 
 -- --------------------------------------------------------
@@ -1405,15 +1632,6 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
--- Estructura para la vista `tallas_disponibles_producto`
---
-DROP TABLE IF EXISTS `tallas_disponibles_producto`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tallas_disponibles_producto`  AS SELECT `p`.`id_producto` AS `id_producto`, `p`.`nombre` AS `nombre`, `t`.`nombre_talla` AS `nombre_talla` FROM ((`productos` `p` join `producto_talla` `pt` on(`p`.`id_producto` = `pt`.`id_producto`)) join `tallas` `t` on(`pt`.`id_talla` = `t`.`id_talla`)) ;
-
--- --------------------------------------------------------
-
---
 -- Estructura para la vista `vista_bitacora_usuarios`
 --
 DROP TABLE IF EXISTS `vista_bitacora_usuarios`;
@@ -1428,15 +1646,6 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `vista_clientes_contacto`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_clientes_contacto`  AS SELECT `u`.`nombre_completo` AS `nombre_completo`, `u`.`correo` AS `correo`, `u`.`telefono_contacto` AS `telefono_contacto` FROM (`clientes` `c` join `usuarios` `u` on(`c`.`id_usuario` = `u`.`id_usuario`)) ;
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_detalle_pedido_extendido`
---
-DROP TABLE IF EXISTS `vista_detalle_pedido_extendido`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_detalle_pedido_extendido`  AS SELECT `dp`.`id_pedido` AS `id_pedido`, `pr`.`nombre` AS `producto`, `dp`.`cantidad` AS `cantidad`, `dp`.`precio_unitario` AS `precio_unitario`, `dp`.`id_talla` AS `id_talla` FROM (`detalle_pedido` `dp` join `productos` `pr` on(`dp`.`id_producto` = `pr`.`id_producto`)) ;
 
 -- --------------------------------------------------------
 
@@ -1563,10 +1772,25 @@ ALTER TABLE `devoluciones`
   ADD KEY `id_producto` (`id_producto`);
 
 --
+-- Indices de la tabla `estados_pedido`
+--
+ALTER TABLE `estados_pedido`
+  ADD PRIMARY KEY (`id_estado`),
+  ADD UNIQUE KEY `nombre_estado` (`nombre_estado`);
+
+--
 -- Indices de la tabla `faq`
 --
 ALTER TABLE `faq`
   ADD PRIMARY KEY (`id_faq`);
+
+--
+-- Indices de la tabla `historial_pedido`
+--
+ALTER TABLE `historial_pedido`
+  ADD PRIMARY KEY (`id_historial`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_estado` (`id_estado`);
 
 --
 -- Indices de la tabla `imagenes`
@@ -1625,7 +1849,8 @@ ALTER TABLE `pedidos`
   ADD PRIMARY KEY (`id_pedido`),
   ADD UNIQUE KEY `numero_pedido` (`numero_pedido`),
   ADD KEY `id_cliente` (`id_cliente`),
-  ADD KEY `fk_pedido_usuario` (`id_usuario`);
+  ADD KEY `fk_pedido_usuario` (`id_usuario`),
+  ADD KEY `fk_pedidos_estado` (`id_estado`);
 
 --
 -- Indices de la tabla `pedidos_personalizados`
@@ -1694,6 +1919,14 @@ ALTER TABLE `proveedores`
   ADD PRIMARY KEY (`id_proveedor`);
 
 --
+-- Indices de la tabla `respuestas_incidencia`
+--
+ALTER TABLE `respuestas_incidencia`
+  ADD PRIMARY KEY (`id_respuesta`),
+  ADD KEY `id_incidencia` (`id_incidencia`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
 -- Indices de la tabla `roles`
 --
 ALTER TABLE `roles`
@@ -1748,7 +1981,7 @@ ALTER TABLE `bitacora`
 -- AUTO_INCREMENT de la tabla `carrito_usuario`
 --
 ALTER TABLE `carrito_usuario`
-  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1778,7 +2011,7 @@ ALTER TABLE `detalle_orden`
 -- AUTO_INCREMENT de la tabla `detalle_pedido`
 --
 ALTER TABLE `detalle_pedido`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT de la tabla `devoluciones`
@@ -1787,22 +2020,34 @@ ALTER TABLE `devoluciones`
   MODIFY `id_devolucion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT de la tabla `estados_pedido`
+--
+ALTER TABLE `estados_pedido`
+  MODIFY `id_estado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT de la tabla `faq`
 --
 ALTER TABLE `faq`
   MODIFY `id_faq` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
+-- AUTO_INCREMENT de la tabla `historial_pedido`
+--
+ALTER TABLE `historial_pedido`
+  MODIFY `id_historial` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+
+--
 -- AUTO_INCREMENT de la tabla `imagenes`
 --
 ALTER TABLE `imagenes`
-  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencias`
 --
 ALTER TABLE `incidencias`
-  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `incidencias_entrega`
@@ -1832,13 +2077,13 @@ ALTER TABLE `ordenes_compra`
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_personalizados`
@@ -1856,7 +2101,7 @@ ALTER TABLE `piedras`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_relacionados`
@@ -1877,6 +2122,12 @@ ALTER TABLE `proveedores`
   MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `respuestas_incidencia`
+--
+ALTER TABLE `respuestas_incidencia`
+  MODIFY `id_respuesta` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
@@ -1886,7 +2137,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `stock_tallas`
 --
 ALTER TABLE `stock_tallas`
-  MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `tipos_joya`
@@ -1910,7 +2161,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `valoraciones`
 --
 ALTER TABLE `valoraciones`
-  MODIFY `id_valoracion` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_valoracion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas
@@ -1956,6 +2207,13 @@ ALTER TABLE `devoluciones`
   ADD CONSTRAINT `devoluciones_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `historial_pedido`
+--
+ALTER TABLE `historial_pedido`
+  ADD CONSTRAINT `historial_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
+  ADD CONSTRAINT `historial_pedido_ibfk_2` FOREIGN KEY (`id_estado`) REFERENCES `estados_pedido` (`id_estado`);
+
+--
 -- Filtros para la tabla `imagenes`
 --
 ALTER TABLE `imagenes`
@@ -1965,7 +2223,7 @@ ALTER TABLE `imagenes`
 -- Filtros para la tabla `incidencias`
 --
 ALTER TABLE `incidencias`
-  ADD CONSTRAINT `incidencias_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pagos` (`id_pago`),
+  ADD CONSTRAINT `incidencias_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pagos` (`id_pedido`),
   ADD CONSTRAINT `incidencias_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
 
 --
@@ -1998,6 +2256,7 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `pedidos`
   ADD CONSTRAINT `fk_pedido_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_pedidos_estado` FOREIGN KEY (`id_estado`) REFERENCES `estados_pedido` (`id_estado`),
   ADD CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
 
 --
@@ -2044,6 +2303,13 @@ ALTER TABLE `producto_piedras`
 ALTER TABLE `producto_promocion`
   ADD CONSTRAINT `producto_promocion_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
   ADD CONSTRAINT `producto_promocion_ibfk_2` FOREIGN KEY (`id_promocion`) REFERENCES `promociones` (`id_promocion`);
+
+--
+-- Filtros para la tabla `respuestas_incidencia`
+--
+ALTER TABLE `respuestas_incidencia`
+  ADD CONSTRAINT `respuestas_incidencia_ibfk_1` FOREIGN KEY (`id_incidencia`) REFERENCES `incidencias` (`id_incidencia`),
+  ADD CONSTRAINT `respuestas_incidencia_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
 
 --
 -- Filtros para la tabla `stock_tallas`
