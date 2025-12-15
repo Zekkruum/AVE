@@ -193,7 +193,6 @@ def catalogo():
     if not usuario:
         return redirect(url_for('login'))
 
-    # Obtener filtros
     tipo_selected = request.args.get('tipo', type=int)
     material_selected = request.args.get('material', type=int)
     precio_min_selected = request.args.get('precio_min', type=float)
@@ -206,20 +205,21 @@ def catalogo():
     sql = """
     SELECT 
         p.id_producto,
-        p.nombre,
-        p.descripcion,
-        p.precio,
-        p.stock,
-        p.imagen AS imagen_local,
-        GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
+        MAX(p.nombre) AS nombre,
+        MAX(p.descripcion) AS descripcion,
+        MAX(p.precio) AS precio,
+        MAX(p.stock) AS stock,
+        MAX(p.imagen) AS imagen_local,
 
-        pr.descuento AS descuento_promocion,
-        pr.titulo AS nombre_promocion,
+        GROUP_CONCAT(DISTINCT i.url SEPARATOR '||') AS imagenes_concat,
+
+        MAX(pr.descuento) AS descuento_promocion,
+        MAX(pr.titulo) AS nombre_promocion,
 
         CASE 
-            WHEN pr.descuento IS NOT NULL AND pr.descuento > 0
-            THEN ROUND(p.precio - (p.precio * pr.descuento), 2)
-            ELSE p.precio
+            WHEN MAX(pr.descuento) IS NOT NULL AND MAX(pr.descuento) > 0
+            THEN ROUND(MAX(p.precio) - (MAX(p.precio) * MAX(pr.descuento)), 2)
+            ELSE MAX(p.precio)
         END AS precio_final
 
     FROM productos p
@@ -238,6 +238,7 @@ def catalogo():
     """
 
     params = []
+
     if tipo_selected:
         sql += " AND p.id_tipo = %s"
         params.append(tipo_selected)
@@ -259,10 +260,16 @@ def catalogo():
         like_query = f"%{busqueda}%"
         params.extend([like_query, like_query])
 
-    sql += " GROUP BY p.id_producto ORDER BY p.nombre ASC"
+    sql += " GROUP BY p.id_producto ORDER BY nombre ASC"
 
     cursor.execute(sql, params)
     productos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("catalogo.html", productos=productos)
+
 
     # -----------------------------
     # Reemplazar stock general por stock de tallas
