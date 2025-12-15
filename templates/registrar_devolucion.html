@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Registrar Devolución - AVE Joyas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/productos1.css') }}">
+</head>
+<body>
+  <header>
+    <a href="{{ url_for('vendedor_panel') }}" class="btn-ghost">⬅ Volver</a>
+    <h2>Registrar Devolución</h2>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h3>Producto: {{ producto.nombre }}</h3>
+      <p>Stock actual: {{ producto.stock }}</p>
+
+      <form method="POST">
+        <div class="form-group">
+          <label for="cantidad">Cantidad a devolver</label>
+          <input type="number" name="cantidad" id="cantidad" min="1" max="{{ producto.stock + 1000 }}" required>
+          <small>Ingresa la cantidad devuelta (máx sugerido: {{ producto.stock + 1000 }})</small>
+        </div>
+
+        <div class="form-group">
+          <label for="motivo">Motivo (opcional)</label>
+          <textarea name="motivo" id="motivo" rows="3" placeholder="Ej: defecto, error en envío..."></textarea>
+        </div>
+
+        <!-- Opcional: si quieres relacionar con un pedido, oculto por defecto -->
+        <!-- <input type="hidden" name="id_pedido" value=""> -->
+         <div class="form-group">
+    <label for="estado_fisico">Estado del producto devuelto</label>
+    <select name="estado_fisico" id="estado_fisico" required>
+        <option value="">-- Selecciona una opción --</option>
+        <option value="bueno">Producto en buen estado (Regresa a inventario)</option>
+        <option value="defectuoso">Producto defectuoso (NO regresa a inventario)</option>
+    </select>
+</div>
+
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Registrar devolución</button>
+          <a href="{{ url_for('mis_productos') }}" class="btn ghost">Cancelar</a>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+

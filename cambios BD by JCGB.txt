@@ -1,0 +1,106 @@
+-- 1. Agregar columna codigo_producto a productos
+ALTER TABLE productos
+ADD COLUMN codigo_producto VARCHAR(50) NULL;
+
+-- 2. Crear tabla estados_pedido
+CREATE TABLE estados_pedido (
+    id_estado INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_estado VARCHAR(50) NOT NULL
+);
+
+-- 3. Insertar estados iniciales
+INSERT INTO estados_pedido (nombre_estado) VALUES
+('Pendiente de preparación'),
+('En preparación'),
+('Enviado'),
+('Entregado'),
+('Cancelado'),
+('Devuelto'),
+('Pagado');
+
+-- 4. Agregar columna id_estado a pedidos
+ALTER TABLE pedidos ADD COLUMN id_estado INT NULL;
+
+-- 5. Migrar estados antiguos al nuevo sistema usando JOIN con collation
+UPDATE pedidos p
+JOIN estados_pedido e
+ON p.estado COLLATE utf8mb4_general_ci =
+   e.nombre_estado COLLATE utf8mb4_general_ci
+SET p.id_estado = e.id_estado;
+
+-- 6. Asignar estado por defecto a registros sin estado
+UPDATE pedidos
+SET id_estado = 1
+WHERE id_estado IS NULL;
+
+-- 7. Convertir id_estado en NOT NULL + agregar foreign key
+ALTER TABLE pedidos
+MODIFY COLUMN id_estado INT NOT NULL DEFAULT 1,
+ADD CONSTRAINT fk_pedidos_estado FOREIGN KEY (id_estado) REFERENCES estados_pedido(id_estado);
+
+-- 8. Crear tabla historial_pedido
+CREATE TABLE historial_pedido (
+    id_historial INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT NOT NULL,
+    id_estado INT NOT NULL,
+    fecha_cambio DATETIME DEFAULT CURRENT_TIMESTAMP,
+    descripcion VARCHAR(255),
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+    FOREIGN KEY (id_estado) REFERENCES estados_pedido(id_estado)
+);
+
+-- 9. Insertar historial inicial de todos los pedidos
+INSERT INTO historial_pedido (id_pedido, id_estado, descripcion)
+SELECT id_pedido, id_estado, 'Estado inicial'
+FROM pedidos;
+
+-- 10. Crear trigger para registrar cambios de estado
+CREATE TRIGGER trg_pedidos_estado_after_update
+AFTER UPDATE ON pedidos
+FOR EACH ROW
+BEGIN
+    IF NEW.id_estado <> OLD.id_estado THEN
+        INSERT INTO historial_pedido (id_pedido, id_estado, descripcion)
+        VALUES (NEW.id_pedido, NEW.id_estado, 'Cambio automático de estado');
+    END IF;
+END;
+
+-- 11. Crear trigger para actualizar estado a 'Pagado' (7) cuando se inserta un pago
+CREATE TRIGGER actualizar_estado_pedido
+AFTER INSERT ON pagos
+FOR EACH ROW
+BEGIN
+    UPDATE pedidos
+    SET id_estado = 7
+    WHERE id_pedido = NEW.id_pedido;
+
+    INSERT INTO historial_pedido (id_pedido, id_estado, descripcion)
+    VALUES (NEW.id_pedido, 7, 'Pago registrado');
+END;
+
+
+12/12/2025
+
+ALTER TABLE pedidos
+ADD id_vendedor INT NULL;
+
+
+14/12/2025
+
+ALTER TABLE incidencias
+DROP FOREIGN KEY incidencias_ibfk_1;
+
+ALTER TABLE incidencias
+ADD CONSTRAINT incidencias_ibfk_1
+FOREIGN KEY (id_pedido)
+REFERENCES pagos (id_pedido);
+
+CREATE TABLE respuestas_incidencia (
+    id_respuesta INT AUTO_INCREMENT PRIMARY KEY,
+    id_incidencia INT NOT NULL,
+    id_usuario INT NOT NULL,
+    mensaje TEXT NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_incidencia) REFERENCES incidencias(id_incidencia),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);

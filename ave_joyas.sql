@@ -1,0 +1,2342 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 15-12-2025 a las 03:56:00
+-- Versión del servidor: 11.8.4-MariaDB
+-- Versión de PHP: 8.1.25
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de datos: `ave_joyas`
+--
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_bitacora` (IN `p_id_log` INT, IN `p_accion` VARCHAR(100))   BEGIN
+    UPDATE bitacora
+    SET accion = p_accion
+    WHERE id_log = p_id_log;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_cliente` (IN `p_id_cliente` INT, IN `p_id_usuario` INT)   BEGIN
+    UPDATE clientes
+    SET id_usuario = p_id_usuario
+    WHERE id_cliente = p_id_cliente;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_detalle_orden` (IN `p_id_detalle` INT, IN `p_cantidad` INT)   BEGIN
+    UPDATE detalle_orden
+    SET cantidad = p_cantidad
+    WHERE id_detalle = p_id_detalle;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_detalle_pedido` (IN `p_id_detalle` INT, IN `p_cantidad` INT)   BEGIN
+    UPDATE detalle_pedido
+    SET cantidad = p_cantidad
+    WHERE id_detalle = p_id_detalle;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_material` (IN `p_id_material` INT, IN `p_nombre_material` VARCHAR(100))   BEGIN
+    UPDATE materiales
+    SET nombre_material = p_nombre_material
+    WHERE id_material = p_id_material;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_orden_compra` (IN `p_id_orden` INT, IN `p_estado` VARCHAR(50))   BEGIN
+    UPDATE ordenes_compra
+    SET estado = p_estado
+    WHERE id_orden = p_id_orden;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_pedido` (IN `p_id_pedido` INT, IN `p_estado` VARCHAR(50))   BEGIN
+    UPDATE pedidos
+    SET estado = p_estado
+    WHERE id_pedido = p_id_pedido;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_producto` (IN `p_id_producto` INT, IN `p_precio` DECIMAL(10,2))   BEGIN
+    UPDATE productos
+    SET precio = p_precio
+    WHERE id_producto = p_id_producto;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_promocion` (IN `p_id_promocion` INT, IN `p_activa` BOOLEAN)   BEGIN
+    UPDATE promociones
+    SET activa = p_activa
+    WHERE id_promocion = p_id_promocion;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_proveedor` (IN `p_id_proveedor` INT, IN `p_telefono` VARCHAR(30))   BEGIN
+    UPDATE proveedores
+    SET telefono = p_telefono
+    WHERE id_proveedor = p_id_proveedor;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_talla` (IN `p_id_talla` INT, IN `p_nombre_talla` VARCHAR(50))   BEGIN
+    UPDATE tallas
+    SET nombre_talla = p_nombre_talla
+    WHERE id_talla = p_id_talla;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_tipo_joya` (IN `p_id_tipo` INT, IN `p_nombre_tipo` VARCHAR(100))   BEGIN
+    UPDATE tipos_joya
+    SET nombre_tipo = p_nombre_tipo
+    WHERE id_tipo = p_id_tipo;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_usuario` (IN `p_id_usuario` INT, IN `p_nombre_completo` VARCHAR(100))   BEGIN
+    UPDATE usuarios
+    SET nombre_completo = p_nombre_completo
+    WHERE id_usuario = p_id_usuario;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscar_productos_por_material` (IN `material_nombre` VARCHAR(100))   BEGIN
+    SELECT p.id_producto, p.nombre, p.precio, m.nombre_material
+    FROM productos p
+    JOIN materiales m ON p.id_material = m.id_material
+    WHERE m.nombre_material = material_nombre;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscar_proveedor` (IN `termino` VARCHAR(100))   BEGIN
+    SELECT id_proveedor, nombre, nit, telefono, correo
+    FROM proveedores
+    WHERE nombre LIKE CONCAT('%', termino, '%') OR nit LIKE CONCAT('%', termino, '%');
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscar_usuario_por_correo` (IN `correo_busqueda` VARCHAR(100))   BEGIN
+    SELECT id_usuario, nombre_completo, correo, estado
+    FROM usuarios
+    WHERE correo = correo_busqueda;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_bitacora` (IN `p_id_log` INT)   BEGIN
+    DELETE FROM bitacora WHERE id_log = p_id_log;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_cliente` (IN `p_id_cliente` INT)   BEGIN
+    DELETE FROM clientes WHERE id_cliente = p_id_cliente;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_detalle_orden` (IN `p_id_detalle` INT)   BEGIN
+    DELETE FROM detalle_orden WHERE id_detalle = p_id_detalle;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_detalle_pedido` (IN `p_id_detalle` INT)   BEGIN
+    DELETE FROM detalle_pedido WHERE id_detalle = p_id_detalle;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_material` (IN `p_id_material` INT)   BEGIN
+    DELETE FROM materiales WHERE id_material = p_id_material;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_orden_compra` (IN `p_id_orden` INT)   BEGIN
+    DELETE FROM ordenes_compra WHERE id_orden = p_id_orden;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_pedido` (IN `p_id_pedido` INT)   BEGIN
+    DELETE FROM pedidos WHERE id_pedido = p_id_pedido;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_producto` (IN `p_id_producto` INT)   BEGIN
+    DELETE FROM productos WHERE id_producto = p_id_producto;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_producto_talla` (IN `p_id_producto` INT, IN `p_id_talla` INT)   BEGIN
+    DELETE FROM producto_talla
+    WHERE id_producto = p_id_producto AND id_talla = p_id_talla;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_promocion` (IN `p_id_promocion` INT)   BEGIN
+    DELETE FROM promociones WHERE id_promocion = p_id_promocion;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_proveedor` (IN `p_id_proveedor` INT)   BEGIN
+    DELETE FROM proveedores WHERE id_proveedor = p_id_proveedor;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_talla` (IN `p_id_talla` INT)   BEGIN
+    DELETE FROM tallas WHERE id_talla = p_id_talla;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_tipo_joya` (IN `p_id_tipo` INT)   BEGIN
+    DELETE FROM tipos_joya WHERE id_tipo = p_id_tipo;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_usuario` (IN `p_id_usuario` INT)   BEGIN
+    DELETE FROM usuarios WHERE id_usuario = p_id_usuario;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_bitacora` (IN `p_id_usuario` INT, IN `p_accion` VARCHAR(100), IN `p_modulo` VARCHAR(100), IN `p_fecha` DATETIME)   BEGIN
+    INSERT INTO bitacora (id_usuario, accion, modulo, fecha)
+    VALUES (p_id_usuario, p_accion, p_modulo, p_fecha);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_cliente` (IN `p_id_usuario` INT)   BEGIN
+    INSERT INTO clientes (id_usuario)
+    VALUES (p_id_usuario);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_detalle_orden` (IN `p_id_orden` INT, IN `p_producto_descripcion` TEXT, IN `p_cantidad` INT, IN `p_precio_unitario` DECIMAL(10,2))   BEGIN
+    INSERT INTO detalle_orden (id_orden, producto_descripcion, cantidad, precio_unitario)
+    VALUES (p_id_orden, p_producto_descripcion, p_cantidad, p_precio_unitario);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_detalle_pedido` (IN `p_id_pedido` INT, IN `p_id_producto` INT, IN `p_id_talla` INT, IN `p_cantidad` INT, IN `p_precio_unitario` DECIMAL(10,2))   BEGIN
+    INSERT INTO detalle_pedido (id_pedido, id_producto, id_talla, cantidad, precio_unitario)
+    VALUES (p_id_pedido, p_id_producto, p_id_talla, p_cantidad, p_precio_unitario);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_material` (IN `p_nombre_material` VARCHAR(100))   BEGIN
+    INSERT INTO materiales (nombre_material)
+    VALUES (p_nombre_material);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_orden_compra` (IN `p_id_proveedor` INT, IN `p_fecha` DATE, IN `p_estado` VARCHAR(50), IN `p_observaciones` TEXT)   BEGIN
+    INSERT INTO ordenes_compra (id_proveedor, fecha, estado, observaciones)
+    VALUES (p_id_proveedor, p_fecha, p_estado, p_observaciones);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_pedido` (IN `p_id_cliente` INT, IN `p_fecha` DATE, IN `p_estado` VARCHAR(50), IN `p_metodo_envio` VARCHAR(100), IN `p_metodo_pago` VARCHAR(100), IN `p_total` DECIMAL(10,2))   BEGIN
+    INSERT INTO pedidos (id_cliente, fecha, estado, metodo_envio, metodo_pago, total)
+    VALUES (p_id_cliente, p_fecha, p_estado, p_metodo_envio, p_metodo_pago, p_total);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_producto` (IN `p_nombre` VARCHAR(100), IN `p_descripcion` TEXT, IN `p_precio` DECIMAL(10,2), IN `p_stock` INT, IN `p_referencia` VARCHAR(100), IN `p_id_tipo` INT, IN `p_id_material` INT)   BEGIN
+    INSERT INTO productos (nombre, descripcion, precio, stock, referencia, id_tipo, id_material)
+    VALUES (p_nombre, p_descripcion, p_precio, p_stock, p_referencia, p_id_tipo, p_id_material);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_producto_talla` (IN `p_id_producto` INT, IN `p_id_talla` INT)   BEGIN
+    INSERT INTO producto_talla (id_producto, id_talla)
+    VALUES (p_id_producto, p_id_talla);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_promocion` (IN `p_titulo` VARCHAR(100), IN `p_descripcion` TEXT, IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE, IN `p_activa` BOOLEAN)   BEGIN
+    INSERT INTO promociones (titulo, descripcion, fecha_inicio, fecha_fin, activa)
+    VALUES (p_titulo, p_descripcion, p_fecha_inicio, p_fecha_fin, p_activa);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_proveedor` (IN `p_nombre` VARCHAR(100), IN `p_nit` VARCHAR(50), IN `p_telefono` VARCHAR(30), IN `p_correo` VARCHAR(100), IN `p_direccion` TEXT)   BEGIN
+    INSERT INTO proveedores (nombre, nit, telefono, correo, direccion)
+    VALUES (p_nombre, p_nit, p_telefono, p_correo, p_direccion);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_talla` (IN `p_nombre_talla` VARCHAR(50))   BEGIN
+    INSERT INTO tallas (nombre_talla)
+    VALUES (p_nombre_talla);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_tipo_joya` (IN `p_nombre_tipo` VARCHAR(100))   BEGIN
+    INSERT INTO tipos_joya (nombre_tipo)
+    VALUES (p_nombre_tipo);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertar_usuario` (IN `p_nombre_completo` VARCHAR(100), IN `p_correo` VARCHAR(100), IN `p_telefono` VARCHAR(30), IN `p_direccion` TEXT, IN `p_contrasena` VARCHAR(100), IN `p_estado` BOOLEAN, IN `p_id_rol` INT)   BEGIN
+    INSERT INTO usuarios (nombre_completo, correo, telefono_contacto, direccion, contrasena, estado, id_rol)
+    VALUES (p_nombre_completo, p_correo, p_telefono, p_direccion, p_contrasena, p_estado, p_id_rol);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `pedidos_por_cliente` (IN `cliente_id` INT)   BEGIN
+    SELECT id_pedido, fecha, estado, total
+    FROM pedidos
+    WHERE id_cliente = cliente_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `productos_por_rango_precio` (IN `precio_min` DECIMAL(10,2), IN `precio_max` DECIMAL(10,2))   BEGIN
+    SELECT id_producto, nombre, precio
+    FROM productos
+    WHERE precio BETWEEN precio_min AND precio_max;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ver_bitacora` ()   BEGIN
+    SELECT id_log, id_usuario, accion, modulo, fecha
+    FROM bitacora;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ver_pedidos` ()   BEGIN
+    SELECT id_pedido, id_cliente, fecha, estado, metodo_envio, metodo_pago, total
+    FROM pedidos;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ver_productos` ()   BEGIN
+    SELECT id_producto, nombre, descripcion, precio, stock, referencia
+    FROM productos;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ver_proveedores` ()   BEGIN
+    SELECT id_proveedor, nombre, nit, telefono, correo, direccion
+    FROM proveedores;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ver_usuarios` ()   BEGIN
+    SELECT id_usuario, nombre_completo, correo, telefono_contacto, direccion, estado, id_rol
+    FROM usuarios;
+END$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `bitacora`
+--
+
+CREATE TABLE `bitacora` (
+  `id_log` int(11) NOT NULL,
+  `id_usuario` int(11) DEFAULT NULL,
+  `accion` varchar(100) DEFAULT NULL,
+  `modulo` varchar(50) DEFAULT NULL,
+  `fecha` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `bitacora`
+--
+
+INSERT INTO `bitacora` (`id_log`, `id_usuario`, `accion`, `modulo`, `fecha`) VALUES
+(1, 1, 'Cre? nuevo usuario', 'usuarios', '2024-05-01 09:00:00'),
+(2, 2, 'Edit? producto', 'productos', '2024-05-02 10:15:00'),
+(3, 3, 'Registr? venta', 'pedidos', '2024-05-03 11:30:00'),
+(4, 4, 'Gener? reporte de ventas', 'reportes', '2024-05-04 12:45:00'),
+(5, 5, 'Aprob? devoluci?n', 'devoluciones', '2024-05-05 14:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `carrito_usuario`
+--
+
+CREATE TABLE `carrito_usuario` (
+  `id_carrito` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
+  `talla` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `clientes`
+--
+
+CREATE TABLE `clientes` (
+  `id_cliente` int(11) NOT NULL,
+  `id_usuario` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `clientes`
+--
+
+INSERT INTO `clientes` (`id_cliente`, `id_usuario`) VALUES
+(5, 1),
+(4, 2),
+(1, 3),
+(2, 4),
+(3, 5);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `colores`
+--
+
+CREATE TABLE `colores` (
+  `id_color` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `colores`
+--
+
+INSERT INTO `colores` (`id_color`, `nombre`) VALUES
+(1, 'Oro Amarillo'),
+(2, 'Oro Blanco'),
+(3, 'Oro Rosa'),
+(4, 'Plata'),
+(5, 'Negro Mate'),
+(6, 'Bronce'),
+(7, 'Azul Marino'),
+(8, 'Verde Esmeralda'),
+(9, 'Rojo Rubí'),
+(10, 'Rosa Pastel'),
+(11, 'Transparente'),
+(12, 'Blanco Perlado'),
+(13, 'Gris Titanio'),
+(14, 'Champaña'),
+(15, 'Cobre Pulido');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `costos_envio`
+--
+
+CREATE TABLE `costos_envio` (
+  `id_costo` int(11) NOT NULL,
+  `ciudad` varchar(100) DEFAULT NULL,
+  `costo_base` decimal(10,2) DEFAULT NULL,
+  `costo_por_kg` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_orden`
+--
+
+CREATE TABLE `detalle_orden` (
+  `id_detalle` int(11) NOT NULL,
+  `id_orden` int(11) DEFAULT NULL,
+  `producto_descripcion` text DEFAULT NULL,
+  `cantidad` int(11) DEFAULT NULL,
+  `precio_unitario` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_orden`
+--
+
+INSERT INTO `detalle_orden` (`id_detalle`, `id_orden`, `producto_descripcion`, `cantidad`, `precio_unitario`) VALUES
+(1, 1, 'Lote de oro 18k - 50 piezas', 50, 500000.00),
+(2, 1, 'Lote de plata ley 925 - 100 piezas', 100, 250000.00),
+(3, 2, 'Bobinas de acero inoxidable - 200m', 200, 10000.00),
+(4, 3, 'Cuentas de piedra natural - 500 unidades', 500, 2000.00),
+(5, 5, 'Material ecol?gico en rollos - 300m', 300, 1500.00);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_pedido`
+--
+
+CREATE TABLE `detalle_pedido` (
+  `id_detalle` int(11) NOT NULL,
+  `id_pedido` int(11) DEFAULT NULL,
+  `id_producto` int(11) DEFAULT NULL,
+  `cantidad` int(11) DEFAULT NULL,
+  `precio_unitario` decimal(10,2) DEFAULT NULL,
+  `talla` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_pedido`
+--
+
+INSERT INTO `detalle_pedido` (`id_detalle`, `id_pedido`, `id_producto`, `cantidad`, `precio_unitario`, `talla`) VALUES
+(50, 42, 58, 2, 5500000.00, ''),
+(51, 43, 76, 10, 55.00, ''),
+(52, 44, 75, 1, 12000.00, ''),
+(53, 45, 72, 10, 49990.00, '45cm'),
+(54, 46, 72, 5, 49990.00, '45cm'),
+(55, 47, 72, 1, 49990.00, '45cm'),
+(56, 47, 78, 3, 130000.00, '7'),
+(57, 48, 78, 3, 130000.00, '7'),
+(58, 49, 78, 7, 130000.00, '7'),
+(59, 50, 76, 3, 55.00, '5'),
+(60, 51, 79, 5, 150000.00, '8'),
+(61, 51, 79, 3, 150000.00, '7'),
+(62, 52, 72, 4, 49990.00, '45cm'),
+(63, 53, 72, 5, 49990.00, '45cm'),
+(64, 54, 79, 5, 150000.00, '8'),
+(65, 55, 79, 10, 150000.00, '7'),
+(66, 56, 78, 1, 130000.00, '7');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `devoluciones`
+--
+
+CREATE TABLE `devoluciones` (
+  `id_devolucion` int(11) NOT NULL,
+  `id_pedido` int(11) DEFAULT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `motivo` text DEFAULT NULL,
+  `fecha` timestamp NULL DEFAULT current_timestamp(),
+  `estado` varchar(50) DEFAULT 'Pendiente',
+  `estado_fisico` varchar(20) NOT NULL DEFAULT 'bueno'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `estados_pedido`
+--
+
+CREATE TABLE `estados_pedido` (
+  `id_estado` int(11) NOT NULL,
+  `nombre_estado` varchar(50) NOT NULL,
+  `descripcion` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Volcado de datos para la tabla `estados_pedido`
+--
+
+INSERT INTO `estados_pedido` (`id_estado`, `nombre_estado`, `descripcion`) VALUES
+(1, 'Pendiente de preparación', NULL),
+(2, 'En preparación', NULL),
+(3, 'Enviado', NULL),
+(4, 'Entregado', NULL),
+(5, 'Cancelado', NULL),
+(6, 'Devuelto', NULL),
+(7, 'Pagado', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `faq`
+--
+
+CREATE TABLE `faq` (
+  `id_faq` int(11) NOT NULL,
+  `pregunta` varchar(255) DEFAULT NULL,
+  `respuesta` text DEFAULT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `faq`
+--
+
+INSERT INTO `faq` (`id_faq`, `pregunta`, `respuesta`, `fecha_creacion`) VALUES
+(1, '¿Cuánto tarda el envío?', 'El envío tarda entre 3 y 5 días hábiles.', '2025-11-11 02:25:14'),
+(2, '¿Puedo devolver un producto?', 'Sí, tienes 15 días para devolver productos no personalizados.', '2025-11-11 02:25:14'),
+(3, '¿Aceptan pagos con tarjeta?', 'Sí, aceptamos todas las tarjetas principales y PayPal.', '2025-11-11 02:25:14'),
+(4, '¿Cómo puedo saber si mi pedido fue confirmado?', 'Una vez completes el pago, recibirás un correo con la confirmación del pedido junto con el número de seguimiento.', '2025-11-21 12:40:36'),
+(5, '¿Cuánto tarda el proceso de envío?', 'Los envíos tardan entre 3 y 5 días hábiles, dependiendo de la ciudad y la empresa transportadora.', '2025-11-21 12:40:36'),
+(6, '¿Hacen envíos internacionales?', 'Sí, realizamos envíos internacionales. Los tiempos y costos varían según el país de destino.', '2025-11-21 12:40:36'),
+(7, '¿Cómo puedo hacer seguimiento a mi pedido?', 'Cuando tu pedido sea enviado recibirás un enlace de seguimiento para ver el estado del envío en tiempo real.', '2025-11-21 12:40:36'),
+(8, '¿Qué métodos de pago aceptan?', 'Aceptamos tarjetas de crédito, débito, PSE, Nequi, Daviplata y pago contraentrega en algunas ciudades.', '2025-11-21 12:40:36'),
+(9, '¿Es seguro pagar en su tienda?', 'Sí. Utilizamos pasarelas de pago certificadas con cifrado avanzado para proteger tus datos en todo momento.', '2025-11-21 12:40:36'),
+(10, '¿Puedo devolver un producto?', 'Sí, puedes solicitar una devolución dentro de los primeros 15 días, siempre que el producto esté en perfecto estado y con su empaque original.', '2025-11-21 12:40:36'),
+(11, '¿Cómo elijo la talla correcta de un anillo?', 'En nuestra guía de tallas encontrarás instrucciones para medir tu dedo o comparar con un anillo que ya tengas.', '2025-11-21 12:40:36'),
+(12, '¿Puedo personalizar una joya?', 'Sí, contamos con un servicio de diseño personalizado donde puedes elegir materiales, piedras y grabados.', '2025-11-21 12:40:36'),
+(13, '¿Las joyas tienen garantía?', 'Sí, todas nuestras joyas cuentan con garantía de 6 meses por defectos de fabricación.', '2025-11-21 12:40:36'),
+(14, '¿Qué materiales utilizan en las joyas?', 'Trabajamos con oro, plata, acero quirúrgico y piedras preciosas certificadas.', '2025-11-21 12:40:36'),
+(15, '¿Cómo cuido mis joyas?', 'Evita el contacto con perfumes, agua salada y otros químicos. Guarda tus joyas en estuches individuales.', '2025-11-21 12:40:36'),
+(16, '¿Puedo cambiar un producto por otro?', 'Sí, puedes solicitar un cambio dentro de los primeros 15 días presentando la factura de compra.', '2025-11-21 12:40:36'),
+(17, '¿El precio del producto incluye el envío?', 'El envío es gratuito para compras superiores a $150.000. Si el monto es menor, se aplicará una tarifa según tu ciudad.', '2025-11-21 12:40:36'),
+(18, '¿Qué pasa si mi pedido llega dañado?', 'Si tu pedido llega con daño o defecto, debes reportarlo dentro de las primeras 24 horas para gestionar la reposición sin costo.', '2025-11-21 12:40:36'),
+(19, '¿Cómo puedo saber si mi pedido fue confirmado?', 'Una vez completes el pago, recibirás un correo con la confirmación del pedido junto con el número de seguimiento.', '2025-11-21 12:40:54'),
+(20, '¿Cuánto tarda el proceso de envío?', 'Los envíos tardan entre 3 y 5 días hábiles, dependiendo de la ciudad y la empresa transportadora.', '2025-11-21 12:40:54'),
+(21, '¿Hacen envíos internacionales?', 'Sí, realizamos envíos internacionales. Los tiempos y costos varían según el país de destino.', '2025-11-21 12:40:54'),
+(22, '¿Cómo puedo hacer seguimiento a mi pedido?', 'Cuando tu pedido sea enviado recibirás un enlace de seguimiento para ver el estado del envío en tiempo real.', '2025-11-21 12:40:54'),
+(23, '¿Qué métodos de pago aceptan?', 'Aceptamos tarjetas de crédito, débito, PSE, Nequi, Daviplata y pago contraentrega en algunas ciudades.', '2025-11-21 12:40:54'),
+(24, '¿Es seguro pagar en su tienda?', 'Sí. Utilizamos pasarelas de pago certificadas con cifrado avanzado para proteger tus datos en todo momento.', '2025-11-21 12:40:54'),
+(25, '¿Puedo devolver un producto?', 'Sí, puedes solicitar una devolución dentro de los primeros 15 días, siempre que el producto esté en perfecto estado y con su empaque original.', '2025-11-21 12:40:54'),
+(26, '¿Cómo elijo la talla correcta de un anillo?', 'En nuestra guía de tallas encontrarás instrucciones para medir tu dedo o comparar con un anillo que ya tengas.', '2025-11-21 12:40:54'),
+(27, '¿Puedo personalizar una joya?', 'Sí, contamos con un servicio de diseño personalizado donde puedes elegir materiales, piedras y grabados.', '2025-11-21 12:40:54'),
+(28, '¿Las joyas tienen garantía?', 'Sí, todas nuestras joyas cuentan con garantía de 6 meses por defectos de fabricación.', '2025-11-21 12:40:54'),
+(29, '¿Qué materiales utilizan en las joyas?', 'Trabajamos con oro, plata, acero quirúrgico y piedras preciosas certificadas.', '2025-11-21 12:40:54'),
+(30, '¿Cómo cuido mis joyas?', 'Evita el contacto con perfumes, agua salada y otros químicos. Guarda tus joyas en estuches individuales.', '2025-11-21 12:40:54'),
+(31, '¿Puedo cambiar un producto por otro?', 'Sí, puedes solicitar un cambio dentro de los primeros 15 días presentando la factura de compra.', '2025-11-21 12:40:54'),
+(32, '¿El precio del producto incluye el envío?', 'El envío es gratuito para compras superiores a $150.000. Si el monto es menor, se aplicará una tarifa según tu ciudad.', '2025-11-21 12:40:54'),
+(33, '¿Qué pasa si mi pedido llega dañado?', 'Si tu pedido llega con daño o defecto, debes reportarlo dentro de las primeras 24 horas para gestionar la reposición sin costo.', '2025-11-21 12:40:54'),
+(34, '¿Cómo puedo saber si mi pedido fue confirmado?', 'Una vez completes el pago, recibirás un correo con la confirmación del pedido junto con el número de seguimiento.', '2025-11-21 12:41:38'),
+(35, '¿Cuánto tarda el proceso de envío?', 'Los envíos tardan entre 3 y 5 días hábiles, dependiendo de la ciudad y la empresa transportadora.', '2025-11-21 12:41:38'),
+(36, '¿Hacen envíos internacionales?', 'Sí, realizamos envíos internacionales. Los tiempos y costos varían según el país de destino.', '2025-11-21 12:41:38'),
+(37, '¿Cómo puedo hacer seguimiento a mi pedido?', 'Cuando tu pedido sea enviado recibirás un enlace de seguimiento para ver el estado del envío en tiempo real.', '2025-11-21 12:41:38'),
+(38, '¿Qué métodos de pago aceptan?', 'Aceptamos tarjetas de crédito, débito, PSE, Nequi, Daviplata y pago contraentrega en algunas ciudades.', '2025-11-21 12:41:38'),
+(39, '¿Es seguro pagar en su tienda?', 'Sí. Utilizamos pasarelas de pago certificadas con cifrado avanzado para proteger tus datos en todo momento.', '2025-11-21 12:41:38'),
+(40, '¿Puedo devolver un producto?', 'Sí, puedes solicitar una devolución dentro de los primeros 15 días, siempre que el producto esté en perfecto estado y con su empaque original.', '2025-11-21 12:41:38'),
+(41, '¿Cómo elijo la talla correcta de un anillo?', 'En nuestra guía de tallas encontrarás instrucciones para medir tu dedo o comparar con un anillo que ya tengas.', '2025-11-21 12:41:38'),
+(42, '¿Puedo personalizar una joya?', 'Sí, contamos con un servicio de diseño personalizado donde puedes elegir materiales, piedras y grabados.', '2025-11-21 12:41:38'),
+(43, '¿Las joyas tienen garantía?', 'Sí, todas nuestras joyas cuentan con garantía de 6 meses por defectos de fabricación.', '2025-11-21 12:41:38'),
+(44, '¿Qué materiales utilizan en las joyas?', 'Trabajamos con oro, plata, acero quirúrgico y piedras preciosas certificadas.', '2025-11-21 12:41:38'),
+(45, '¿Cómo cuido mis joyas?', 'Evita el contacto con perfumes, agua salada y otros químicos. Guarda tus joyas en estuches individuales.', '2025-11-21 12:41:38'),
+(46, '¿Puedo cambiar un producto por otro?', 'Sí, puedes solicitar un cambio dentro de los primeros 15 días presentando la factura de compra.', '2025-11-21 12:41:38'),
+(47, '¿El precio del producto incluye el envío?', 'El envío es gratuito para compras superiores a $150.000. Si el monto es menor, se aplicará una tarifa según tu ciudad.', '2025-11-21 12:41:38'),
+(48, '¿Qué pasa si mi pedido llega dañado?', 'Si tu pedido llega con daño o defecto, debes reportarlo dentro de las primeras 24 horas para gestionar la reposición sin costo.', '2025-11-21 12:41:38'),
+(49, '¿Cuánto tarda un pedido en ser entregado?', 'El tiempo de entrega promedio es de 2 a 5 días hábiles según la ciudad.', '2025-11-21 12:41:38'),
+(50, '¿Puedo pagar contra entrega?', 'Sí, en ciertas ciudades ofrecemos pago contra entrega.', '2025-11-21 12:41:38'),
+(51, '¿Cómo sé si mi pago fue confirmado?', 'Recibirás un correo con la confirmación del pago y podrás verlo en tu historial.', '2025-11-21 12:41:38'),
+(52, '¿Los productos tienen garantía?', 'Sí, todos nuestros productos cuentan con garantía de 30 días por defectos de fábrica.', '2025-11-21 12:41:38'),
+(53, '¿Puedo cambiar una joya si no me gustó?', 'Sí, puedes cambiarla dentro de los primeros 5 días.', '2025-11-21 12:41:38'),
+(54, '¿Cómo contacto al vendedor?', 'Puedes usar el chat interno o WhatsApp desde la página.', '2025-11-21 12:41:38'),
+(55, '¿Cómo uso un cupón de descuento?', 'En el carrito, antes de pagar, encontrarás un campo para ingresar el cupón.', '2025-11-21 12:41:38'),
+(56, '¿Qué materiales trabajan?', 'Oro, plata 925, acero, baño en oro y más.', '2025-11-21 12:41:38'),
+(57, '¿Tienen tienda física?', 'Sí, contamos con punto de atención. Contáctanos para más información.', '2025-11-21 12:41:38'),
+(58, '¿Cómo rastreo mi pedido?', 'En tu historial de compras se muestra el estado y detalles del seguimiento.', '2025-11-21 12:41:38'),
+(59, '¿Qué pasa si mi talla no está disponible?', 'Puedes solicitar fabricación personalizada.', '2025-11-21 12:41:38'),
+(60, '¿Las cadenas o anillos se despintan?', 'No, nuestros productos tienen calidad garantizada.', '2025-11-21 12:41:38'),
+(61, '¿Puedo ver fotos reales del producto?', 'Sí, todas las fotos son tomadas directamente de nuestros productos.', '2025-11-21 12:41:38'),
+(62, '¿Qué hago si no recibí correo de confirmación?', 'Revisa tu carpeta de spam o contáctanos directamente.', '2025-11-21 12:41:38'),
+(63, '¿Puedo cancelar un pedido?', 'Sí, siempre que aún no haya sido enviado.', '2025-11-21 12:41:38'),
+(64, '¿Cómo sé qué talla soy?', 'En la sección de producto encontrarás la guía de tallas.', '2025-11-21 12:41:38');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `historial_pedido`
+--
+
+CREATE TABLE `historial_pedido` (
+  `id_historial` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `id_estado` int(11) NOT NULL,
+  `id_usuario` int(11) DEFAULT NULL,
+  `comentario` varchar(255) DEFAULT NULL,
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Volcado de datos para la tabla `historial_pedido`
+--
+
+INSERT INTO `historial_pedido` (`id_historial`, `id_pedido`, `id_estado`, `id_usuario`, `comentario`, `fecha`) VALUES
+(1, 1, 3, NULL, 'Estado inicial (migrado): Enviado', '2025-12-12 01:10:53'),
+(2, 2, 1, NULL, 'Estado inicial (migrado): Preparando', '2025-12-12 01:10:53'),
+(3, 3, 4, NULL, 'Estado inicial (migrado): Entregado', '2025-12-12 01:10:53'),
+(4, 4, 3, NULL, 'Estado inicial (migrado): Enviado', '2025-12-12 01:10:53'),
+(5, 5, 1, NULL, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(6, 6, 1, 11, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(7, 7, 1, 11, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(8, 8, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(9, 9, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(10, 10, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(11, 11, 1, 23, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(12, 12, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(13, 13, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(14, 14, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(15, 15, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(16, 16, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(17, 17, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(18, 18, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(19, 19, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(20, 20, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(21, 21, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(22, 22, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(23, 23, 7, 25, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(24, 24, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(25, 25, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(26, 26, 1, 24, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(27, 27, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(28, 28, 1, 25, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(29, 29, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(30, 30, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(31, 31, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(32, 32, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(33, 33, 1, 16, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(34, 34, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(35, 35, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(36, 36, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(37, 37, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(38, 38, 1, 29, 'Estado inicial (migrado): Pendiente', '2025-12-12 01:10:53'),
+(39, 39, 7, 29, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(40, 40, 7, 29, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(41, 41, 7, 29, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(42, 42, 7, 30, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(43, 43, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(44, 44, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(45, 45, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(46, 46, 7, 28, 'Estado inicial (migrado): Pagado', '2025-12-12 01:10:53'),
+(64, 47, 7, 28, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:06:51'),
+(65, 47, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:06:51'),
+(66, 47, 7, 28, 'Pago registrado', '2025-12-12 04:06:51'),
+(67, 47, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:10:09'),
+(68, 47, 7, 28, 'Pago registrado', '2025-12-12 04:10:09'),
+(69, 48, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:11:05'),
+(70, 48, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:11:05'),
+(71, 48, 7, 30, 'Pago registrado', '2025-12-12 04:11:05'),
+(72, 47, 1, 28, 'Cambio desde trigger. Antes: 7 -> Ahora: 1', '2025-12-12 04:22:24'),
+(73, 47, 1, 28, 'Estado cambiado a Pendiente de preparación', '2025-12-12 04:22:24'),
+(74, 47, 2, 28, 'Cambio desde trigger. Antes: 1 -> Ahora: 2', '2025-12-12 04:26:00'),
+(75, 47, 2, 28, 'Estado cambiado a En preparación', '2025-12-12 04:26:00'),
+(76, 47, 5, 28, 'Cambio desde trigger. Antes: 2 -> Ahora: 5', '2025-12-12 04:30:35'),
+(77, 47, 5, 28, 'Estado cambiado a Cancelado', '2025-12-12 04:30:35'),
+(78, 49, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:35:45'),
+(79, 49, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:35:45'),
+(80, 49, 7, 30, 'Pago registrado', '2025-12-12 04:35:45'),
+(81, 50, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 04:41:53'),
+(82, 50, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 04:41:53'),
+(83, 50, 7, 30, 'Pago registrado', '2025-12-12 04:41:53'),
+(84, 51, 7, 28, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 05:00:09'),
+(85, 51, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 05:00:09'),
+(86, 51, 7, 28, 'Pago registrado', '2025-12-12 05:00:09'),
+(87, 48, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:02:40'),
+(88, 48, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:02:40'),
+(89, 52, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 14:12:30'),
+(90, 52, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 14:12:30'),
+(91, 52, 7, 30, 'Pago registrado', '2025-12-12 14:12:30'),
+(92, 52, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:16:52'),
+(93, 52, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:16:52'),
+(94, 53, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 14:33:07'),
+(95, 53, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 14:33:07'),
+(96, 53, 7, 30, 'Pago registrado', '2025-12-12 14:33:07'),
+(97, 53, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:33:33'),
+(98, 53, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:33:33'),
+(99, 54, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-12 14:34:36'),
+(100, 54, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-12 14:34:36'),
+(101, 54, 7, 30, 'Pago registrado', '2025-12-12 14:34:36'),
+(102, 54, 4, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 4', '2025-12-12 14:35:42'),
+(103, 54, 4, 28, 'Estado cambiado a Entregado', '2025-12-12 14:35:42'),
+(104, 49, 2, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 2', '2025-12-14 22:52:54'),
+(105, 49, 2, 28, 'Estado cambiado a En preparación', '2025-12-14 22:52:54'),
+(106, 49, 3, 30, 'Cambio desde trigger. Antes: 2 -> Ahora: 3', '2025-12-14 22:53:00'),
+(107, 49, 3, 28, 'Estado cambiado a Enviado', '2025-12-14 22:53:00'),
+(108, 49, 4, 30, 'Cambio desde trigger. Antes: 3 -> Ahora: 4', '2025-12-14 22:53:07'),
+(109, 49, 4, 28, 'Estado cambiado a Entregado', '2025-12-14 22:53:07'),
+(110, 55, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-15 00:39:16'),
+(111, 55, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-15 00:39:16'),
+(112, 55, 7, 30, 'Pago registrado', '2025-12-15 00:39:16'),
+(113, 56, 7, 30, 'Cambio desde trigger. Antes: 1 -> Ahora: 7', '2025-12-15 02:25:17'),
+(114, 56, 7, NULL, 'Pago recibido - trigger pagos', '2025-12-15 02:25:17'),
+(115, 56, 7, 30, 'Pago registrado', '2025-12-15 02:25:17'),
+(116, 56, 2, 30, 'Cambio desde trigger. Antes: 7 -> Ahora: 2', '2025-12-15 02:25:44'),
+(117, 56, 2, 28, 'Estado cambiado a En preparación', '2025-12-15 02:25:44'),
+(118, 56, 3, 30, 'Cambio desde trigger. Antes: 2 -> Ahora: 3', '2025-12-15 02:25:48'),
+(119, 56, 3, 28, 'Estado cambiado a Enviado', '2025-12-15 02:25:48'),
+(120, 56, 4, 30, 'Cambio desde trigger. Antes: 3 -> Ahora: 4', '2025-12-15 02:25:54'),
+(121, 56, 4, 28, 'Estado cambiado a Entregado', '2025-12-15 02:25:54');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `imagenes`
+--
+
+CREATE TABLE `imagenes` (
+  `id_imagen` int(11) NOT NULL,
+  `id_producto` int(11) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `imagenes`
+--
+
+INSERT INTO `imagenes` (`id_imagen`, `id_producto`, `url`) VALUES
+(7, 72, 'uploads/eff2c23522fb46b88f218dbae9a23265_7a56dffb03c74ffe92a4a85f2ec16e83_sg-11134201-7qvg4-liijuezgbfnx54.jpg'),
+(8, 73, 'uploads/e0b70094177e4019af85264ef3bb9224_anilloxd.webp'),
+(9, 74, 'uploads/bd41bd6f0fc0458aa2a520764bdaaa29_anilloxd.webp'),
+(10, 75, 'uploads/3ccb3805fabb46f4abb2b2b4c2b1e2e3_anilloxd.webp'),
+(11, 76, 'uploads/1f6d743d52f3457c86c7115d7a267374_anilloxd.webp'),
+(12, 78, 'uploads/0a5e14ede01148fb8a41884d669e0d8c_D_NQ_NP_2X_813873-MCO94057788362_102025-F.jpg'),
+(13, 79, 'uploads/dca8fbd5d22f4fab971ff0e5830f07f3_D_NQ_NP_2X_813873-MCO94057788362_102025-F.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `incidencias`
+--
+
+CREATE TABLE `incidencias` (
+  `id_incidencia` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `tipo` varchar(100) NOT NULL,
+  `comentario` text NOT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp(),
+  `estado` varchar(50) DEFAULT 'En revisión'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `incidencias`
+--
+
+INSERT INTO `incidencias` (`id_incidencia`, `id_pedido`, `id_usuario`, `tipo`, `comentario`, `fecha_registro`, `estado`) VALUES
+(4, 55, 30, 'Producto dañado', 'El producto me llego destrozado a mi apto', '2025-12-14 20:06:39', 'Resuelta'),
+(5, 56, 30, 'Producto dañado', 'naisodnaspdo', '2025-12-14 21:26:46', 'Resuelta');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `incidencias_entrega`
+--
+
+CREATE TABLE `incidencias_entrega` (
+  `id_incidencia` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `fecha` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `materiales`
+--
+
+CREATE TABLE `materiales` (
+  `id_material` int(11) NOT NULL,
+  `nombre_material` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `materiales`
+--
+
+INSERT INTO `materiales` (`id_material`, `nombre_material`) VALUES
+(1, 'Oro'),
+(2, 'Plata'),
+(3, 'Acero inoxidable'),
+(4, 'Piedra preciosa'),
+(5, 'Material sostenible');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `movimientos_inventario`
+--
+
+CREATE TABLE `movimientos_inventario` (
+  `id_movimiento` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `tipo` enum('entrada','salida') NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `talla` varchar(50) DEFAULT NULL,
+  `motivo` varchar(255) DEFAULT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `fecha` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `movimientos_inventario`
+--
+
+INSERT INTO `movimientos_inventario` (`id_movimiento`, `id_producto`, `tipo`, `cantidad`, `talla`, `motivo`, `id_usuario`, `fecha`) VALUES
+(7, 72, 'entrada', 60, '45cm', '', 28, '2025-12-10 07:27:32');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ordenes_compra`
+--
+
+CREATE TABLE `ordenes_compra` (
+  `id_orden` int(11) NOT NULL,
+  `id_proveedor` int(11) DEFAULT NULL,
+  `fecha` date DEFAULT NULL,
+  `estado` varchar(30) DEFAULT NULL,
+  `observaciones` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `ordenes_compra`
+--
+
+INSERT INTO `ordenes_compra` (`id_orden`, `id_proveedor`, `fecha`, `estado`, `observaciones`) VALUES
+(1, 1, '2024-05-01', 'Completado', 'Compra inicial de oro y plata'),
+(2, 2, '2024-05-03', 'Pendiente', 'Orden de acero inoxidable'),
+(3, 3, '2024-05-05', 'Completado', 'Materiales para pulseras'),
+(4, 4, '2024-05-07', 'Cancelado', 'Retraso en entrega de piedras'),
+(5, 5, '2024-05-09', 'Pendiente', 'Pedido de materiales sostenibles');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pagos`
+--
+
+CREATE TABLE `pagos` (
+  `id_pago` int(11) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `metodo_pago` varchar(50) NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `estado` varchar(30) DEFAULT 'Pendiente',
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
+  `numero_tarjeta` varchar(50) DEFAULT NULL,
+  `vencimiento` varchar(10) DEFAULT NULL,
+  `cvc` varchar(10) DEFAULT NULL,
+  `referencia_pago` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pagos`
+--
+
+INSERT INTO `pagos` (`id_pago`, `id_pedido`, `metodo_pago`, `monto`, `estado`, `fecha`, `numero_tarjeta`, `vencimiento`, `cvc`, `referencia_pago`) VALUES
+(1, 7, '', 95000.00, 'Pagado', '2025-09-16 00:36:29', NULL, NULL, NULL, NULL),
+(2, 13, 'Efectivo', 98000.00, 'Pagado', '2025-10-01 22:48:24', NULL, NULL, NULL, NULL),
+(3, 14, 'Transferencia', 98000.00, 'Pagado', '2025-10-01 22:48:52', NULL, NULL, NULL, NULL),
+(4, 15, 'Tarjeta', 98000.00, 'Pagado', '2025-10-01 22:54:56', NULL, NULL, NULL, NULL),
+(5, 16, 'efectivo', 470000.00, 'Pagado', '2025-10-01 23:07:51', NULL, NULL, NULL, NULL),
+(6, 19, 'efectivo', 470000.00, 'Pagado', '2025-10-01 23:27:15', NULL, NULL, NULL, NULL),
+(7, 20, 'transferencia', 95000.00, 'Pagado', '2025-10-02 02:15:22', NULL, NULL, NULL, NULL),
+(8, 21, 'tarjeta', 90000.00, 'Pagado', '2025-10-02 03:54:36', NULL, NULL, NULL, NULL),
+(9, 22, 'tarjeta', 95000.00, 'Pagado', '2025-10-02 03:54:51', NULL, NULL, NULL, NULL),
+(10, 23, 'tarjeta', 720000.00, 'Pagado', '2025-10-02 13:20:36', NULL, NULL, NULL, NULL),
+(11, 24, 'transferencia', 116620.00, 'Pagado', '2025-10-02 15:56:34', NULL, NULL, NULL, NULL),
+(12, 25, 'contraentrega', 116620.00, 'Pagado', '2025-10-02 16:01:01', NULL, NULL, NULL, NULL),
+(13, 26, 'tarjeta', 142800.00, 'Pagado', '2025-10-02 16:16:09', NULL, NULL, NULL, NULL),
+(14, 27, 'tarjeta', 249900.00, 'Pagado', '2025-10-02 16:31:39', NULL, NULL, NULL, NULL),
+(15, 28, 'tarjeta', 815150.00, 'Pagado', '2025-10-02 16:32:20', NULL, NULL, NULL, NULL),
+(16, 32, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:34:15', NULL, NULL, NULL, NULL),
+(17, 32, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:34:35', NULL, NULL, NULL, NULL),
+(18, 33, 'tarjeta', 559300.00, 'Pagado', '2025-10-03 17:50:08', NULL, NULL, NULL, NULL),
+(19, 39, 'tarjeta', 416500.00, 'Pagado', '2025-11-11 07:08:00', NULL, NULL, NULL, NULL),
+(20, 40, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:17:22', NULL, NULL, NULL, NULL),
+(21, 41, 'tarjeta', 95200.00, 'Pagado', '2025-11-11 07:35:52', NULL, NULL, NULL, NULL),
+(22, 42, 'tarjeta', 13090000.00, 'pagado', '2025-11-21 18:19:17', NULL, NULL, NULL, NULL),
+(23, 43, 'tarjeta', 654.50, 'pagado', '2025-11-21 19:02:56', NULL, NULL, NULL, NULL),
+(24, 44, 'tarjeta', 14280.00, 'pagado', '2025-12-10 05:09:14', '5453453453453455', '12/31', '123', NULL),
+(25, 45, 'tarjeta', 594881.00, 'pagado', '2025-12-10 07:27:53', '4353453453453454', '12/31', '213', NULL),
+(26, 46, 'tarjeta', 297440.50, 'pagado', '2025-12-10 07:30:19', '523423123123123', '21/31', '213', NULL),
+(27, 47, 'tarjeta', 523588.10, 'pagado', '2025-12-12 04:06:51', '4871239128730909', '25/25', '123', NULL),
+(28, 47, 'tarjeta', 523588.10, 'pagado', '2025-12-12 04:10:09', '4871239128730909', '25/25', '123', NULL),
+(29, 48, 'tarjeta', 464100.00, 'pagado', '2025-12-12 04:11:05', '5278234982740293', '25/25', '123', NULL),
+(30, 49, 'tarjeta', 1082900.00, 'pagado', '2025-12-12 04:35:45', '3183712897371209', '25/26', '123', NULL),
+(31, 50, 'tarjeta', 196.35, 'pagado', '2025-12-12 04:41:53', '3457875789876897', '24/24', '321', NULL),
+(32, 51, 'tarjeta', 1428000.00, 'pagado', '2025-12-12 05:00:09', '3456783213109809', '45/45', '723', NULL),
+(33, 52, 'tarjeta', 237952.40, 'pagado', '2025-12-12 14:12:30', '4120947320973801', '25/25', '123', NULL),
+(34, 53, 'tarjeta', 297440.50, 'pagado', '2025-12-12 14:33:07', '3984374298342096', '24/24', '123', NULL),
+(35, 54, 'tarjeta', 892500.00, 'pagado', '2025-12-12 14:34:36', '3489273189273123', '25/25', '123', NULL),
+(36, 55, 'tarjeta', 1785000.00, 'pagado', '2025-12-15 00:39:16', '4345676767873526', '12/25', '123', NULL),
+(37, 56, 'tarjeta', 154700.00, 'pagado', '2025-12-15 02:25:17', '4567897985432346', '12/34', '123', NULL);
+
+--
+-- Disparadores `pagos`
+--
+DELIMITER $$
+CREATE TRIGGER `actualizar_estado_pedido` AFTER INSERT ON `pagos` FOR EACH ROW BEGIN
+  DECLARE v_id_estado INT;
+
+  SELECT id_estado INTO v_id_estado 
+  FROM estados_pedido 
+  WHERE nombre_estado = 'Pagado'
+  LIMIT 1;
+
+  IF v_id_estado IS NOT NULL THEN
+    UPDATE pedidos 
+    SET id_estado = v_id_estado
+    WHERE id_pedido = NEW.id_pedido;
+
+    INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario)
+    VALUES (NEW.id_pedido, v_id_estado, NULL, 'Pago recibido - trigger pagos');
+  END IF;
+
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedidos`
+--
+
+CREATE TABLE `pedidos` (
+  `id_pedido` int(11) NOT NULL,
+  `id_cliente` int(11) DEFAULT NULL,
+  `fecha` date DEFAULT NULL,
+  `estado` varchar(30) DEFAULT NULL,
+  `metodo_envio` varchar(50) DEFAULT NULL,
+  `metodo_pago` varchar(50) DEFAULT NULL,
+  `total` decimal(10,2) DEFAULT NULL,
+  `estado_pago` enum('pendiente','pagado','cancelado') DEFAULT 'pendiente',
+  `id_usuario` int(11) DEFAULT NULL,
+  `subtotal` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `impuesto` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `codigo_seguimiento` varchar(50) DEFAULT NULL,
+  `nombre_cliente` varchar(120) NOT NULL,
+  `direccion_entrega` varchar(255) NOT NULL,
+  `telefono_cliente` varchar(30) NOT NULL,
+  `correo_cliente` varchar(120) NOT NULL,
+  `numero_pedido` varchar(30) DEFAULT NULL,
+  `id_estado` int(11) NOT NULL DEFAULT 1,
+  `id_vendedor` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pedidos`
+--
+
+INSERT INTO `pedidos` (`id_pedido`, `id_cliente`, `fecha`, `estado`, `metodo_envio`, `metodo_pago`, `total`, `estado_pago`, `id_usuario`, `subtotal`, `impuesto`, `codigo_seguimiento`, `nombre_cliente`, `direccion_entrega`, `telefono_cliente`, `correo_cliente`, `numero_pedido`, `id_estado`, `id_vendedor`) VALUES
+(1, 1, '2024-06-01', 'Enviado', 'Mensajer?a', 'Tarjeta', 350000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 3, NULL),
+(2, 2, '2024-06-02', 'Preparando', 'Contra entrega', 'Efectivo', 120000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(3, 3, '2024-06-03', 'Entregado', 'Mensajer?a', 'Nequi', 95000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 4, NULL),
+(4, 4, '2024-06-04', 'Enviado', 'Domicilio', 'Tarjeta', 470000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 3, NULL),
+(5, 5, '2024-06-05', 'Pendiente', 'Mensajer?a', 'Transferencia', 80000.00, 'pendiente', NULL, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(6, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(7, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 11, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(8, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(9, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(10, NULL, '2025-09-15', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(11, NULL, '2025-09-16', 'Pendiente', NULL, NULL, NULL, 'pendiente', 23, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(12, NULL, '2025-10-01', 'Pendiente', NULL, NULL, NULL, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(13, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(14, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(15, NULL, '2025-10-01', 'Pagado', NULL, NULL, 98000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(16, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(17, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 80000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(18, NULL, '2025-10-01', 'Pendiente', NULL, NULL, 120000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 1, NULL),
+(19, NULL, '2025-10-01', 'Pagado', NULL, NULL, 470000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(20, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(21, NULL, '2025-10-02', 'Pagado', NULL, NULL, 90000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(22, NULL, '2025-10-02', 'Pagado', NULL, NULL, 95000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(23, NULL, '2025-10-02', 'Pagado', NULL, NULL, 720000.00, 'pendiente', 25, 0.00, 0.00, NULL, '', '', '', '', NULL, 7, NULL),
+(24, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL, 1, NULL),
+(25, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 116620.00, 'pendiente', 25, 98000.00, 18620.00, NULL, '', '', '', '', NULL, 1, NULL),
+(26, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 24, 120000.00, 22800.00, NULL, '', '', '', '', NULL, 1, NULL),
+(27, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 249900.00, 'pendiente', 25, 210000.00, 39900.00, NULL, '', '', '', '', NULL, 1, NULL),
+(28, NULL, '2025-10-02', 'Pendiente', NULL, NULL, 815150.00, 'pendiente', 25, 685000.00, 130150.00, NULL, '', '', '', '', NULL, 1, NULL),
+(29, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(30, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(31, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(32, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(33, NULL, '2025-10-03', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 16, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(34, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 559300.00, 'pendiente', 29, 470000.00, 89300.00, NULL, '', '', '', '', NULL, 1, NULL),
+(35, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL, 1, NULL),
+(36, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 1886150.00, 'pendiente', 29, 1585000.00, 301150.00, NULL, '', '', '', '', NULL, 1, NULL),
+(37, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL, 1, NULL),
+(38, NULL, '2025-11-11', 'Pendiente', NULL, NULL, 142800.00, 'pendiente', 29, 120000.00, 22800.00, NULL, '', '', '', '', NULL, 1, NULL),
+(39, NULL, '2025-11-11', 'Pagado', NULL, NULL, 416500.00, 'pendiente', 29, 350000.00, 66500.00, NULL, '', '', '', '', NULL, 7, NULL),
+(40, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL, 7, NULL),
+(41, NULL, '2025-11-11', 'Pagado', NULL, NULL, 95200.00, 'pendiente', 29, 80000.00, 15200.00, NULL, '', '', '', '', NULL, 7, NULL),
+(42, NULL, '2025-11-21', 'Pagado', NULL, NULL, 13090000.00, 'pagado', 30, 11000000.00, 2090000.00, NULL, '', '', '', '', 'PED-20251121-000001', 7, NULL),
+(43, NULL, '2025-11-21', 'Pagado', NULL, NULL, 654.50, 'pagado', 28, 550.00, 104.50, NULL, '', '', '', '', 'PED-20251121-000002', 7, NULL),
+(44, NULL, '2025-12-10', 'Pagado', NULL, NULL, 14280.00, 'pagado', 28, 12000.00, 2280.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000001', 7, NULL),
+(45, NULL, '2025-12-10', 'Pagado', NULL, NULL, 594881.00, 'pagado', 28, 499900.00, 94981.00, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000002', 7, NULL),
+(46, NULL, '2025-12-10', 'Pagado', NULL, NULL, 297440.50, 'pagado', 28, 249950.00, 47490.50, NULL, 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251210-000003', 7, NULL),
+(47, NULL, '2025-12-11', NULL, NULL, NULL, 523588.10, 'pagado', 28, 439990.00, 83598.10, 'PED-20251211-000001', 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251211-000001', 5, NULL),
+(48, NULL, '2025-12-11', NULL, NULL, NULL, 464100.00, 'pagado', 30, 390000.00, 74100.00, 'PED-20251211-000002', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251211-000002', 4, NULL),
+(49, NULL, '2025-12-11', NULL, NULL, NULL, 1082900.00, 'pagado', 30, 910000.00, 172900.00, 'PED-20251211-000003', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251211-000003', 4, NULL),
+(50, NULL, '2025-12-11', NULL, NULL, NULL, 196.35, 'pagado', 30, 165.00, 31.35, 'PED-20251211-000004', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251211-000004', 7, NULL),
+(51, NULL, '2025-12-11', NULL, NULL, NULL, 1428000.00, 'pagado', 28, 1200000.00, 228000.00, 'PED-20251211-000005', 'José Muñoz', 'Calle 1 #81 - 29', '+573005006005', 'jose@test.com', 'PED-20251211-000005', 7, NULL),
+(52, NULL, '2025-12-12', NULL, NULL, NULL, 237952.40, 'pagado', 30, 199960.00, 37992.40, 'PED-20251212-000001', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251212-000001', 4, NULL),
+(53, NULL, '2025-12-12', NULL, NULL, NULL, 297440.50, 'pagado', 30, 249950.00, 47490.50, 'PED-20251212-000002', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251212-000002', 4, NULL),
+(54, NULL, '2025-12-12', NULL, NULL, NULL, 892500.00, 'pagado', 30, 750000.00, 142500.00, 'PED-20251212-000003', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251212-000003', 4, NULL),
+(55, NULL, '2025-12-14', NULL, NULL, NULL, 1785000.00, 'pagado', 30, 1500000.00, 285000.00, 'PED-20251214-000001', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251214-000001', 7, NULL),
+(56, NULL, '2025-12-14', NULL, NULL, NULL, 154700.00, 'pagado', 30, 130000.00, 24700.00, 'PED-20251214-000002', 'Juan', 'Cerca de mi vecino', '+5710000000', 'cliente@test.com', 'PED-20251214-000002', 4, NULL);
+
+--
+-- Disparadores `pedidos`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_pedidos_estado_after_update` AFTER UPDATE ON `pedidos` FOR EACH ROW BEGIN
+  IF NEW.id_estado <> OLD.id_estado THEN
+    INSERT INTO historial_pedido (id_pedido, id_estado, id_usuario, comentario, fecha)
+    VALUES (NEW.id_pedido, NEW.id_estado, NEW.id_usuario, CONCAT('Cambio desde trigger. Antes: ', OLD.id_estado, ' -> Ahora: ', NEW.id_estado), NOW());
+  END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedidos_personalizados`
+--
+
+CREATE TABLE `pedidos_personalizados` (
+  `id_pedido_personalizado` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_vendedor` int(11) NOT NULL,
+  `tipo_producto` varchar(100) NOT NULL,
+  `materiales` text NOT NULL,
+  `diseno` text NOT NULL,
+  `presupuesto` decimal(10,2) NOT NULL,
+  `archivo` varchar(255) DEFAULT NULL,
+  `estado` varchar(30) DEFAULT 'Pendiente',
+  `motivo_rechazo` text DEFAULT NULL,
+  `fecha` timestamp NULL DEFAULT current_timestamp(),
+  `fecha_entrega_estimada` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pedidos_personalizados`
+--
+
+INSERT INTO `pedidos_personalizados` (`id_pedido_personalizado`, `id_usuario`, `id_vendedor`, `tipo_producto`, `materiales`, `diseno`, `presupuesto`, `archivo`, `estado`, `motivo_rechazo`, `fecha`, `fecha_entrega_estimada`) VALUES
+(1, 25, 24, 'Manilla', 'Oro', 'Quiero que la manilla tenga un colgante con el personaje de Hornet del videojuego titulado Hollow Knight Silksong', 120000.00, 'Hornet_Idle.jpg', 'Rechazado', 'NMMS WE MUY DIFICIL WE', '2025-10-02 00:51:44', NULL),
+(2, 25, 24, 'Manilla', 'Oro', 'Quiero que esta manilla tenga un adorno con la figura de Hornet del videojuego titulado Hollow Knight Silksong', 120000.00, 'Hornet_Idle.jpg', 'Aceptado', NULL, '2025-10-02 01:11:34', NULL),
+(3, 25, 24, 'Manilla', 'Oro', 'Quiero que esta manilla tenga un adorno con la figura de Hornet del videojuego titulado Hollow Knight Silksong', 120000.00, 'Hornet_Idle.jpg', 'Aceptado', NULL, '2025-10-02 01:21:05', '2025-10-17'),
+(4, 25, 24, 'Collar', 'Plata y un dije', 'Quiero que este collar sea algo unico pero sin ser algo tan llamativo, lo quiero algo delgado y que el dije sea un nombre algo similar a la imagen adjunta', 90000.00, 'DNP-06.jpg', 'Rechazado', 'eso no fue muy so so 🗣️', '2025-10-02 01:44:49', NULL),
+(5, 25, 24, 'Manilla', 'plata', 'Quiero que esta manilla sea sencilla pero con un nombre en el centro de ella, el nombre tiene que ser niyireth', 80000.00, 'ejemplo.jpg', 'Rechazado', 'Bro, no tengo manos XD', '2025-10-02 01:59:52', NULL),
+(6, 25, 24, 'Cadena', 'Acero', 'Quiero que esta cadena tenga un estilo vikingo/nordico', 100000.00, '71kXKyBRLlL._UF8941000_QL80_.jpg', 'Aceptado', NULL, '2025-10-02 02:03:51', '2025-10-09'),
+(7, 25, 23, 'Seas Mamon', 'Mineral Palido 🗣️', 'Para entender la historia de Five Nights at Freddy\'s hay que olvidarse que estos son juegos y quiero que tomen realmente a esta saga como lo que es. ¿Terror? Sí, pero sobre todo, ciencia ficción. Antes de comenzar, quiero decir que esta cronología la realizamos entre 3 youtubers conocidos de Five Nights at Freddy\'s y yo. Por lo tanto, agradecería que si les gusta el contenido de este juego vayan a visitar sus canales. Ahora sí, empecemos. ¿Qué pasaría si dos amigos se abren una pizzería? Esa es la primera pregunta que hay que plantearnos. Lo normal sería que todo vaya medianamente bien con algún tipo de problemas, pero nada saldría más allá de eso. La pregunta cambia completamente si nos preguntamos ¿Qué pasaría si Henry y William abren una pizzería? ¿Quienes son estos personajes? En un principio, grandes amigos. Henry, por un lado, era un ferviente y talentoso mecánico que cuidaba a su única hija, Charlie. No sabemos nada de su esposa, ni siquiera si tiene a alguien más en su familia. Y por el otro lado, William Afton. La familia de Afton estaba compuesta por 5 miembros. William, una persona con mucho dinero y con buena capacidad para la mecánica. Su hija menor, Elizabeth. Este pendejo que no sabemos el nombre, pero llora todo el tiempo, así que vamos a ponerle Crying Child. Michael Afton, su hijo mayor y su esposa, de quien no se sabe nada. Estos dos personajes unieron sus capacidades de mecánicos y con el buen capital que tenía William ahorrado, entre los dos abrieron un restaurante. Así fue como entre los años 1980 a 1982, supuestamente, Fredbear Family Dinner abrió sus puertas. La principal atracción de este lugar eran los animatrónicos. ¿Que Son? Bueno, básicamente eran robots que podrían ser controlados tanto por ellos mismos como por personas o por almas. Estos animatrónicos habían sido desarrollados por los dueños del restaurante, pero Henry destacó un poco más debido a que hizo un complejo sistema de recursos que permitía a la persona usar estos trajes. Solamente que tenía que ser extremadamente cuidadosa, ya que de lo contrario el mecanismo del mismo se activaría y la persona que esté dentro seguramente quedaría lastimada. Estos trajes híbridos darían a luz en un principio a su principal éxito, Fredbear y Spring Bonnie. Dos animatrónicos que durante esos años 80 habían hecho furor y tan bien les estaba yendo a estos dos amigos que la competencia empezó a llegar. Y es por eso que a unos pocos meses de la salida de Fredbear Family Dinner llegaría su competencia, Fazbear Entertainment, pero que esta no sería relevante hasta en un futuro. En paralelo a estos hechos, empezaban a haber roces entre la dupla principal, ya que William no solamente había abierto el restaurante para comer, sino que detrás de sus intenciones de matar había algo mucho más oscuro, gente. Es por eso que en una fecha que desconocemos, William creó un nuevo local, Circus Baby Pizza World, y es en este donde presentaría sus nuevos animatrónicos, los Funtime. Estos animatrónicos estarían hechos bajo la empresa Afton Robotics, que como podrán imaginar, esta empresa era de William. Aunque los Funtime no eran animatrónicos normales, si tenían buenas características muy innovadoras con respecto a los primeros trajes híbridos, estos Funtime estarían creados específicamente para matar. Una inteligencia artificial muy avanzada, poder abrir diferentes partes de su cuerpo y la posibilidad de hablar. Claramente no tenían una buena intención, pero a William se le volvería todo en contra cuando el mismo día de la inauguración de su local, a pesar de sus advertencias a Elizabeth, esta entró igual al cuarto donde estaban los animatrónicos para ver si estaba su robot. favorito, bebé. Y luego de que este animatrónico le ofrece un helado para hacer que se acercara a ella, la mata. O bueno, no tanto. Mientras a todo esto, recordamos que William pensaba que ya todos los niños estaban capturados dentro de los animatrónicos, debido a que la apertura de su local había sido completamente exitosa. Entonces alerta a toda la gente de una fuga de gas para que así tengan que evacuar el local y él poder ir a ver su recompensa. Cuando William va a ver si sus animatrónicos habían capturado niños, sí, así es, habían capturado niños. Que eso lo sabemos debido a que en los planos de los animatrónicos aparecen cuerpos dentro de estos robots. Pero también William se daría cuenta de que su animatrónico principal había matado a Elizabeth. O en realidad, su hija estaba tomando el control de Baby debido a que los ojos del animatrónico pasarían de ser azules a como los tenía su hijita, verdes. Por supuesto que William al enterarse de todo esto no sabe qué hacer y es por eso que decide encerrarla en Circus Baby Entertainment, un lugar ubicado debajo de Circus Baby. Tras el cierre de Circus Baby y la incertidumbre de lo ocurrido con su hija menor, estas cosas empezarían a afectar a William Afton, dando comienzo a su declive. Por eso, luego del fracaso de Circus Baby, éste vuelve a pedirle ayuda y trabajo a Henry, que a pesar de todos los problemas que había tenido con su anterior socio, le da trabajo de administrador o mecánico, por eso se lo puede ver colocándole. la cabeza de Fredbear a uno de los empleados de Fredbear Family Dinner. Durante estos meses, de un año que suponemos que es 1883, Henry creó y anunció otros animatrónicos por la televisión, que serían Freddy, Foxy, Chica y Bonnie. Por supuesto que William, al ver que había creado más animatrónicos, crecería la tensión con su nuevo jefe, pero lo que realmente llevaría a William a ponerse de un tono violeta sería la muerte de su hijo menor, el pendejo que llora, Crying Child. . ¿Se acuerdan de Mike, el hijo mayor de William? Bueno, este personaje asustaba de manera sobre medida a Crying Child y mientras ésta atormentaba a su único hermano chico, William protegía de sobre manera a su hijo menor, poniendo cámaras por toda la casa y dándole un peluche creado por él mismo para que pueda hablarle y sentirse cómodo. Todo esto, a pesar del comportamiento psicópata de William, serviría para vigilar a su hijo menor y así que no se escapara a ver a los animatrónicos debido a que a Crying Child le fascinaban. Pero William, al haber creado con Henry los dos primeros trajes sabían lo que podían hacer y lo danino que eran, por eso las medidas de sobreprotección. Pero ahora vamos a remontarnos a una teoría entre Five Nights at Freddy\'s 4 y The Twisted Ones, el primer libro. Supuestamente, Five Nights at Freddy\'s 4 ocurriría en las pesadillas de Crying Child, pero la verdad es que no, las pesadillas esas que ve son reales y no un mal sueño de este niño, ya que son parte de un plan muy macabro de su padre. . Verán, en la novela de The Twisted Ones, William crea un disco que hace tener alucinaciones con animatrónicos, exagerando su forma, su tamaño, etc. Algo así como la película de Batman donde el espantapájaros tiene un spray que te hace sobredimensionar tus miedos. ¿Y cómo se relaciona esto con el juego? El tema de las alucinaciones, no Batman, no tiene nada que ver Batman acá. Bueno, tenemos que remontarnos a Five Nights at Freddy\'s Ultimate Custom Night, en donde los animatrónicos Nightmares aparecen en este juego, pero en este juego controlamos a William, entonces es imposible que William logre saber con exactitud cómo son estos animatrónicos si es que en realidad son las pesadillas de su hijo menor. En otras palabras, ¿cómo sabes exactamente las pesadillas de otras personas? Con lo cual, si volvemos al primer libro, nos presentamos que William creó discos ilusorios para hacer creer a la gente cosas que realmente no hay, y esto lo utilizaría con Crying Child para hacer que se aleje definitivamente de los animatrónicos. Por eso es que tampoco nunca lo vemos regañar a su hijo mayor por maltratar a su hermanito, debido a que este le estaba generando un trauma con los animatrónicos, cosa que a William le sirvió, aunque el error de William fue confiar demasiado en Michael, porque este no sabía dónde estaba el límite de la broma, ya que Mike asustaba a su hermano solamente por diversión, y el problema se desataría en ese año 83, en el lugar donde había comenzado y terminado todo, Fredbear Family Dinner. Mike y sus amigos llevan a Crying Child por la fuerza al restaurante para seguir molestándolos con los animatrónicos en el día de su cumpleaños, y siguiendo con la broma, lo ponen en la boca de Fredbear simulando que se lo iba a comer, y desgraciadamente no. solo simulo eso. Como había dicho en un principio, el sistema de recurso de Henry era sensato, por lo que al introducir un niño dentro de la boca, el traje se cerró en la cabeza de Crying Child, que luego de eso, el mini Afton entra en un estado de coma donde están todos los animatrónicos que él conoció y el peluche que le había regalado William, donde en esta pantalla se da a entender como que su padre le está dedicando las últimas palabras a su hijo, pidiéndole que lo perdone, y diciendo dos frases que quedarían para muchísimas teorías. Vos estás roto, yo te reconstruiré. Por supuesto que esto lo dice debido a que a partir de la muerte de Elizabeth, él sabía que de alguna forma los animatrónicos lograban tomar el alma de la persona y adaptarla a su cuerpo, o por lo menos ahí alma y animatrónico convivían en un solo. cuerpo. Una curiosidad de esta parte de la historia es que como estamos en 1983, si recorremos la casa de los Afton, nos vamos a encontrar con un cuarto que da a entender que es de una niña, y quién era la única niña que tenía la familia. Afton, Elizabeth Afton. Por lo tanto, antes de ese 1983, la hija de William ya estaba dentro del cuerpo de Baby.', 1.00, 'Troleador_cara.jpg', 'Pendiente', NULL, '2025-10-02 02:08:27', NULL),
+(8, 25, 15, 'Seas Mamon', 'Mineral Palido 🗣️', 'Para entender la historia de Five Nights at Freddy\'s hay que olvidarse que estos son juegos y quiero que tomen realmente a esta saga como lo que es. ¿Terror? Sí, pero sobre todo, ciencia ficción. Antes de comenzar, quiero decir que esta cronología la realizamos entre 3 youtubers conocidos de Five Nights at Freddy\'s y yo. Por lo tanto, agradecería que si les gusta el contenido de este juego vayan a visitar sus canales. Ahora sí, empecemos. ¿Qué pasaría si dos amigos se abren una pizzería? Esa es la primera pregunta que hay que plantearnos. Lo normal sería que todo vaya medianamente bien con algún tipo de problemas, pero nada saldría más allá de eso. La pregunta cambia completamente si nos preguntamos ¿Qué pasaría si Henry y William abren una pizzería? ¿Quienes son estos personajes? En un principio, grandes amigos. Henry, por un lado, era un ferviente y talentoso mecánico que cuidaba a su única hija, Charlie. No sabemos nada de su esposa, ni siquiera si tiene a alguien más en su familia. Y por el otro lado, William Afton. La familia de Afton estaba compuesta por 5 miembros. William, una persona con mucho dinero y con buena capacidad para la mecánica. Su hija menor, Elizabeth. Este pendejo que no sabemos el nombre, pero llora todo el tiempo, así que vamos a ponerle Crying Child. Michael Afton, su hijo mayor y su esposa, de quien no se sabe nada. Estos dos personajes unieron sus capacidades de mecánicos y con el buen capital que tenía William ahorrado, entre los dos abrieron un restaurante. Así fue como entre los años 1980 a 1982, supuestamente, Fredbear Family Dinner abrió sus puertas. La principal atracción de este lugar eran los animatrónicos. ¿Que Son? Bueno, básicamente eran robots que podrían ser controlados tanto por ellos mismos como por personas o por almas. Estos animatrónicos habían sido desarrollados por los dueños del restaurante, pero Henry destacó un poco más debido a que hizo un complejo sistema de recursos que permitía a la persona usar estos trajes. Solamente que tenía que ser extremadamente cuidadosa, ya que de lo contrario el mecanismo del mismo se activaría y la persona que esté dentro seguramente quedaría lastimada. Estos trajes híbridos darían a luz en un principio a su principal éxito, Fredbear y Spring Bonnie. Dos animatrónicos que durante esos años 80 habían hecho furor y tan bien les estaba yendo a estos dos amigos que la competencia empezó a llegar. Y es por eso que a unos pocos meses de la salida de Fredbear Family Dinner llegaría su competencia, Fazbear Entertainment, pero que esta no sería relevante hasta en un futuro. En paralelo a estos hechos, empezaban a haber roces entre la dupla principal, ya que William no solamente había abierto el restaurante para comer, sino que detrás de sus intenciones de matar había algo mucho más oscuro, gente. Es por eso que en una fecha que desconocemos, William creó un nuevo local, Circus Baby Pizza World, y es en este donde presentaría sus nuevos animatrónicos, los Funtime. Estos animatrónicos estarían hechos bajo la empresa Afton Robotics, que como podrán imaginar, esta empresa era de William. Aunque los Funtime no eran animatrónicos normales, si tenían buenas características muy innovadoras con respecto a los primeros trajes híbridos, estos Funtime estarían creados específicamente para matar. Una inteligencia artificial muy avanzada, poder abrir diferentes partes de su cuerpo y la posibilidad de hablar. Claramente no tenían una buena intención, pero a William se le volvería todo en contra cuando el mismo día de la inauguración de su local, a pesar de sus advertencias a Elizabeth, esta entró igual al cuarto donde estaban los animatrónicos para ver si estaba su robot. favorito, bebé. Y luego de que este animatrónico le ofrece un helado para hacer que se acercara a ella, la mata. O bueno, no tanto. Mientras a todo esto, recordamos que William pensaba que ya todos los niños estaban capturados dentro de los animatrónicos, debido a que la apertura de su local había sido completamente exitosa. Entonces alerta a toda la gente de una fuga de gas para que así tengan que evacuar el local y él poder ir a ver su recompensa. Cuando William va a ver si sus animatrónicos habían capturado niños, sí, así es, habían capturado niños. Que eso lo sabemos debido a que en los planos de los animatrónicos aparecen cuerpos dentro de estos robots. Pero también William se daría cuenta de que su animatrónico principal había matado a Elizabeth. O en realidad, su hija estaba tomando el control de Baby debido a que los ojos del animatrónico pasarían de ser azules a como los tenía su hijita, verdes. Por supuesto que William al enterarse de todo esto no sabe qué hacer y es por eso que decide encerrarla en Circus Baby Entertainment, un lugar ubicado debajo de Circus Baby. Tras el cierre de Circus Baby y la incertidumbre de lo ocurrido con su hija menor, estas cosas empezarían a afectar a William Afton, dando comienzo a su declive. Por eso, luego del fracaso de Circus Baby, éste vuelve a pedirle ayuda y trabajo a Henry, que a pesar de todos los problemas que había tenido con su anterior socio, le da trabajo de administrador o mecánico, por eso se lo puede ver colocándole. la cabeza de Fredbear a uno de los empleados de Fredbear Family Dinner. Durante estos meses, de un año que suponemos que es 1883, Henry creó y anunció otros animatrónicos por la televisión, que serían Freddy, Foxy, Chica y Bonnie. Por supuesto que William, al ver que había creado más animatrónicos, crecería la tensión con su nuevo jefe, pero lo que realmente llevaría a William a ponerse de un tono violeta sería la muerte de su hijo menor, el pendejo que llora, Crying Child. . ¿Se acuerdan de Mike, el hijo mayor de William? Bueno, este personaje asustaba de manera sobre medida a Crying Child y mientras ésta atormentaba a su único hermano chico, William protegía de sobre manera a su hijo menor, poniendo cámaras por toda la casa y dándole un peluche creado por él mismo para que pueda hablarle y sentirse cómodo. Todo esto, a pesar del comportamiento psicópata de William, serviría para vigilar a su hijo menor y así que no se escapara a ver a los animatrónicos debido a que a Crying Child le fascinaban. Pero William, al haber creado con Henry los dos primeros trajes sabían lo que podían hacer y lo danino que eran, por eso las medidas de sobreprotección. Pero ahora vamos a remontarnos a una teoría entre Five Nights at Freddy\'s 4 y The Twisted Ones, el primer libro. Supuestamente, Five Nights at Freddy\'s 4 ocurriría en las pesadillas de Crying Child, pero la verdad es que no, las pesadillas esas que ve son reales y no un mal sueño de este niño, ya que son parte de un plan muy macabro de su padre. . Verán, en la novela de The Twisted Ones, William crea un disco que hace tener alucinaciones con animatrónicos, exagerando su forma, su tamaño, etc. Algo así como la película de Batman donde el espantapájaros tiene un spray que te hace sobredimensionar tus miedos. ¿Y cómo se relaciona esto con el juego? El tema de las alucinaciones, no Batman, no tiene nada que ver Batman acá. Bueno, tenemos que remontarnos a Five Nights at Freddy\'s Ultimate Custom Night, en donde los animatrónicos Nightmares aparecen en este juego, pero en este juego controlamos a William, entonces es imposible que William logre saber con exactitud cómo son estos animatrónicos si es que en realidad son las pesadillas de su hijo menor. En otras palabras, ¿cómo sabes exactamente las pesadillas de otras personas? Con lo cual, si volvemos al primer libro, nos presentamos que William creó discos ilusorios para hacer creer a la gente cosas que realmente no hay, y esto lo utilizaría con Crying Child para hacer que se aleje definitivamente de los animatrónicos. Por eso es que tampoco nunca lo vemos regañar a su hijo mayor por maltratar a su hermanito, debido a que este le estaba generando un trauma con los animatrónicos, cosa que a William le sirvió, aunque el error de William fue confiar demasiado en Michael, porque este no sabía dónde estaba el límite de la broma, ya que Mike asustaba a su hermano solamente por diversión, y el problema se desataría en ese año 83, en el lugar donde había comenzado y terminado todo, Fredbear Family Dinner. Mike y sus amigos llevan a Crying Child por la fuerza al restaurante para seguir molestándolos con los animatrónicos en el día de su cumpleaños, y siguiendo con la broma, lo ponen en la boca de Fredbear simulando que se lo iba a comer, y desgraciadamente no. solo simulo eso. Como había dicho en un principio, el sistema de recurso de Henry era sensato, por lo que al introducir un niño dentro de la boca, el traje se cerró en la cabeza de Crying Child, que luego de eso, el mini Afton entra en un estado de coma donde están todos los animatrónicos que él conoció y el peluche que le había regalado William, donde en esta pantalla se da a entender como que su padre le está dedicando las últimas palabras a su hijo, pidiéndole que lo perdone, y diciendo dos frases que quedarían para muchísimas teorías. Vos estás roto, yo te reconstruiré. Por supuesto que esto lo dice debido a que a partir de la muerte de Elizabeth, él sabía que de alguna forma los animatrónicos lograban tomar el alma de la persona y adaptarla a su cuerpo, o por lo menos ahí alma y animatrónico convivían en un solo. cuerpo. Una curiosidad de esta parte de la historia es que como estamos en 1983, si recorremos la casa de los Afton, nos vamos a encontrar con un cuarto que da a entender que es de una niña, y quién era la única niña que tenía la familia. Afton, Elizabeth Afton. Por lo tanto, antes de ese 1983, la hija de William ya estaba dentro del cuerpo de Baby.', 1.00, 'Troleador_cara.jpg', 'Pendiente', NULL, '2025-10-02 04:10:25', NULL),
+(9, 25, 22, 'Cadena', 'Oro', 'Quiero que esta cadena cuente con eslabones ', 3000000.00, 'images.png', 'Pendiente', NULL, '2025-10-02 16:34:35', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `piedras`
+--
+
+CREATE TABLE `piedras` (
+  `id_piedra` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `piedras`
+--
+
+INSERT INTO `piedras` (`id_piedra`, `nombre`) VALUES
+(1, 'Diamante'),
+(2, 'Zafiro Azul'),
+(3, 'Esmeralda'),
+(4, 'Rubí'),
+(5, 'Amatista'),
+(6, 'Topacio'),
+(7, 'Ópalo'),
+(8, 'Turquesa'),
+(9, 'Cuarzo Rosa'),
+(10, 'Perla'),
+(11, 'Granate'),
+(12, 'Onix Negro'),
+(13, 'Jade Verde'),
+(14, 'Citrino'),
+(15, 'Aguamarina');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `productos`
+--
+
+CREATE TABLE `productos` (
+  `id_producto` int(11) NOT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `precio` decimal(10,2) DEFAULT NULL,
+  `peso` float DEFAULT NULL,
+  `alto` decimal(10,2) DEFAULT 0.00,
+  `ancho` decimal(10,2) DEFAULT 0.00,
+  `largo` decimal(10,2) DEFAULT 0.00,
+  `dimensiones` varchar(100) DEFAULT NULL,
+  `referencia` varchar(50) DEFAULT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `umbral_alerta` int(11) DEFAULT 5,
+  `id_tipo` int(11) DEFAULT NULL,
+  `id_material` int(11) DEFAULT NULL,
+  `id_color` int(11) DEFAULT NULL,
+  `id_piedra` int(11) DEFAULT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `imagen` varchar(255) DEFAULT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
+  `destacado` tinyint(1) DEFAULT 0,
+  `activo` tinyint(1) DEFAULT 1,
+  `codigo_producto` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `productos`
+--
+
+INSERT INTO `productos` (`id_producto`, `nombre`, `descripcion`, `precio`, `peso`, `alto`, `ancho`, `largo`, `dimensiones`, `referencia`, `stock`, `umbral_alerta`, `id_tipo`, `id_material`, `id_color`, `id_piedra`, `id_usuario`, `imagen`, `categoria`, `destacado`, `activo`, `codigo_producto`) VALUES
+(58, 'Anillo Solitario \"Aurora\"', 'Anillo de oro amarillo con diamante central talla brillante, sofisticado.', 5500000.00, 5, 0.50, 2.00, 2.00, NULL, NULL, 30, 5, 1, 1, 1, 1, 28, 'uploads/anillo_aurora.jpg', NULL, 0, 1, NULL),
+(59, 'Collar \"Verde Imperial\"', 'Collar de plata con colgante de esmeralda en corte ovalado, elegante.', 3900000.00, 20, 0.50, 1.00, 45.00, NULL, NULL, 0, 5, 2, 2, 2, 3, 28, 'uploads/collar_verde_imperial.jpg', NULL, 0, 1, NULL),
+(60, 'Pulsera \"Cielo Azul\"', 'Pulsera de acero inoxidable con topacios azules engarzados finamente.', 1850000.00, 15, 0.50, 0.50, 18.00, NULL, NULL, 0, 5, 3, 3, 3, 6, 28, 'uploads/pulsera_cielo_azul.jpg', NULL, 0, 1, NULL),
+(61, 'Aretes \"Rubí Encanto\"', 'Aretes de oro con rubíes rojos en forma de gota, clásico y refinado.', 2750000.00, 4, 0.50, 0.50, 1.00, NULL, NULL, 0, 5, 4, 1, 4, 4, 28, 'uploads/aretes_rubi_encanto.jpg', NULL, 0, 1, NULL),
+(62, 'Broche \"Perla Majestuosa\"', 'Broche de plata con perla natural central, ideal para ocasiones especiales.', 1370000.00, 10, 0.50, 3.00, 4.00, NULL, NULL, 0, 5, 5, 2, 5, 10, 28, 'uploads/broche_perla_majestuosa.jpg', NULL, 0, 1, NULL),
+(63, 'Pendientes \"Ágata Serenidad\"', 'Pendientes largos de acero con ágata verde, estilo bohemio elegante.', 1000000.00, 6, 1.00, 1.00, 7.00, NULL, NULL, 0, 5, 6, 3, 6, 12, 28, 'uploads/pendientes_agata_serenidad.jpg', NULL, 0, 1, NULL),
+(64, 'Tobillera \"Turquesa Brillante\"', 'Tobillera ajustable en plata con piedras turquesa pequeñas, delicada.', 820000.00, 12, 0.50, 0.50, 25.00, NULL, NULL, 0, 5, 7, 2, 7, 8, 28, 'uploads/tobillera_turquesa_brillante.jpg', NULL, 0, 1, NULL),
+(66, 'Gemelos \"Onix Noche\"', 'Gemelos de acero inoxidable con ónix negro pulido, sofisticados.', 550000.00, 8, 0.50, 2.00, 2.00, NULL, NULL, 0, 5, 9, 3, 9, 12, 28, 'uploads/gemelos_onix_noche.jpg', NULL, 0, 1, NULL),
+(67, 'Tiara \"Diamante Celestial\"', 'Tiara de plata con diamantes incrustados, perfecta para eventos de gala.', 9900000.00, 50, 5.00, 5.00, 30.00, NULL, NULL, 0, 5, 10, 2, 1, 1, 28, 'uploads/tiara_diamante_celestial.jpg', NULL, 0, 1, NULL),
+(72, 'Collar de hollow knight', 'Amuleto de bocasusia', 49990.00, 20, 42.00, 2.00, 4.00, NULL, NULL, 30, 5, 2, 5, 5, NULL, 28, NULL, NULL, 0, 1, NULL),
+(73, 'anillo xd', 'ewsrjhfliafhywahfl', 1200000.00, 10, 12.00, 5.00, 4.00, NULL, NULL, 0, 5, 1, 2, 5, NULL, 28, NULL, NULL, 0, 1, NULL),
+(74, 'uwu', 'hszrjtre', 254524.00, 5, 5.00, 5.00, 5.00, NULL, NULL, 0, 5, 2, 3, 6, NULL, 28, NULL, NULL, 0, 1, NULL),
+(75, 'anillo de plata', 'un anillo bonito', 12000.00, 5343, 3453.00, 453435.00, 3453.00, NULL, NULL, 99, 5, 4, 3, 7, NULL, 28, NULL, NULL, 0, 1, NULL),
+(76, 'anillo plateado', 'anillo con buen estilo y brillo', 55.00, 555, 55.00, 55.00, 55.00, NULL, NULL, 17, 5, 4, 2, 5, NULL, 28, NULL, NULL, 0, 0, NULL),
+(78, 'Anillo Hombre Acero Inoxidable Elegante', 'anillo para hombre de acero inoxidable de color negro mate', 130000.00, 10, 5.00, 5.00, 5.00, NULL, NULL, 8, 5, 1, 3, 5, NULL, 28, NULL, NULL, 0, 1, 'PRD-F8661E'),
+(79, 'Anillo', 'Anillito normalito bien negrito', 150000.00, 10, 5.00, 5.00, 5.00, NULL, NULL, 20, 5, 1, 3, 5, NULL, 28, NULL, NULL, 0, 1, 'PRD-OV3N4V');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `productos_relacionados`
+--
+
+CREATE TABLE `productos_relacionados` (
+  `id` int(11) NOT NULL,
+  `id_producto_principal` int(11) NOT NULL,
+  `id_producto_relacionado` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto_colores`
+--
+
+CREATE TABLE `producto_colores` (
+  `id_producto` int(11) NOT NULL,
+  `id_color` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto_piedras`
+--
+
+CREATE TABLE `producto_piedras` (
+  `id_producto` int(11) NOT NULL,
+  `id_piedra` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto_promocion`
+--
+
+CREATE TABLE `producto_promocion` (
+  `id_producto` int(11) NOT NULL,
+  `id_promocion` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `promociones`
+--
+
+CREATE TABLE `promociones` (
+  `id_promocion` int(11) NOT NULL,
+  `titulo` varchar(100) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `fecha_inicio` date DEFAULT NULL,
+  `fecha_fin` date DEFAULT NULL,
+  `activa` tinyint(1) DEFAULT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `descuento` decimal(5,2) DEFAULT 0.00,
+  `estado` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `promociones`
+--
+
+INSERT INTO `promociones` (`id_promocion`, `titulo`, `descripcion`, `fecha_inicio`, `fecha_fin`, `activa`, `nombre`, `descuento`, `estado`) VALUES
+(1, 'D?a de la Madre', '10% de descuento en anillos y collares', '2024-05-01', '2024-05-10', 1, NULL, 0.10, 1),
+(2, 'Semana del Oro', '15% descuento en todos los productos de oro', '2024-06-01', '2024-06-07', 1, NULL, 0.15, 1),
+(3, 'Black Friday', 'Hasta 50% en joyas seleccionadas', '2024-11-25', '2024-11-30', 1, NULL, 0.50, 1),
+(4, 'Navidad Especial', '20% en colecciones de invierno', '2024-12-15', '2024-12-31', 1, NULL, 0.20, 1),
+(5, 'A?o Nuevo', '5% de descuento adicional', '2025-01-01', '2025-01-05', 1, NULL, 0.05, 1),
+(6, 'Promocion de prueba', 'Promoción válida por tiempo limitado', '2025-11-01', '2025-12-31', 1, 'Descuento de Verano', 0.15, 1),
+(7, NULL, 'Descuentos navideños', '2025-11-11', '2025-11-21', NULL, 'Navidad 2025', 0.20, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `promociones_activas_tienda`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `promociones_activas_tienda` (
+`id_promocion` int(11)
+,`titulo` varchar(100)
+,`descripcion` text
+,`fecha_inicio` date
+,`fecha_fin` date
+,`activa` tinyint(1)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `proveedores`
+--
+
+CREATE TABLE `proveedores` (
+  `id_proveedor` int(11) NOT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `nit` varchar(20) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `correo` varchar(100) DEFAULT NULL,
+  `direccion` varchar(150) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `proveedores`
+--
+
+INSERT INTO `proveedores` (`id_proveedor`, `nombre`, `nit`, `telefono`, `correo`, `direccion`) VALUES
+(1, 'Joyas Medell?n Ltda.', '800123456', '6044448899', 'contacto@joyamedellin.com', 'Calle 30 #70-15'),
+(2, 'Insumos Joya S.A.S.', '900876543', '6019998899', 'ventas@insujoyas.com', 'Carrera 40 #10-20'),
+(3, 'Metales del Norte', '830112233', '6051112233', 'info@metalesnorte.com', 'Av. Norte #10-10'),
+(4, 'Piedras Preciosas Co.', '820332211', '6023332211', 'pedidos@piedrasco.com', 'Calle de las Piedras #5'),
+(5, 'EcoMateriales S.A.', '840998877', '6069988776', 'hola@ecomateriales.com', 'Vereda El Bosque');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `respuestas_incidencia`
+--
+
+CREATE TABLE `respuestas_incidencia` (
+  `id_respuesta` int(11) NOT NULL,
+  `id_incidencia` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `mensaje` text NOT NULL,
+  `fecha` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `resumen_carrito`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `resumen_carrito` (
+`id_usuario` int(11)
+,`nombre_completo` varchar(100)
+,`producto` varchar(100)
+,`cantidad` int(11)
+,`precio` decimal(10,2)
+,`subtotal` decimal(20,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `roles`
+--
+
+CREATE TABLE `roles` (
+  `id_rol` int(11) NOT NULL,
+  `nombre_rol` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `roles`
+--
+
+INSERT INTO `roles` (`id_rol`, `nombre_rol`) VALUES
+(1, 'Administrador'),
+(2, 'Vendedor'),
+(3, 'Cliente'),
+(4, 'Soporte'),
+(5, 'Invitado');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `stock_tallas`
+--
+
+CREATE TABLE `stock_tallas` (
+  `id_stock` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `talla` varchar(50) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `stock_tallas`
+--
+
+INSERT INTO `stock_tallas` (`id_stock`, `id_producto`, `talla`, `stock`) VALUES
+(10, 58, '8', 10),
+(11, 58, '9', 10),
+(12, 58, '10', 10),
+(13, 59, '45 cm', 0),
+(14, 59, '50 cm', 0),
+(15, 60, '18 cm', 0),
+(16, 60, '20 cm', 0),
+(17, 61, 'Única', 0),
+(18, 62, 'Única', 0),
+(19, 63, '7', 0),
+(20, 63, '8', 0),
+(21, 63, '9', 0),
+(22, 64, '40 cm', 0),
+(23, 64, '45 cm', 0),
+(26, 66, 'Única', 0),
+(27, 67, 'Única', 0),
+(32, 72, '45cm', 35),
+(33, 73, '5', 0),
+(34, 73, '4', 0),
+(35, 74, '5', 22),
+(36, 75, '5', 22),
+(37, 76, '5', 20),
+(39, 78, '7', 9),
+(40, 79, '7', 10),
+(41, 79, '8', 10),
+(42, 79, '10', 10);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipos_joya`
+--
+
+CREATE TABLE `tipos_joya` (
+  `id_tipo` int(11) NOT NULL,
+  `nombre_tipo` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tipos_joya`
+--
+
+INSERT INTO `tipos_joya` (`id_tipo`, `nombre_tipo`) VALUES
+(1, 'Anillo'),
+(2, 'Collar'),
+(3, 'Pulsera'),
+(4, 'Arete'),
+(5, 'Broche'),
+(6, 'Cadena'),
+(7, 'Argolla'),
+(8, 'Choker'),
+(9, 'Gargantilla'),
+(10, 'Colgante');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tokens_recuperacion`
+--
+
+CREATE TABLE `tokens_recuperacion` (
+  `id` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `token` varchar(20) NOT NULL,
+  `expira` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tokens_recuperacion`
+--
+
+INSERT INTO `tokens_recuperacion` (`id`, `id_usuario`, `token`, `expira`) VALUES
+(5, 13, '6fdcaa33', '2025-09-07 21:54:58'),
+(9, 15, '148fa6cb', '2025-09-08 06:56:38'),
+(10, 16, 'e2ca1dc7', '2025-09-08 07:01:33'),
+(12, 18, 'e17e96e1', '2025-09-09 16:32:44'),
+(17, 24, 'ccde3c88', '2025-10-02 01:14:18'),
+(18, 24, 'c2eef339', '2025-10-02 01:19:04'),
+(19, 16, 'f2e87090', '2025-10-03 09:27:09'),
+(20, 16, '18c0a92e', '2025-10-03 09:27:12'),
+(21, 15, '0e589337', '2025-11-12 14:38:19');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id_usuario` int(11) NOT NULL,
+  `nombre_completo` varchar(100) DEFAULT NULL,
+  `correo` varchar(100) DEFAULT NULL,
+  `telefono_contacto` varchar(20) DEFAULT NULL,
+  `contrasena` varchar(255) DEFAULT NULL,
+  `direccion` varchar(150) DEFAULT NULL,
+  `foto_perfil` varchar(255) DEFAULT NULL,
+  `estado` tinyint(1) DEFAULT NULL,
+  `id_rol` int(11) DEFAULT NULL,
+  `fecha_nacimiento` date DEFAULT NULL,
+  `fecha_modificacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id_usuario`, `nombre_completo`, `correo`, `telefono_contacto`, `contrasena`, `direccion`, `foto_perfil`, `estado`, `id_rol`, `fecha_nacimiento`, `fecha_modificacion`) VALUES
+(1, 'Juan Pérez', 'juan@ave.com', '3001112233', 'clave123', 'Calle 123', NULL, 1, 1, NULL, NULL),
+(2, 'Ana Gómez', 'ana@ave.com', '3000000000', 'clave123', 'Carrera 45', NULL, 0, 2, NULL, NULL),
+(3, 'Luis Rojas', 'luis@ave.com', '3003334455', 'clave123', 'Av. Norte 9', NULL, 0, 3, NULL, NULL),
+(4, 'Lucía Díaz', 'lucia@ave.com', '3004445566', 'clave123', 'Nueva Direcci?n 456', NULL, 1, 3, NULL, NULL),
+(5, 'Soporte AVE', 'soporte@ave.com', '3005556677', 'clave123', 'Oficina 5', NULL, 1, 4, NULL, NULL),
+(9, 'Keinner Santiago', 'keinner@ave.com', '1234567890', 'scrypt:32768:8:1$RSHF9SWKA5uBgcju$399aeb09899861ac8d72917a892afac9373455001f1449e9d345520410a3c60b0305adcad23e411fb332a8da4c58d09a6b36652bd3943c5324d81417d8246a13', 'su casa ', NULL, 0, 3, NULL, NULL),
+(10, 'Esteban Espitia', 'esteban@ave.com', '0987654321', 'scrypt:32768:8:1$HUuf65it9zjSZUUB$d8fee9e6d6ea1b27f9f634005a31cf2f8b063ae14c7f62e06043e1e79351c3178b609f7b1c44fc9e95e8d2b97a9938fe20018dfd465bce476c0e0397551c9d4d', 'Suba (Es un Cerro)', NULL, 0, 1, NULL, NULL),
+(11, 'Uldarico Andrade', 'uldarico@gmail.com', '7890123456', 'scrypt:32768:8:1$UVX3mRSPAJ0qlwpq$8ed58f7e3f51eebb0a0bae844f9f90017a05969e8deea64a33c823ab4810a43b7ea914985d3e9a6a71a6704a9b008fbeaa024c3eec0ced58299c1c8c6894318d', 'carrera del amorch', NULL, 0, 3, NULL, NULL),
+(12, 'Danna Gabriela', 'dannagb@gmail.com', '1234567890', 'scrypt:32768:8:1$Zkl79IRpzx4UV2q2$65b9399dbda0e5d9ff880f88b14c8c0509d14c3be7d66b7bfcdcb17f474c168fc7bd5621f4bac88fb9104c9edcb627e3358f64d392790233b8982bd0700cabb6', 'Cerru', NULL, 0, 2, NULL, NULL),
+(13, 'Maria Teresa', 'juancamilogarciabonilla54@gmail.com', '+573194988478', 'scrypt:32768:8:1$Jx3ubUv7XhrfxUgh$cb4dffe8b7ad00a5901f1c1ac54f006eb5698e5bfe09872582b9546a3eddbbfe3537f5f8dd3d2a6be2aa5372ea10534aa1a1e7e0575146e8c4cc1f0423a2b5aa', 'Suba (En la falda del Cerro)', NULL, 0, 1, NULL, NULL),
+(15, 'Keinner Perez', 'keinnerrodriguez0916@gmail.com', '+573245019909', 'scrypt:32768:8:1$vvKkyy12LOi0Q2aq$7904b878b6977efa5a7e7b57bd3643122e7327300a16b27d04236b2f3f4286c3dc80542ed81637cb7da68af3faf9c0c746b24d21471f8ed76c5ca039dbe4470b', 'Portal 80', 'Troleador_cara_20251113134424846477.jpg', 0, 2, '2011-11-11', '2025-11-13 13:44:24'),
+(16, 'Samuel Mariño', 'samuel.e.marino@hotmail.com', '+573212136560', 'scrypt:32768:8:1$lVGYMtunbBF5oZM2$06acb0dbc8f87963de0e3d88ea6d3227ed6760ca0bbc61e370143b9a85214918a2ee86510aca0cae0168934b5afaa69df23fde2e762396c39837a92082e34a8f', 'Por ahí', 'homer-uchiha-v0-zh5brm4usx2e1_20251112214627793491_20251113133143262241.jpg', 0, 1, '2008-08-21', '2025-11-13 13:31:43'),
+(17, 'Luis Garcia', 'luis.garcia@gmail.com', '+5712340987654', 'scrypt:32768:8:1$9m3QskmkdBnF2v16$ed669e720f10627a9ecb6ad25a770167c2ee812efccdb37e99250e4bedc14ac21b560657784c3c9cbf0e36102d7ca56f70859429505b7218e9c56ad70387e425', 'Casa', NULL, 0, 1, NULL, NULL),
+(18, 'Maria Bonilla', 'matebojejuda123@gmail.com', '+57097327647', 'scrypt:32768:8:1$wd1GIWxJNcZAXUy7$64ae89d9d7a160750c02296b4edbc64d72a7387c1a6961edc20b5a27e4d411ec67d19d1f58a1a45328ebdb2fcd5c926f23a180864773ae9a108b1837e84c6245', 'Casa', NULL, 0, 1, NULL, NULL),
+(20, 'jhon', 'jhon@ave.com', '+573506257556', 'scrypt:32768:8:1$ORAZ1tBwMtgF8UP8$7e95fe4eae0acdab5d34d19fc33996bfc0c1265aedb59ef76b7291aa498d8e5b8ad769d9d4c5ed3af2066cd52cf4b3ed752f3f3e17dd8641ed7e92443963cca8', 'xd', NULL, 0, 2, NULL, NULL),
+(21, 'Nicole Quiroga', 'paolakimoficial@gmail.com', '+573007151138', 'scrypt:32768:8:1$a8N2mO0IJVSvMlhU$22521088b02de3e4516418e69c8066b7e9bb2513fd08e40de70329f0d1a63f5cbcac94a7336fda2712fab1774f62c7b96fa35e0b536eadc32dc8432f8b878779', 'casa xd', NULL, 0, 3, NULL, NULL),
+(22, 'Juan Garcia', 'juancgb2007@gmail.com', '+573194988478', 'scrypt:32768:8:1$QCFlm3rymKtIJdGf$08ebc944ddea26d65b106266d7bbaac04a81bc62bc638a29bbb15afe85bc6b98edc7c44ce8e64d9ad5c7908451d1f5f9643f1f0636c463f7dcde72ceb414eea6', 'Cerru Premium', NULL, 0, 2, NULL, NULL),
+(23, 'esteban espitia ', 'estebanof2005@gmail.com', '+573506257556', 'scrypt:32768:8:1$SQM6CMvBpHOeHEpq$70f7b559b8abc1ad805816b59b53a7b6e9748798986845f63ec181c23043538464f61e24757d7824c4dc08137f79d46e14d6c77b7038b10732fc52086189a409', 'suba (cerro)', NULL, 0, 2, NULL, NULL),
+(24, 'Juan Garcia', 'juanpgr768@gmail.com', '+57091234782', 'scrypt:32768:8:1$47dkFKyVYWgqEuTg$c9200e415aa47cb7ee2568c957fe98ac4d4011fb262e286cdcd0b4efc3e133e63884f51801fd2579691519375a4e8643f206927cdce120d9e94856dff464e22d', 'Cerru Premium', NULL, 1, 2, NULL, NULL),
+(25, 'Juan Bonilla', 'juancgb.drive@gmail.com', '+57984208924', 'scrypt:32768:8:1$UGkjjjVuIq1JfxFa$2b7572d5a3ab4cf801b3b27a63b70063b0eaab97c1398040451113f0423da161795894ca8608e6650c102bf82d25e74e80dce47c4cc87e8d663061bb32a74a34', 'Mi casita ', NULL, 1, 3, NULL, NULL),
+(28, 'José Muñoz', 'jose@test.com', '+573005006005', 'scrypt:32768:8:1$qKYD6cYrfcVfDI1n$466d8feca983bda4ba580d8c22919c18c270f82592b83a18b6ada3a508093a8183bff5a841b9351bc5893d288cf834f44e323ed816fe1ac011c2258a69e22461', 'Calle 1 #81 - 29', 'anime-koe-no-katachi-shouya-ishida-hd-wallpaper-thumb_20251113031914714479.jpg', 1, 2, '2008-08-21', '2025-11-13 03:29:16'),
+(29, 'Alan David Perez Guerra', 'alandavidperezguerra@gmail.com', '+57 3209551825', 'scrypt:32768:8:1$jzelyapmyAZmPSK0$82e7f1cf08cd081745dc547766b130e71f1dc5321ce9c388b29c183a8c2ae4bdb73ab439652a4726c052c42007e60cddaa60a2a9605f47c45f80fbd023ad4d82', 'calle 65bis#89-30', NULL, 1, 3, NULL, NULL),
+(30, 'Juan', 'cliente@test.com', '+5710000000', 'scrypt:32768:8:1$cXb2tg71QSHAZ1EW$041369a5d6a068eb15a1d0806a735c9272afbe4285340426d0a31c0fb2751730af81444e3f9f61443a12896d450ce75a9f82af56957e8971eecff6dc54a28edd', 'Cerca de mi vecino', 'homer-uchiha-v0-zh5brm4usx2e1_20251212143231286462.jpg', 1, 3, NULL, '2025-12-12 14:32:31');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `valoraciones`
+--
+
+CREATE TABLE `valoraciones` (
+  `id_valoracion` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `estrellas` int(11) NOT NULL CHECK (`estrellas` between 1 and 5),
+  `comentario` text NOT NULL,
+  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `valoraciones`
+--
+
+INSERT INTO `valoraciones` (`id_valoracion`, `id_usuario`, `id_producto`, `estrellas`, `comentario`, `fecha`) VALUES
+(1, 30, 78, 5, 'Me encanto la manillita', '2025-12-12 14:03:20'),
+(2, 30, 72, 5, 'El Jolou Nai', '2025-12-12 14:20:40'),
+(3, 30, 79, 5, 'Uwu', '2025-12-12 14:36:08');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_bitacora_usuarios`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_bitacora_usuarios` (
+`id_log` int(11)
+,`nombre_completo` varchar(100)
+,`accion` varchar(100)
+,`modulo` varchar(50)
+,`fecha` datetime
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_clientes_contacto`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_clientes_contacto` (
+`nombre_completo` varchar(100)
+,`correo` varchar(100)
+,`telefono_contacto` varchar(20)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_ordenes_proveedor`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_ordenes_proveedor` (
+`id_orden` int(11)
+,`proveedor` varchar(100)
+,`fecha` date
+,`estado` varchar(30)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_pedidos_clientes`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_pedidos_clientes` (
+`id_pedido` int(11)
+,`cliente` varchar(100)
+,`fecha` date
+,`estado` varchar(30)
+,`total` decimal(10,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_productos_completos`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_productos_completos` (
+`id_producto` int(11)
+,`nombre` varchar(100)
+,`descripcion` text
+,`precio` decimal(10,2)
+,`stock` int(11)
+,`tipo_joya` varchar(50)
+,`material` varchar(50)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_productos_mas_vendidos`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_productos_mas_vendidos` (
+`nombre` varchar(100)
+,`total_vendido` decimal(32,0)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_productos_promocion`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_productos_promocion` (
+`producto` varchar(100)
+,`promocion` varchar(100)
+,`fecha_inicio` date
+,`fecha_fin` date
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_promociones_activas`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_promociones_activas` (
+`titulo` varchar(100)
+,`descripcion` text
+,`fecha_inicio` date
+,`fecha_fin` date
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_stock_bajo`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_stock_bajo` (
+`id_producto` int(11)
+,`nombre` varchar(100)
+,`stock` int(11)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `promociones_activas_tienda`
+--
+DROP TABLE IF EXISTS `promociones_activas_tienda`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `promociones_activas_tienda`  AS SELECT `promociones`.`id_promocion` AS `id_promocion`, `promociones`.`titulo` AS `titulo`, `promociones`.`descripcion` AS `descripcion`, `promociones`.`fecha_inicio` AS `fecha_inicio`, `promociones`.`fecha_fin` AS `fecha_fin`, `promociones`.`activa` AS `activa` FROM `promociones` WHERE `promociones`.`activa` = 1 AND curdate() between `promociones`.`fecha_inicio` and `promociones`.`fecha_fin` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `resumen_carrito`
+--
+DROP TABLE IF EXISTS `resumen_carrito`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `resumen_carrito`  AS SELECT `cu`.`id_usuario` AS `id_usuario`, `u`.`nombre_completo` AS `nombre_completo`, `p`.`nombre` AS `producto`, `cu`.`cantidad` AS `cantidad`, `p`.`precio` AS `precio`, `cu`.`cantidad`* `p`.`precio` AS `subtotal` FROM ((`carrito_usuario` `cu` join `usuarios` `u` on(`cu`.`id_usuario` = `u`.`id_usuario`)) join `productos` `p` on(`cu`.`id_producto` = `p`.`id_producto`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_bitacora_usuarios`
+--
+DROP TABLE IF EXISTS `vista_bitacora_usuarios`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_bitacora_usuarios`  AS SELECT `b`.`id_log` AS `id_log`, `u`.`nombre_completo` AS `nombre_completo`, `b`.`accion` AS `accion`, `b`.`modulo` AS `modulo`, `b`.`fecha` AS `fecha` FROM (`bitacora` `b` join `usuarios` `u` on(`b`.`id_usuario` = `u`.`id_usuario`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_clientes_contacto`
+--
+DROP TABLE IF EXISTS `vista_clientes_contacto`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_clientes_contacto`  AS SELECT `u`.`nombre_completo` AS `nombre_completo`, `u`.`correo` AS `correo`, `u`.`telefono_contacto` AS `telefono_contacto` FROM (`clientes` `c` join `usuarios` `u` on(`c`.`id_usuario` = `u`.`id_usuario`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_ordenes_proveedor`
+--
+DROP TABLE IF EXISTS `vista_ordenes_proveedor`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_ordenes_proveedor`  AS SELECT `o`.`id_orden` AS `id_orden`, `pr`.`nombre` AS `proveedor`, `o`.`fecha` AS `fecha`, `o`.`estado` AS `estado` FROM (`ordenes_compra` `o` join `proveedores` `pr` on(`o`.`id_proveedor` = `pr`.`id_proveedor`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_pedidos_clientes`
+--
+DROP TABLE IF EXISTS `vista_pedidos_clientes`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_pedidos_clientes`  AS SELECT `pe`.`id_pedido` AS `id_pedido`, `u`.`nombre_completo` AS `cliente`, `pe`.`fecha` AS `fecha`, `pe`.`estado` AS `estado`, `pe`.`total` AS `total` FROM ((`pedidos` `pe` join `clientes` `c` on(`pe`.`id_cliente` = `c`.`id_cliente`)) join `usuarios` `u` on(`c`.`id_usuario` = `u`.`id_usuario`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_productos_completos`
+--
+DROP TABLE IF EXISTS `vista_productos_completos`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_productos_completos`  AS SELECT `p`.`id_producto` AS `id_producto`, `p`.`nombre` AS `nombre`, `p`.`descripcion` AS `descripcion`, `p`.`precio` AS `precio`, `p`.`stock` AS `stock`, `t`.`nombre_tipo` AS `tipo_joya`, `m`.`nombre_material` AS `material` FROM ((`productos` `p` join `tipos_joya` `t` on(`p`.`id_tipo` = `t`.`id_tipo`)) join `materiales` `m` on(`p`.`id_material` = `m`.`id_material`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_productos_mas_vendidos`
+--
+DROP TABLE IF EXISTS `vista_productos_mas_vendidos`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_productos_mas_vendidos`  AS SELECT `p`.`nombre` AS `nombre`, sum(`dp`.`cantidad`) AS `total_vendido` FROM (`detalle_pedido` `dp` join `productos` `p` on(`dp`.`id_producto` = `p`.`id_producto`)) GROUP BY `dp`.`id_producto` ORDER BY sum(`dp`.`cantidad`) DESC ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_productos_promocion`
+--
+DROP TABLE IF EXISTS `vista_productos_promocion`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_productos_promocion`  AS SELECT `p`.`nombre` AS `producto`, `pr`.`titulo` AS `promocion`, `pr`.`fecha_inicio` AS `fecha_inicio`, `pr`.`fecha_fin` AS `fecha_fin` FROM ((`productos` `p` join `producto_promocion` `pp` on(`p`.`id_producto` = `pp`.`id_producto`)) join `promociones` `pr` on(`pp`.`id_promocion` = `pr`.`id_promocion`)) WHERE `pr`.`activa` = 1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_promociones_activas`
+--
+DROP TABLE IF EXISTS `vista_promociones_activas`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_promociones_activas`  AS SELECT `promociones`.`titulo` AS `titulo`, `promociones`.`descripcion` AS `descripcion`, `promociones`.`fecha_inicio` AS `fecha_inicio`, `promociones`.`fecha_fin` AS `fecha_fin` FROM `promociones` WHERE `promociones`.`activa` = 1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_stock_bajo`
+--
+DROP TABLE IF EXISTS `vista_stock_bajo`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_stock_bajo`  AS SELECT `productos`.`id_producto` AS `id_producto`, `productos`.`nombre` AS `nombre`, `productos`.`stock` AS `stock` FROM `productos` WHERE `productos`.`stock` < 10 ;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `bitacora`
+--
+ALTER TABLE `bitacora`
+  ADD PRIMARY KEY (`id_log`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `carrito_usuario`
+--
+ALTER TABLE `carrito_usuario`
+  ADD PRIMARY KEY (`id_carrito`),
+  ADD KEY `id_usuario` (`id_usuario`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
+-- Indices de la tabla `clientes`
+--
+ALTER TABLE `clientes`
+  ADD PRIMARY KEY (`id_cliente`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `colores`
+--
+ALTER TABLE `colores`
+  ADD PRIMARY KEY (`id_color`);
+
+--
+-- Indices de la tabla `costos_envio`
+--
+ALTER TABLE `costos_envio`
+  ADD PRIMARY KEY (`id_costo`);
+
+--
+-- Indices de la tabla `detalle_orden`
+--
+ALTER TABLE `detalle_orden`
+  ADD PRIMARY KEY (`id_detalle`),
+  ADD KEY `id_orden` (`id_orden`);
+
+--
+-- Indices de la tabla `detalle_pedido`
+--
+ALTER TABLE `detalle_pedido`
+  ADD PRIMARY KEY (`id_detalle`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
+-- Indices de la tabla `devoluciones`
+--
+ALTER TABLE `devoluciones`
+  ADD PRIMARY KEY (`id_devolucion`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
+-- Indices de la tabla `estados_pedido`
+--
+ALTER TABLE `estados_pedido`
+  ADD PRIMARY KEY (`id_estado`),
+  ADD UNIQUE KEY `nombre_estado` (`nombre_estado`);
+
+--
+-- Indices de la tabla `faq`
+--
+ALTER TABLE `faq`
+  ADD PRIMARY KEY (`id_faq`);
+
+--
+-- Indices de la tabla `historial_pedido`
+--
+ALTER TABLE `historial_pedido`
+  ADD PRIMARY KEY (`id_historial`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_estado` (`id_estado`);
+
+--
+-- Indices de la tabla `imagenes`
+--
+ALTER TABLE `imagenes`
+  ADD PRIMARY KEY (`id_imagen`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
+-- Indices de la tabla `incidencias`
+--
+ALTER TABLE `incidencias`
+  ADD PRIMARY KEY (`id_incidencia`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `incidencias_entrega`
+--
+ALTER TABLE `incidencias_entrega`
+  ADD PRIMARY KEY (`id_incidencia`),
+  ADD KEY `id_pedido` (`id_pedido`);
+
+--
+-- Indices de la tabla `materiales`
+--
+ALTER TABLE `materiales`
+  ADD PRIMARY KEY (`id_material`);
+
+--
+-- Indices de la tabla `movimientos_inventario`
+--
+ALTER TABLE `movimientos_inventario`
+  ADD PRIMARY KEY (`id_movimiento`),
+  ADD KEY `id_producto` (`id_producto`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `ordenes_compra`
+--
+ALTER TABLE `ordenes_compra`
+  ADD PRIMARY KEY (`id_orden`),
+  ADD KEY `id_proveedor` (`id_proveedor`);
+
+--
+-- Indices de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD PRIMARY KEY (`id_pago`),
+  ADD KEY `id_pedido` (`id_pedido`);
+
+--
+-- Indices de la tabla `pedidos`
+--
+ALTER TABLE `pedidos`
+  ADD PRIMARY KEY (`id_pedido`),
+  ADD UNIQUE KEY `numero_pedido` (`numero_pedido`),
+  ADD KEY `id_cliente` (`id_cliente`),
+  ADD KEY `fk_pedido_usuario` (`id_usuario`),
+  ADD KEY `fk_pedidos_estado` (`id_estado`);
+
+--
+-- Indices de la tabla `pedidos_personalizados`
+--
+ALTER TABLE `pedidos_personalizados`
+  ADD PRIMARY KEY (`id_pedido_personalizado`),
+  ADD KEY `id_usuario` (`id_usuario`),
+  ADD KEY `id_vendedor` (`id_vendedor`);
+
+--
+-- Indices de la tabla `piedras`
+--
+ALTER TABLE `piedras`
+  ADD PRIMARY KEY (`id_piedra`);
+
+--
+-- Indices de la tabla `productos`
+--
+ALTER TABLE `productos`
+  ADD PRIMARY KEY (`id_producto`),
+  ADD KEY `id_tipo` (`id_tipo`),
+  ADD KEY `id_material` (`id_material`),
+  ADD KEY `fk_producto_usuario` (`id_usuario`),
+  ADD KEY `fk_productos_colores` (`id_color`),
+  ADD KEY `fk_productos_piedras` (`id_piedra`);
+
+--
+-- Indices de la tabla `productos_relacionados`
+--
+ALTER TABLE `productos_relacionados`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_producto_principal` (`id_producto_principal`),
+  ADD KEY `id_producto_relacionado` (`id_producto_relacionado`);
+
+--
+-- Indices de la tabla `producto_colores`
+--
+ALTER TABLE `producto_colores`
+  ADD PRIMARY KEY (`id_producto`,`id_color`),
+  ADD KEY `id_color` (`id_color`);
+
+--
+-- Indices de la tabla `producto_piedras`
+--
+ALTER TABLE `producto_piedras`
+  ADD PRIMARY KEY (`id_producto`,`id_piedra`),
+  ADD KEY `id_piedra` (`id_piedra`);
+
+--
+-- Indices de la tabla `producto_promocion`
+--
+ALTER TABLE `producto_promocion`
+  ADD PRIMARY KEY (`id_producto`,`id_promocion`),
+  ADD KEY `id_promocion` (`id_promocion`);
+
+--
+-- Indices de la tabla `promociones`
+--
+ALTER TABLE `promociones`
+  ADD PRIMARY KEY (`id_promocion`);
+
+--
+-- Indices de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  ADD PRIMARY KEY (`id_proveedor`);
+
+--
+-- Indices de la tabla `respuestas_incidencia`
+--
+ALTER TABLE `respuestas_incidencia`
+  ADD PRIMARY KEY (`id_respuesta`),
+  ADD KEY `id_incidencia` (`id_incidencia`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id_rol`);
+
+--
+-- Indices de la tabla `stock_tallas`
+--
+ALTER TABLE `stock_tallas`
+  ADD PRIMARY KEY (`id_stock`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
+-- Indices de la tabla `tipos_joya`
+--
+ALTER TABLE `tipos_joya`
+  ADD PRIMARY KEY (`id_tipo`);
+
+--
+-- Indices de la tabla `tokens_recuperacion`
+--
+ALTER TABLE `tokens_recuperacion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id_usuario`),
+  ADD KEY `id_rol` (`id_rol`);
+
+--
+-- Indices de la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD PRIMARY KEY (`id_valoracion`),
+  ADD UNIQUE KEY `id_usuario` (`id_usuario`,`id_producto`),
+  ADD KEY `id_producto` (`id_producto`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `bitacora`
+--
+ALTER TABLE `bitacora`
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `carrito_usuario`
+--
+ALTER TABLE `carrito_usuario`
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+
+--
+-- AUTO_INCREMENT de la tabla `clientes`
+--
+ALTER TABLE `clientes`
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `colores`
+--
+ALTER TABLE `colores`
+  MODIFY `id_color` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de la tabla `costos_envio`
+--
+ALTER TABLE `costos_envio`
+  MODIFY `id_costo` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_orden`
+--
+ALTER TABLE `detalle_orden`
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_pedido`
+--
+ALTER TABLE `detalle_pedido`
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+
+--
+-- AUTO_INCREMENT de la tabla `devoluciones`
+--
+ALTER TABLE `devoluciones`
+  MODIFY `id_devolucion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `estados_pedido`
+--
+ALTER TABLE `estados_pedido`
+  MODIFY `id_estado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `faq`
+--
+ALTER TABLE `faq`
+  MODIFY `id_faq` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+
+--
+-- AUTO_INCREMENT de la tabla `historial_pedido`
+--
+ALTER TABLE `historial_pedido`
+  MODIFY `id_historial` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+
+--
+-- AUTO_INCREMENT de la tabla `imagenes`
+--
+ALTER TABLE `imagenes`
+  MODIFY `id_imagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT de la tabla `incidencias`
+--
+ALTER TABLE `incidencias`
+  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `incidencias_entrega`
+--
+ALTER TABLE `incidencias_entrega`
+  MODIFY `id_incidencia` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `materiales`
+--
+ALTER TABLE `materiales`
+  MODIFY `id_material` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `movimientos_inventario`
+--
+ALTER TABLE `movimientos_inventario`
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `ordenes_compra`
+--
+ALTER TABLE `ordenes_compra`
+  MODIFY `id_orden` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+
+--
+-- AUTO_INCREMENT de la tabla `pedidos`
+--
+ALTER TABLE `pedidos`
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+
+--
+-- AUTO_INCREMENT de la tabla `pedidos_personalizados`
+--
+ALTER TABLE `pedidos_personalizados`
+  MODIFY `id_pedido_personalizado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de la tabla `piedras`
+--
+ALTER TABLE `piedras`
+  MODIFY `id_piedra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT de la tabla `productos`
+--
+ALTER TABLE `productos`
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+
+--
+-- AUTO_INCREMENT de la tabla `productos_relacionados`
+--
+ALTER TABLE `productos_relacionados`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `promociones`
+--
+ALTER TABLE `promociones`
+  MODIFY `id_promocion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `respuestas_incidencia`
+--
+ALTER TABLE `respuestas_incidencia`
+  MODIFY `id_respuesta` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `stock_tallas`
+--
+ALTER TABLE `stock_tallas`
+  MODIFY `id_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+
+--
+-- AUTO_INCREMENT de la tabla `tipos_joya`
+--
+ALTER TABLE `tipos_joya`
+  MODIFY `id_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de la tabla `tokens_recuperacion`
+--
+ALTER TABLE `tokens_recuperacion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+--
+-- AUTO_INCREMENT de la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  MODIFY `id_valoracion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `bitacora`
+--
+ALTER TABLE `bitacora`
+  ADD CONSTRAINT `bitacora_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `carrito_usuario`
+--
+ALTER TABLE `carrito_usuario`
+  ADD CONSTRAINT `carrito_usuario_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+  ADD CONSTRAINT `carrito_usuario_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
+
+--
+-- Filtros para la tabla `clientes`
+--
+ALTER TABLE `clientes`
+  ADD CONSTRAINT `clientes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `detalle_orden`
+--
+ALTER TABLE `detalle_orden`
+  ADD CONSTRAINT `detalle_orden_ibfk_1` FOREIGN KEY (`id_orden`) REFERENCES `ordenes_compra` (`id_orden`);
+
+--
+-- Filtros para la tabla `detalle_pedido`
+--
+ALTER TABLE `detalle_pedido`
+  ADD CONSTRAINT `detalle_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
+  ADD CONSTRAINT `detalle_pedido_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
+
+--
+-- Filtros para la tabla `devoluciones`
+--
+ALTER TABLE `devoluciones`
+  ADD CONSTRAINT `devoluciones_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
+  ADD CONSTRAINT `devoluciones_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `historial_pedido`
+--
+ALTER TABLE `historial_pedido`
+  ADD CONSTRAINT `historial_pedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`),
+  ADD CONSTRAINT `historial_pedido_ibfk_2` FOREIGN KEY (`id_estado`) REFERENCES `estados_pedido` (`id_estado`);
+
+--
+-- Filtros para la tabla `imagenes`
+--
+ALTER TABLE `imagenes`
+  ADD CONSTRAINT `imagenes_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
+
+--
+-- Filtros para la tabla `incidencias`
+--
+ALTER TABLE `incidencias`
+  ADD CONSTRAINT `incidencias_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pagos` (`id_pedido`),
+  ADD CONSTRAINT `incidencias_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `incidencias_entrega`
+--
+ALTER TABLE `incidencias_entrega`
+  ADD CONSTRAINT `incidencias_entrega_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`);
+
+--
+-- Filtros para la tabla `movimientos_inventario`
+--
+ALTER TABLE `movimientos_inventario`
+  ADD CONSTRAINT `movimientos_inventario_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
+  ADD CONSTRAINT `movimientos_inventario_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `ordenes_compra`
+--
+ALTER TABLE `ordenes_compra`
+  ADD CONSTRAINT `ordenes_compra_ibfk_1` FOREIGN KEY (`id_proveedor`) REFERENCES `proveedores` (`id_proveedor`);
+
+--
+-- Filtros para la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `pedidos`
+--
+ALTER TABLE `pedidos`
+  ADD CONSTRAINT `fk_pedido_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_pedidos_estado` FOREIGN KEY (`id_estado`) REFERENCES `estados_pedido` (`id_estado`),
+  ADD CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`);
+
+--
+-- Filtros para la tabla `pedidos_personalizados`
+--
+ALTER TABLE `pedidos_personalizados`
+  ADD CONSTRAINT `pedidos_personalizados_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+  ADD CONSTRAINT `pedidos_personalizados_ibfk_2` FOREIGN KEY (`id_vendedor`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `productos`
+--
+ALTER TABLE `productos`
+  ADD CONSTRAINT `fk_producto_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_productos_colores` FOREIGN KEY (`id_color`) REFERENCES `colores` (`id_color`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_productos_piedras` FOREIGN KEY (`id_piedra`) REFERENCES `piedras` (`id_piedra`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`id_tipo`) REFERENCES `tipos_joya` (`id_tipo`),
+  ADD CONSTRAINT `productos_ibfk_2` FOREIGN KEY (`id_material`) REFERENCES `materiales` (`id_material`);
+
+--
+-- Filtros para la tabla `productos_relacionados`
+--
+ALTER TABLE `productos_relacionados`
+  ADD CONSTRAINT `productos_relacionados_ibfk_1` FOREIGN KEY (`id_producto_principal`) REFERENCES `productos` (`id_producto`),
+  ADD CONSTRAINT `productos_relacionados_ibfk_2` FOREIGN KEY (`id_producto_relacionado`) REFERENCES `productos` (`id_producto`);
+
+--
+-- Filtros para la tabla `producto_colores`
+--
+ALTER TABLE `producto_colores`
+  ADD CONSTRAINT `producto_colores_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
+  ADD CONSTRAINT `producto_colores_ibfk_2` FOREIGN KEY (`id_color`) REFERENCES `colores` (`id_color`);
+
+--
+-- Filtros para la tabla `producto_piedras`
+--
+ALTER TABLE `producto_piedras`
+  ADD CONSTRAINT `producto_piedras_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
+  ADD CONSTRAINT `producto_piedras_ibfk_2` FOREIGN KEY (`id_piedra`) REFERENCES `piedras` (`id_piedra`);
+
+--
+-- Filtros para la tabla `producto_promocion`
+--
+ALTER TABLE `producto_promocion`
+  ADD CONSTRAINT `producto_promocion_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`),
+  ADD CONSTRAINT `producto_promocion_ibfk_2` FOREIGN KEY (`id_promocion`) REFERENCES `promociones` (`id_promocion`);
+
+--
+-- Filtros para la tabla `respuestas_incidencia`
+--
+ALTER TABLE `respuestas_incidencia`
+  ADD CONSTRAINT `respuestas_incidencia_ibfk_1` FOREIGN KEY (`id_incidencia`) REFERENCES `incidencias` (`id_incidencia`),
+  ADD CONSTRAINT `respuestas_incidencia_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`);
+
+--
+-- Filtros para la tabla `stock_tallas`
+--
+ALTER TABLE `stock_tallas`
+  ADD CONSTRAINT `stock_tallas_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `tokens_recuperacion`
+--
+ALTER TABLE `tokens_recuperacion`
+  ADD CONSTRAINT `tokens_recuperacion_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`);
+
+--
+-- Filtros para la tabla `valoraciones`
+--
+ALTER TABLE `valoraciones`
+  ADD CONSTRAINT `valoraciones_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
+  ADD CONSTRAINT `valoraciones_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id_producto`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -1,0 +1,74 @@
+.dashboard-container {
+    padding: 30px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.dashboard-title {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.filtros-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.filtros-form input,
+.filtros-form select {
+    padding: 8px;
+}
+
+.btn-filtrar {
+    padding: 10px 20px;
+    background: #7d4cf5;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.resumen-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    text-align: center;
+    width: 250px;
+}
+
+.card h3 {
+    margin-bottom: 10px;
+}
+
+.card .valor {
+    font-size: 26px;
+    font-weight: bold;
+    color: #7d4cf5;
+}
+
+.grafico-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}

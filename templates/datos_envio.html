@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Datos de Envío</h2>
+
+    <form action="{{ url_for('crear_pedido') }}" method="POST" class="envio-form">
+
+        <label>Nombre completo:</label>
+        <input type="text" name="nombre_cliente" value="{{usuario.nombre_completo}}" required>
+
+        <label>Dirección de entrega:</label>
+        <input type="text" name="direccion_entrega" value="{{usuario.direccion}}" required>
+
+        <label>Teléfono:</label>
+        <input type="text" name="telefono_cliente" value="{{usuario.telefono_contacto}}" required>
+
+        <label>Correo electrónico:</label>
+        <input type="email" name="correo_cliente" value="{{ usuario.correo }}" required>
+
+    
+        <button type="submit" class="btn-principal">Confirmar y continuar al pago</button>
+    </form>
+</div>
+{% endblock %}

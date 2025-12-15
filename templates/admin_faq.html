@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <h1>Administrar Preguntas Frecuentes</h1>
+    <a href="{{ url_for('faq_nuevo') }}" class="btn btn-primary">➕ Nueva Pregunta</a>
+
+    <table class="styled-table" style="margin-top:20px;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pregunta</th>
+                <th>Respuesta</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in faqs %}
+            <tr>
+                <td>{{ item.id_faq }}</td>
+                <td>{{ item.pregunta }}</td>
+                <td>{{ item.respuesta }}</td>
+                <td>{{ item.fecha_creacion }}</td>
+                <td>
+                    <a href="{{ url_for('faq_editar', id_faq=item.id_faq) }}" class="btn btn-secondary">Editar</a>
+                    <form action="{{ url_for('faq_eliminar', id_faq=item.id_faq) }}" method="POST" style="display:inline;">
+                        <button onclick="return confirm('¿Seguro que quieres eliminar esta pregunta?')" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}

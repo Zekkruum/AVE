@@ -1,0 +1,159 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mis Productos - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/productos1.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+    <div class="header-container">
+
+        <!-- Logo -->
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE" class="logo">
+        </div>
+
+        <!-- Accesos -->
+        <div class="acceso">
+
+            <!-- Volver al panel (tu botón original) -->
+            <a href="{{ url_for('vendedor_panel') }}" class="btn-ghost">⬅ Volver al Panel</a>
+
+            <!-- Cerrar sesión (tu botón original) -->
+            <a href="{{ url_for('logout') }}" class="btn-danger">Cerrar sesión</a>
+
+        </div>
+
+    </div>
+</header>
+
+<!-- Navegación -->
+<nav>
+    <ul class="menu">
+        <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+        <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+        <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+        <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+
+        {% if session.get('rol') == 3 %}
+        <li><a href="{{ url_for('mis_pagos') }}">Mis Pagos</a></li>
+        <li><a href="{{ url_for('mis_pedidos_personalizados') }}">Mis Pedidos Personalizados</a></li>
+        <li><a href="{{ url_for('seleccionar_vendedor') }}">Pedido Personalizado</a></li>
+        {% endif %}
+
+        {% if session.get('rol') == 2 %}
+        <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+        <li><a href="{{ url_for('pedidos_recibidos') }}">Pedidos Recibidos</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+    <main class="container">
+        <p class="subtitle">Aquí gestionas los productos que vendes</p>
+
+      
+
+       
+
+        <!-- Lista de productos -->
+        <div class="product-grid">
+            {% if productos %}
+            {% for producto in productos %}
+            <article class="product-card">
+                <div class="product-media">
+                    {% if producto.imagen %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ producto.imagen) }}"
+                        alt="{{ producto.nombre }}">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/default-product.png') }}" alt="sin imagen">
+                    {% endif %}
+
+
+
+                </div>
+
+                <h3 class="product-title">{{ producto.nombre }}</h3>
+                <p class="product-desc">{{ producto.descripcion }}</p>
+
+                <div class="product-meta">
+                    <div class="price">${{ '%.2f'|format(producto.precio|float) }}</div>
+                    <div class="stock">Stock: {{ producto.stock }}</div>
+                    
+                </div>
+
+                {% if producto.alerta == 1 %}
+  <p style="color:red; font-weight:bold;">⚠ Stock bajo (umbral: {{ producto.umbral_alerta }})</p>
+{% endif %}
+
+
+               <div class="card-actions">
+    <a href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}" class="btn-dark">Ver Detalle</a>
+    <a href="{{ url_for('editar_producto', id_producto=producto.id_producto) }}" class="btn-dark small">Editar</a>
+    <a href="{{ url_for('registrar_entrada_stock', id_producto=producto.id_producto) }}" class="btn-dark">Entrada Stock</a>
+    <a href="{{ url_for('registrar_salida_stock', id_producto=producto.id_producto) }}" class="btn-dark">Salida Stock</a>
+    <a href="{{ url_for('registrar_devolucion', id_producto=producto.id_producto) }}" class="btn-dark small">Registrar Devolución</a>
+    <form action="{{ url_for('eliminar_producto', id_producto=producto.id_producto) }}" 
+         method="POST" 
+         style="display:inline;" 
+         onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
+        <button type="submit" class="btn-dark small">Eliminar</button>
+    </form>
+</div>
+                
+            </article>
+            {% endfor %}
+            {% else %}
+            <p>No tienes productos registrados todavía.</p>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+        // Toggle formulario
+        const btnToggle = document.getElementById('btn-toggle-form');
+        const panel = document.getElementById('form-panel');
+        const btnCancel = document.getElementById('btn-cancel');
+        btnToggle.addEventListener('click', () => panel.classList.add('open'));
+        btnCancel.addEventListener('click', () => panel.classList.remove('open'));
+
+        // Preview imagen
+        const inputImg = document.getElementById('imagen');
+        const preview = document.getElementById('img-preview');
+
+        inputImg.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) {
+                preview.innerHTML = '<span>Previsualización</span>';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                preview.innerHTML = '<img src="' + ev.target.result + '">';
+            };
+            reader.readAsDataURL(file);
+        });
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+body {
+    background: url("../img/fondo-joyas.png") no-repeat center center fixed;
+    background-size: cover;
+}
+
+.titulo {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2rem;
+    color: #000;
+    font-weight: bold;
+}
+
+.sin-val {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.valoraciones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.card {
+    background: rgba(255,255,255,0.92);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.producto-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.estrellas {
+    font-size: 1.3rem;
+    margin: 10px 0;
+}
+
+.comentario {
+    font-size: 0.95rem;
+    color: #333;
+    margin: 10px 0;
+}
+
+.fecha {
+    font-size: 0.8rem;
+    color: #666;
+}

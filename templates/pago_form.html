@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Realizar Pago - AVE Joyas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pago.css') }}">
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="Logo AVE Joyas">
+            </div>
+
+
+            <!-- Accesos -->
+            <div class="acceso">
+                {% if usuario %}
+                <span class="bienvenida">Bienvenido/a, {{ usuario.nombre_completo }}</span>
+                <a class="logout" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                {% else %}
+                <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('signin') }}">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Navegación -->
+    <nav>
+        <ul class="menu">
+            <li><a href="{{ url_for('catalogo') }}">Catálogo</a></li>
+            <li><a href="{{ url_for('carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('perfil') }}">Perfil</a></li>
+            <li><a href="{{ url_for('mis_pagos') }}">Historial de compras</a></li>
+            {% if session.get('rol') == 2 %}
+            <li><a href="{{ url_for('vendedor_panel') }}">Panel</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+
+    <!-- Contenido principal -->
+    <main class="container">
+        <form action="{{ url_for('registrar_pago', id_pedido=pedido.id_pedido) }}" method="POST" class="form-card">
+            <h2>Detalle del Pedido</h2>
+            <p><strong>Pedido:</strong> #{{ pedido.id_pedido }}</p>
+            <p><strong>Subtotal:</strong> ${{ pedido.subtotal }}</p>
+            <p><strong>Impuestos (19%):</strong> ${{ pedido.impuesto }}</p>
+            <p><strong>Total a pagar:</strong> ${{ pedido.total }}</p>
+
+
+            <label for="metodo">Método de Pago</label>
+            <select name="metodo" id="metodo" required>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="contraentrega">Contraentrega</option>
+            </select>
+
+            <!-- FORMULARIO EXCLUSIVO PARA TARJETA -->
+            <div id="tarjeta-form" class="tarjeta-form hidden">
+
+                <label for="numero_tarjeta">Número de Tarjeta</label>
+                <div class="card-number-container">
+                    <input type="text" id="numero_tarjeta" name="numero_tarjeta" maxlength="19"
+                        placeholder="xxxx xxxx xxxx xxxx">
+                    <img id="card-logo" class="card-logo" src="" alt="Logo">
+                </div>
+
+                <label for="vencimiento">Fecha de vencimiento</label>
+                <input type="text" id="vencimiento" name="vencimiento" maxlength="5" placeholder="MM/YY">
+
+                <label for="cvc">CVC</label>
+                <input type="password" id="cvc" name="cvc" maxlength="3" placeholder="123">
+            </div>
+
+
+
+            <label for="monto">Monto</label>
+            <p class="monto-texto">${{ pedido.total }}</p>
+            <input type="hidden" name="monto" value="{{ pedido.total }}">
+
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Pagar</button>
+            </div>
+        </form>
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 AVE Joyas - Todos los derechos reservados</p>
+    </footer>
+    <!-- Tu formulario y resto del HTML -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const metodo = document.getElementById("metodo");
+            const tarjetaForm = document.getElementById("tarjeta-form");
+            const numeroTarjeta = document.getElementById("numero_tarjeta");
+            const cardLogo = document.getElementById("card-logo");
+            const vencimiento = document.getElementById("vencimiento");
+
+            // Imagen en blanco por defecto
+            const blankImg = "{{ url_for('static', filename='img/tarjetas/blank.png') }}";
+            cardLogo.src = blankImg;
+
+            // Mostrar formulario según el valor inicial
+            if (metodo.value === "tarjeta") {
+                tarjetaForm.classList.remove("hidden");
+            } else {
+                tarjetaForm.classList.add("hidden");
+            }
+
+            // Cambios del select
+            metodo.addEventListener("change", () => {
+                if (metodo.value === "tarjeta") {
+                    tarjetaForm.classList.remove("hidden");
+                } else {
+                    tarjetaForm.classList.add("hidden");
+                }
+            });
+
+            // Formateo y detección de tarjeta
+            numeroTarjeta.addEventListener("input", () => {
+                let valor = numeroTarjeta.value.replace(/\D/g, "");
+                numeroTarjeta.value = valor.replace(/(.{4})/g, "$1 ").trim();
+
+                if (valor.length === 0) {
+                    cardLogo.src = blankImg;
+                    return;
+                }
+
+                const firstDigit = valor.charAt(0);
+                if (firstDigit === "4") cardLogo.src = "{{ url_for('static', filename='img/tarjetas/visa.png') }}";
+                else if (firstDigit === "5") cardLogo.src = "{{ url_for('static', filename='img/tarjetas/mastercard.png') }}";
+                else if (firstDigit === "3") cardLogo.src = "{{ url_for('static', filename='img/tarjetas/amex.png') }}";
+                else cardLogo.src = blankImg;
+            });
+
+            // Formato de vencimiento MM/YY
+            vencimiento.addEventListener("input", () => {
+                let valor = vencimiento.value.replace(/\D/g, "");
+                if (valor.length > 4) valor = valor.slice(0, 4);
+                if (valor.length > 2) valor = valor.slice(0, 2) + "/" + valor.slice(2);
+                vencimiento.value = valor;
+            });
+
+        });
+    </script>
+
+
+
+</body>
+
+</html>

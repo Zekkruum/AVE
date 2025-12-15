@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/registrar_entrada_stock.css') }}">
+
+<main>
+    <h2>Registrar Entrada de Stock</h2>
+    <p>Producto: <strong>{{ producto.nombre }}</strong></p>
+    <form method="POST">
+        <label for="cantidad">Cantidad a ingresar:</label>
+        <input type="number" id="cantidad" name="cantidad" min="1" required>
+        <label for="talla">Talla:</label>
+        <select name="talla" required>
+            {% for t in tallas %}
+            <option value="{{ t.talla }}">{{ t.talla }} (Stock: {{ t.stock }})</option>
+            {% endfor %}
+        </select>
+        <label for="observacion">Observación:</label>
+        <input type="text" id="observacion" name="observacion" placeholder="Ej: compra proveedor, devolución, etc.">
+
+        <button type="submit">Registrar Entrada</button>
+        <a href="{{ url_for('mis_productos') }}" class="btn-cancelar">Cancelar</a>
+
+    </form>
+</main>
+{% endblock %}

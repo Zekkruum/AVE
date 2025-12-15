@@ -1,0 +1,13 @@
+<h2>Devoluciones</h2>
+<table border="1">
+  <tr><th>Fecha</th><th>Producto</th><th>Cliente</th><th>Motivo</th><th>Estado</th></tr>
+  {% for d in devoluciones %}
+    <tr>
+      <td>{{ d.fecha }}</td>
+      <td>{{ d.producto }}</td>
+      <td>{{ d.cliente }}</td>
+      <td>{{ d.motivo }}</td>
+      <td>{{ d.estado }}</td>
+    </tr>
+  {% endfor %}
+</table>

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/productos_mas_vendidos.css') }}">
+
+<main class="productos-mas-vendidos">
+    <h2> Productos Más Vendidos</h2>
+
+    <!-- Filtro por fechas -->
+    <form method="post" class="filtro-fechas">
+        <label for="fecha_inicio">Desde:</label>
+        <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}">
+        <label for="fecha_fin">Hasta:</label>
+        <input type="date" name="fecha_fin" value="{{ fecha_fin }}">
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <!-- Tabla de productos -->
+    <table class="tabla-productos">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad Vendida</th>
+                <th>Total Facturado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.producto }}</td>
+                <td>{{ p.cantidad_vendida }}</td>
+                <td>$ {{ '{:,.0f}'.format(p.total_facturado|float) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No se encontraron ventas en el rango seleccionado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Gráfico -->
+    <section class="grafico">
+        <h3>Visualización de Ventas</h3>
+        <div style="width: 100%; height: 450px;">
+            <canvas id="graficoProductos"></canvas>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = {{ productos | map(attribute = 'producto') | list | tojson }};
+        const cantidades = {{ productos | map(attribute = 'cantidad_vendida') | list | tojson }};
+        const facturado = {{ productos | map(attribute = 'total_facturado') | list | tojson }};
+
+        // Formato COP compacto
+        function abreviar(valor) {
+            if (valor >= 1_000_000) return (valor / 1_000_000).toFixed(1) + "M";
+            if (valor >= 1_000) return (valor / 1_000).toFixed(1) + "K";
+            return valor;
+        }
+
+        const ctx = document.getElementById('graficoProductos');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Cantidad Vendida',
+                        data: cantidades,
+                        backgroundColor: 'rgba(41, 128, 185, 0.85)',
+                        borderRadius: 6,
+                        yAxisID: 'cantidadAxis'
+                    },
+                    {
+                        label: 'Total Facturado (COP)',
+                        data: facturado,
+                        backgroundColor: 'rgba(39, 174, 96, 0.85)',
+                        borderRadius: 6,
+                        yAxisID: 'facturadoAxis'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { font: { size: 14, weight: 'bold' } }
+                    },
+                    tooltip: {
+                        backgroundColor: "#1e1e1e",
+                        titleColor: "#fff",
+                        bodyColor: "#eee",
+                        padding: 12,
+                        callbacks: {
+                            label: (ctx) => {
+                                let value = ctx.raw;
+                                if (ctx.dataset.label.includes("Facturado")) {
+                                    return `${ctx.dataset.label}: $ ${value.toLocaleString("es-CO")}`;
+                                }
+                                return `${ctx.dataset.label}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { size: 12 } }
+                    },
+
+                    // 👉 EJE IZQUIERDO (Cantidad vendida)
+                    cantidadAxis: {
+                        type: 'linear',
+                        position: 'left',
+                        ticks: {
+                            callback: value => value,
+                            font: { size: 12 }
+                        },
+                        title: {
+                            display: true,
+                            text: "Cantidad Vendida",
+                            font: { weight: "bold" }
+                        }
+                    },
+
+                    // 👉 EJE DERECHO (Total facturado COP)
+                    facturadoAxis: {
+                        type: 'logarithmic',
+                        position: 'right',
+                        ticks: {
+                            callback: (value) => {
+                                if (value === 0) return "$0";
+                                return "$" + abreviar(value);
+                            }
+                        },
+                        grid: { drawOnChartArea: false },
+                        title: {
+                            display: true,
+                            text: "Total Facturado (COP)",
+                            font: { weight: "bold" }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    {% endblock %}

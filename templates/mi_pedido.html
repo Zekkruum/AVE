@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <h2 class="mb-3">Mi Pedido</h2>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <h4>
+        Código del Pedido:
+        <strong>{{ pedido.numero_pedido }}</strong>
+      </h4>
+
+      <p>
+        Estado:
+        <span class="badge bg-success">{{ pedido.nombre_estado }}</span>
+      </p>
+
+      <hr>
+
+      <h5>Información de entrega</h5>
+      <p><strong>Dirección:</strong> {{ pedido.direccion_entrega }}</p>
+      <p><strong>Teléfono:</strong> {{ pedido.telefono_cliente }}</p>
+
+      <hr>
+
+      <h5>Productos</h5>
+      <ul class="list-group">
+        {% for item in detalles %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ item.nombre }}</strong><br>
+            Talla: {{ item.talla }} | Cantidad: {{ item.cantidad }}
+          </div>
+          <span>${{ item.precio_unitario }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <div class="text-end mt-3">
+        <p><strong>Subtotal:</strong> ${{ pedido.subtotal }}</p>
+        <p><strong>Impuesto:</strong> ${{ pedido.impuesto }}</p>
+        <h4><strong>Total:</strong> ${{ pedido.total }}</h4>
+      </div>
+
+      <hr>
+
+      <h5>Historial</h5>
+      <ul class="timeline">
+        {% for h in historial %}
+        <li>
+          <strong>{{ h.nombre_estado }}</strong> — {{ h.fecha }}<br>
+          <small>{{ h.usuario }} — {{ h.comentario }}</small>
+        </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

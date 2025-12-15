@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Vendedor - AVE Joyas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vendedor.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/acciones.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="acciones">
+    <h2>Acciones principales</h2>
+
+    <div class="acciones-grid">
+        <a href="{{ url_for('registrar_producto') }}" class="card">Registrar nuevo producto</a>
+        <a href="{{ url_for('mis_productos') }}" class="card">Ver mis productos</a>
+        <a href="{{ url_for('reportes_ventas') }}" class="card">Ver estadísticas de ventas</a>
+        <a href="{{ url_for('gestionar_pedidos') }}" class="card">Gestionar pedidos</a>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,186 @@
+/* ================================
+   ESTILO GENERAL
+================================ */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url("../img/fondo-joyas.png") no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+}
+
+/* ---------- HEADER ---------- */
+header {
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 3px solid rgb(255, 251, 251);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+}
+
+.header-right {
+    display: flex;
+    gap: 12px;
+}
+
+/* ---------- BOTONES HEADER ---------- */
+.btn-ghost,
+.btn-danger {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.btn-ghost:hover,
+.btn-danger:hover {
+    background: linear-gradient(135deg, #6f6f6f, #bfbfbf);
+    color: black;
+}
+
+/* ---------- CONTENEDOR PRINCIPAL ---------- */
+.container {
+    max-width: 1250px;
+    margin: 40px auto;
+    padding: 35px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 16px;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.15);
+    backdrop-filter: blur(3px);
+}
+
+.titulo {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+/* ================================
+   TABLA PRO
+================================ */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.tabla-pro {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+/* Encabezado Pro */
+.tabla-pro thead th {
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: white;
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 2px solid #222;
+    font-weight: 600;
+}
+
+/* Filas */
+.tabla-pro tbody tr {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid #e5e5e5;
+    transition: background 0.2s ease;
+}
+
+.tabla-pro tbody tr:hover {
+    background: rgba(245, 245, 245, 0.95);
+}
+
+.tabla-pro td {
+    padding: 14px 10px;
+}
+
+/* Celda de productos truncada */
+.productos-cell {
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ================================
+   ESTADOS (BADGES TABLE PRO)
+================================ */
+.estado {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    display: inline-block;
+}
+
+/* Estados con colores consistentes */
+.estado-pendiente-de-preparación { background-color: #f39c12; }
+.estado-en-preparación          { background-color: #8e44ad; }
+.estado-enviado                 { background-color: #2980b9; }
+.estado-entregado               { background-color: #27ae60; }
+.estado-cancelado               { background-color: #c0392b; }
+.estado-devuelto                { background-color: #7f8c8d; }
+
+/* ================================
+   SELECT DE ESTADOS
+================================ */
+.select-estado {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    background: #fff;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.select-estado:hover {
+    border-color: #444;
+}
+
+/* ================================
+   BOTÓN "ACTUALIZAR"
+================================ */
+.btn-estado {
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #000000, #3f3f3f);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: 0.25s ease;
+    font-weight: 600;
+}
+
+.btn-estado:hover {
+    background: linear-gradient(135deg, #5c5c5c, #b1b1b1);
+    color: #000;
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+    margin-top: 40px;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    border-top: 3px solid #000;
+}

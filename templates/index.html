@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AVE Joyas - Proyecto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <div class="header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="{{ url_for('static', filename='img/logoave.png') }}" alt="logoave">
+            </div>
+
+            <!-- Título y subtítulo -->
+            <div class="branding">
+                <h1>AVE Joyas</h1>
+                <p>Sistema eCommerce para la compra y venta de joyería en línea</p>
+            </div>
+
+            <!-- Botones acceso -->
+            <div class="acceso">
+                <a href="{{ url_for('login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('signin') }}">Registrarse</a>
+                <a href="{{ url_for('buscar_rastreo') }}" class="btn-rastreo">
+                    Rastrear pedido
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+
+    <main>
+        <section class="content-box">
+            <h2>¿Qué es AVE Joyas?</h2>
+            <p>
+                <strong>AVE Joyas</strong> es un sistema web diseñado para gestionar de manera eficiente
+                la compra y venta de joyería en línea. Ofrece a clientes, vendedores e invitados una
+                experiencia segura, rápida y moderna.
+            </p>
+
+            <h2>Características principales</h2>
+            <ul>
+                <li>Catálogo dinámico de productos con imágenes, precios y stock.</li>
+                <li>Gestión de usuarios con roles (cliente, vendedor, invitado).</li>
+                <li>Pedidos personalizados, devoluciones y control de incidencias.</li>
+                <li>Panel de control con estadísticas de ventas y productos.</li>
+                <li>Seguridad mediante contraseñas encriptadas y sesiones protegidas.</li>
+            </ul>
+        </section>
+    </main>
+
+
+    <footer>
+        <p>&copy; 2025 AVE Joyas - Proyecto académico de eCommerce</p>
+    </footer>
+</body>
+
+</html>

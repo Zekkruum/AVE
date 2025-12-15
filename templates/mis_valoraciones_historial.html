@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mis_valoraciones_historial.css') }}">
+
+<div class="valoraciones-container">
+
+    <h1 class="titulo">📝 Mis Valoraciones</h1>
+    <p class="subtitulo">Aquí puedes ver las valoraciones que has dejado en tus compras.</p>
+
+    {% if valoraciones and valoraciones|length > 0 %}
+
+    <div class="lista-valoraciones">
+        {% for v in valoraciones %}
+        <div class="valoracion-card">
+
+            <!-- 🔥 Mostrar imagen del producto -->
+            <img 
+                src="{{ url_for('static', filename=v.imagen or 'uploads/default.png') }}"
+                alt="{{ v.nombre }}"
+                class="producto-img"
+            >
+
+            <div class="valoracion-info">
+                <h3>{{ v.nombre }}</h3>
+
+                <div class="estrellas">
+                    {% for i in range(v.calificacion | int) %}
+                    ⭐
+                    {% endfor %}
+                </div>
+
+                <p class="comentario">"{{ v.comentario }}"</p>
+                <p class="fecha">📅 {{ v.fecha }}</p>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+
+    <p class="no-valoraciones">Aún no has realizado valoraciones.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
