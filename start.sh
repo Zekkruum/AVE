@@ -1,12 +1,18 @@
 #!/bin/bash
 
-# Verifica si Python está instalado
-echo "Verificando instalación de Python..."
-python --version || { echo "Python no está instalado. Abortando."; exit 1; }
+# Mostrar la ruta de python y pip para depurar
+echo "Verificando ubicación de Python..."
+which python || { echo "Python no está instalado o no está en el PATH. Abortando."; exit 1; }
 
-# Verifica si pip está instalado
-echo "Verificando instalación de pip..."
-pip --version || { echo "pip no está instalado. Abortando."; exit 1; }
+echo "Verificando ubicación de pip..."
+which pip || { echo "pip no está instalado o no está en el PATH. Abortando."; exit 1; }
+
+# Verifica las versiones de Python y pip
+echo "Versión de Python:"
+python --version
+
+echo "Versión de pip:"
+pip --version
 
 # Instala dependencias
 echo "Instalando dependencias..."
