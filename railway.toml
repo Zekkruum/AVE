@@ -1,7 +1,15 @@
 [build]
-  language = "python"
-  command = "./start.sh"
+builder = "RAILPACK"
+language = "python"
+command = "./start.sh"
 
 [deploy]
-  name = "Ave-Joyas"
-  version = "1"
+runtime = "V2"
+numReplicas = 1
+sleepApplication = false
+useLegacyStacker = false
+multiRegionConfig = {"europe-west4-drams3a":{"numReplicas":1}}
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+name = "Ave-Joyas"
+version = "1"
