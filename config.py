@@ -2,9 +2,9 @@
 # Configuración de la base de datos
 # ----------------------------
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "mysql.railway.internal",
     "user": "root",          
-    "password": "NuevaClave",        
+    "password": "UbpOvPbVkegeqPDnuSwGDQvkIvxryKmY",        
     "database": "ave_joyas",
     "charset" :'utf8mb4',
     "use_unicode": True
