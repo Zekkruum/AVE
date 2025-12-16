@@ -16,7 +16,7 @@ pip --version
 
 # Instala dependencias
 echo "Instalando dependencias..."
-pip install --no-cache-dir -r requirements.txt
+pip install --no-cache-dir -r requeriments.txt
 
 # Ejecuta la aplicación
 echo "Ejecutando la aplicación..."
