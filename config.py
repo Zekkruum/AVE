@@ -2,13 +2,16 @@
 # Configuración de la base de datos
 # ----------------------------
 DB_CONFIG = {
-    "host": "mysql.railway.internal",
-    "user": "root",          
-    "password": "UbpOvPbVkegeqPDnuSwGDQvkIvxryKmY",        
-    "database": "ave_joyas",
-    "charset" :'utf8mb4',
-    "use_unicode": True
+    "host": "shuttle.proxy.rlwy.net",
+    "user": "root",
+    "password": "UbpOvPbVkegeqPDnuSwGDQvkIvxryKmY",
+    "database": "railway",
+    "port": 50771,
+    "charset": "utf8mb4",
+    "use_unicode": True,
+    "ssl_disabled": True
 }
+
 
 #-----------------------------
 # Comando para iniciar MariaDB
