@@ -193,7 +193,9 @@ def catalogo():
     if not usuario:
         return redirect(url_for('login'))
 
+    # ----------------------------
     # Obtener filtros
+    # ----------------------------
     tipo_selected = request.args.get('tipo', type=int)
     material_selected = request.args.get('material', type=int)
     precio_min_selected = request.args.get('precio_min', type=float)
@@ -211,6 +213,7 @@ def catalogo():
         p.precio,
         p.stock,
         p.imagen AS imagen_local,
+
         GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
 
         pr.descuento AS descuento_promocion,
@@ -238,6 +241,7 @@ def catalogo():
     """
 
     params = []
+
     if tipo_selected:
         sql += " AND p.id_tipo = %s"
         params.append(tipo_selected)
@@ -259,10 +263,45 @@ def catalogo():
         like_query = f"%{busqueda}%"
         params.extend([like_query, like_query])
 
-    sql += " GROUP BY p.id_producto ORDER BY p.nombre ASC"
+    sql += """
+    GROUP BY
+        p.id_producto,
+        p.nombre,
+        p.descripcion,
+        p.precio,
+        p.stock,
+        p.imagen,
+        pr.descuento,
+        pr.titulo
+    ORDER BY p.nombre ASC
+    """
 
     cursor.execute(sql, params)
     productos = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # ----------------------------
+    # Procesar imágenes
+    # ----------------------------
+    for p in productos:
+        if p["imagenes_concat"]:
+            p["imagenes"] = p["imagenes_concat"].split("||")
+        else:
+            p["imagenes"] = []
+
+    return render_template(
+        "catalogo.html",
+        usuario=usuario,
+        productos=productos,
+        tipo_selected=tipo_selected,
+        material_selected=material_selected,
+        precio_min_selected=precio_min_selected,
+        precio_max_selected=precio_max_selected,
+        busqueda=busqueda
+    )
+
 
     # -----------------------------
     # Reemplazar stock general por stock de tallas
