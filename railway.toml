@@ -1,6 +1,5 @@
 [build]
-builder = "RAILPACK"
-language = "python"
+builder = "docker"
 command = "./start.sh"
 
 [deploy]
