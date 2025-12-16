@@ -1,10 +1,17 @@
 #!/bin/bash
 
-# Activar el entorno virtual (si es necesario)
-source venv/bin/activate
+# Verifica si Python está instalado
+echo "Verificando instalación de Python..."
+python --version || { echo "Python no está instalado. Abortando."; exit 1; }
 
-# Instalar las dependencias
-pip install -r requeriments.txt
+# Verifica si pip está instalado
+echo "Verificando instalación de pip..."
+pip --version || { echo "pip no está instalado. Abortando."; exit 1; }
 
-# Iniciar la aplicación
+# Instala dependencias
+echo "Instalando dependencias..."
+pip install --no-cache-dir -r requirements.txt
+
+# Ejecuta la aplicación
+echo "Ejecutando la aplicación..."
 python app.py
