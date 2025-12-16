@@ -1,0 +1,4 @@
+version: 1
+name: mi-app-python
+language: python
+run: python app.py
