@@ -1,4 +1,7 @@
-version: 1
-name: Ave-Joyas
-language: python
-run: python app.py
+[build]
+  language = "python"
+  command = "python app.py"
+
+[deploy]
+  name = "Ave-Joyas"
+  version = "1"
