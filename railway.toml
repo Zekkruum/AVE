@@ -1,6 +1,6 @@
 [build]
   language = "python"
-  command = "python app.py"
+  command = "./start.sh"
 
 [deploy]
   name = "Ave-Joyas"
