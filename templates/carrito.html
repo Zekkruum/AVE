@@ -11,46 +11,138 @@
         <div class="carrito-item">
             <img src="{{ item.imagen_src }}" alt="{{ item.nombre }}">
 
-            <div>
+            <div class="carrito-info">
                 <h3>{{ item.nombre }}</h3>
-                <p>Talla: {{ item.talla }}</p>
-                <p>Precio: ${{ '{:,.0f}'.format(item.precio|float) }}</p>
-                <p>Cantidad: {{ item.cantidad }}</p>
-                <p>Subtotal: ${{ '{:,.0f}'.format(item.precio * item.cantidad) }}</p>
 
-                <!-- Botón eliminar toda la fila de esta talla -->
-                <form action="{{ url_for('eliminar_talla', id_producto=item.id_producto, talla=item.talla) }}"
-                    method="POST" style="display:inline;"> <button type="submit" class="btn-eliminar">Eliminar
-                        talla</button> 
+                <p><strong>Talla:</strong> {{ item.talla }}</p>
+                <p><strong>Precio:</strong> ${{ '{:,.0f}'.format(item.precio|float) }}</p>
+
+                <!-- 🔢 CANTIDAD -->
+                <div class="cantidad-container" data-id="{{ loop.index }}">
+                    <!-- Vista normal -->
+                    <p class="cantidad-texto">
+                        <strong>Cantidad:</strong> {{ item.cantidad }}
+                    </p>
+                    <button type="button" class="btn-editar" onclick="editarCantidad({{ loop.index }})" style="
+            background-color: #333;
+            color:#fff;
+            border:none;
+            padding:6px 12px;
+            font-size:13px;
+            font-weight:500;
+            border-radius:4px;
+            cursor:pointer;
+            transition:background-color 0.2s ease, opacity 0.2s ease;
+        ">
+                        Modificar cantidad
+                    </button>
+
+
+                    <!-- Vista edición -->
+                    <form action="{{ url_for('actualizar_talla',
+                    id_producto=item.id_producto,
+                    talla=item.talla) }}" method="POST" class="form-editar" style="display:none;">
+
+                        <input type="number" name="cantidad" value="{{ item.cantidad }}" min="0" class="input-cantidad">
+
+                        <button type="submit" class="btn-actualizar" style="
+            background-color: #333;
+            color:#fff;
+            border:none;
+            padding:6px 12px;
+            font-size:13px;
+            font-weight:500;
+            border-radius:4px;
+            cursor:pointer;
+            transition:background-color 0.2s ease, opacity 0.2s ease;
+        ">
+                            Actualizar
+                        </button>
+
+                        <button type="button" class="btn-cancelar" onclick="cancelarEdicion({{ loop.index }})" style="
+            background-color: #333;
+            color:#fff;
+            border:none;
+            padding:6px 12px;
+            font-size:13px;
+            font-weight:500;
+            border-radius:4px;
+            cursor:pointer;
+            transition:background-color 0.2s ease, opacity 0.2s ease;
+        ">
+                            Cancelar
+                        </button>
+                    </form>
+                </div>
+
+                <p>
+                    <strong>Subtotal:</strong>
+                    ${{ '{:,.0f}'.format(item.precio * item.cantidad) }}
+                </p>
+
+                <!-- ❌ ELIMINAR TALLA -->
+                <form action="{{ url_for('eliminar_talla',
+                id_producto=item.id_producto,
+                talla=item.talla) }}" method="POST">
+                    <button type="submit" class="btn-eliminar" style="
+            background-color: #333;
+            color:#fff;
+            border:none;
+            padding:6px 12px;
+            font-size:13px;
+            font-weight:500;
+            border-radius:4px;
+            cursor:pointer;
+            transition:background-color 0.2s ease, opacity 0.2s ease;
+        ">
+                        Eliminar 
+                    </button>
                 </form>
-
-
             </div>
         </div>
         {% endfor %}
 
-
     </div>
 
     <div class="carrito-total">
-        <h3>Total: ${{ total }}</h3>
+        <h3>Total: ${{ '{:,.0f}'.format(total) }}</h3>
 
-        <!-- Botón para crear pedido -->
-        <a href="{{ url_for('datos_envio') }}" class="btn-proceder">Proceder al pago</a>
+        <a href="{{ url_for('datos_envio') }}" class="btn-proceder">
+            Proceder al pago
+        </a>
 
-        <!-- Formulario para calcular costo de envío -->
-        <form action="{{ url_for('calcular_envio') }}" method="POST">
-            <label for="ciudad">Ciudad de envío:</label>
+        <!-- 📦 CALCULAR ENVÍO -->
+        <form action="{{ url_for('calcular_envio') }}" method="POST" class="form-envio">
+            <label>Ciudad de envío:</label>
             <input type="text" name="ciudad" required>
 
-            <label for="peso_total">Peso total del pedido (kg):</label>
+            <label>Peso total del pedido (kg):</label>
             <input type="number" step="0.01" name="peso_total" value="{{ total_peso }}" required>
 
-            <button type="submit" class="btn-primary">Calcular envío</button>
+            <button type="submit" class="btn-primary">
+                Calcular envío
+            </button>
         </form>
     </div>
+
     {% else %}
     <p>Tu carrito está vacío</p>
     {% endif %}
 </main>
+<script>
+    function editarCantidad(id) {
+        const container = document.querySelector(`.cantidad-container[data-id="${id}"]`);
+        container.querySelector('.cantidad-texto').style.display = 'none';
+        container.querySelector('.btn-editar').style.display = 'none';
+        container.querySelector('.form-editar').style.display = 'block';
+    }
+
+    function cancelarEdicion(id) {
+        const container = document.querySelector(`.cantidad-container[data-id="${id}"]`);
+        container.querySelector('.cantidad-texto').style.display = 'block';
+        container.querySelector('.btn-editar').style.display = 'inline-block';
+        container.querySelector('.form-editar').style.display = 'none';
+    }
+</script>
+
 {% endblock %}

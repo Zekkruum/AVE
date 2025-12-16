@@ -789,7 +789,101 @@ def eliminar_talla(id_producto, talla):
 
     return redirect(url_for('carrito'))
 
+@app.route('/carrito/actualizar_talla/<int:id_producto>/<talla>', methods=['POST'])
+def actualizar_talla(id_producto, talla):
+    usuario = obtener_usuario()
+    if not usuario:
+        return redirect(url_for('login'))
 
+    nueva_cantidad = int(request.form.get('cantidad', 0))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Obtener cantidad actual en carrito
+    cursor.execute("""
+        SELECT cantidad 
+        FROM carrito_usuario
+        WHERE id_usuario=%s AND id_producto=%s AND talla=%s
+    """, (usuario['id_usuario'], id_producto, talla))
+    fila = cursor.fetchone()
+
+    if not fila:
+        cursor.close()
+        conn.close()
+        flash("El producto no existe en el carrito.", "error")
+        return redirect(url_for('carrito'))
+
+    cantidad_actual = fila['cantidad']
+    diferencia = nueva_cantidad - cantidad_actual
+
+    # Obtener stock disponible de la talla
+    cursor.execute("""
+        SELECT stock 
+        FROM stock_tallas
+        WHERE id_producto=%s AND talla=%s
+    """, (id_producto, talla))
+    stock_fila = cursor.fetchone()
+
+    if not stock_fila:
+        cursor.close()
+        conn.close()
+        flash("La talla no existe.", "error")
+        return redirect(url_for('carrito'))
+
+    stock_disponible = stock_fila['stock']
+
+    # Validar stock si se aumenta cantidad
+    if diferencia > 0 and diferencia > stock_disponible:
+        cursor.close()
+        conn.close()
+        flash(f"No hay suficiente stock para la talla {talla}.", "error")
+        return redirect(url_for('carrito'))
+
+    # Si la nueva cantidad es 0 → eliminar talla
+    if nueva_cantidad == 0:
+        cursor.execute("""
+            DELETE FROM carrito_usuario
+            WHERE id_usuario=%s AND id_producto=%s AND talla=%s
+        """, (usuario['id_usuario'], id_producto, talla))
+
+        cursor.execute("""
+            UPDATE stock_tallas
+            SET stock = stock + %s
+            WHERE id_producto=%s AND talla=%s
+        """, (cantidad_actual, id_producto, talla))
+    else:
+        # Actualizar carrito
+        cursor.execute("""
+            UPDATE carrito_usuario
+            SET cantidad=%s
+            WHERE id_usuario=%s AND id_producto=%s AND talla=%s
+        """, (nueva_cantidad, usuario['id_usuario'], id_producto, talla))
+
+        # Ajustar stock
+        cursor.execute("""
+            UPDATE stock_tallas
+            SET stock = stock - %s
+            WHERE id_producto=%s AND talla=%s
+        """, (diferencia, id_producto, talla))
+
+    # Actualizar stock total del producto
+    cursor.execute("""
+        UPDATE productos
+        SET stock = (
+            SELECT COALESCE(SUM(stock),0)
+            FROM stock_tallas
+            WHERE id_producto=%s
+        )
+        WHERE id_producto=%s
+    """, (id_producto, id_producto))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash("Cantidad actualizada correctamente.", "success")
+    return redirect(url_for('carrito'))
 
 
 
