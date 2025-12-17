@@ -3640,11 +3640,12 @@ def rastreo_publico(codigo):
 
     cursor.execute("""
         SELECT h.*, e.nombre_estado, u.nombre_completo AS usuario
-        FROM historial h
-        JOIN estados e ON h.id_estado = e.id_estado
-        JOIN usuarios u ON h.id_usuario = u.id_usuario
-        WHERE h.id_pedido = %s
-        ORDER BY h.fecha ASC;
+FROM historial_pedido h
+JOIN estados_pedido e ON h.id_estado = e.id_estado
+JOIN usuarios u ON h.id_usuario = u.id_usuario
+WHERE h.id_pedido = %s
+ORDER BY h.fecha ASC;
+
     """, (pedido["id_pedido"],))
     historial = cursor.fetchall()
 
