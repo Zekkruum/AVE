@@ -193,7 +193,9 @@ def catalogo():
     if not usuario:
         return redirect(url_for('login'))
 
+    # -----------------------------
     # Obtener filtros
+    # -----------------------------
     tipo_selected = request.args.get('tipo', type=int)
     material_selected = request.args.get('material', type=int)
     precio_min_selected = request.args.get('precio_min', type=float)
@@ -203,41 +205,83 @@ def catalogo():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+    # ======================================================
+    # 🔥 1. PRODUCTOS DESTACADOS (SIN FILTROS)
+    # ======================================================
+    sql_destacados = """
+        SELECT 
+            p.id_producto,
+            p.nombre,
+            p.descripcion,
+            p.precio,
+            p.stock,
+            p.imagen AS imagen_local,
+            GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
+
+            pr.descuento AS descuento_promocion,
+            pr.titulo AS nombre_promocion,
+
+            CASE 
+                WHEN pr.descuento IS NOT NULL AND pr.descuento > 0
+                THEN ROUND(p.precio - (p.precio * pr.descuento), 2)
+                ELSE p.precio
+            END AS precio_final
+
+        FROM productos p
+        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        LEFT JOIN producto_promocion pp ON p.id_producto = pp.id_producto
+        LEFT JOIN promociones pr 
+            ON pp.id_promocion = pr.id_promocion
+            AND pr.estado = 1
+            AND pr.activa = 1
+            AND pr.fecha_inicio <= NOW()
+            AND pr.fecha_fin >= NOW()
+
+        WHERE p.destacado = 1 AND p.activo = 1
+        GROUP BY p.id_producto
+        ORDER BY p.nombre ASC
+    """
+
+    cursor.execute(sql_destacados)
+    productos_destacados = cursor.fetchall()
+
+    # ======================================================
+    # 🛒 2. PRODUCTOS NORMALES (CON FILTROS)
+    # ======================================================
     sql = """
-    SELECT 
-        p.id_producto,
-        p.nombre,
-        p.descripcion,
-        p.precio,
-        p.stock,
-        p.imagen AS imagen_local,
-        GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
+        SELECT 
+            p.id_producto,
+            p.nombre,
+            p.descripcion,
+            p.precio,
+            p.stock,
+            p.imagen AS imagen_local,
+            GROUP_CONCAT(i.url SEPARATOR '||') AS imagenes_concat,
 
-        pr.descuento AS descuento_promocion,
-        pr.titulo AS nombre_promocion,
+            pr.descuento AS descuento_promocion,
+            pr.titulo AS nombre_promocion,
 
-        CASE 
-            WHEN pr.descuento IS NOT NULL AND pr.descuento > 0
-            THEN ROUND(p.precio - (p.precio * pr.descuento), 2)
-            ELSE p.precio
-        END AS precio_final
+            CASE 
+                WHEN pr.descuento IS NOT NULL AND pr.descuento > 0
+                THEN ROUND(p.precio - (p.precio * pr.descuento), 2)
+                ELSE p.precio
+            END AS precio_final
 
-    FROM productos p
-    LEFT JOIN imagenes i 
-        ON p.id_producto = i.id_producto
-    LEFT JOIN producto_promocion pp 
-        ON p.id_producto = pp.id_producto
-    LEFT JOIN promociones pr 
-        ON pp.id_promocion = pr.id_promocion
-        AND pr.estado = 1
-        AND pr.activa = 1
-        AND pr.fecha_inicio <= NOW()
-        AND pr.fecha_fin >= NOW()
+        FROM productos p
+        LEFT JOIN imagenes i ON p.id_producto = i.id_producto
+        LEFT JOIN producto_promocion pp ON p.id_producto = pp.id_producto
+        LEFT JOIN promociones pr 
+            ON pp.id_promocion = pr.id_promocion
+            AND pr.estado = 1
+            AND pr.activa = 1
+            AND pr.fecha_inicio <= NOW()
+            AND pr.fecha_fin >= NOW()
 
-    WHERE 1=1
+        WHERE p.activo = 1 AND p.destacado = 0
     """
 
     params = []
+
     if tipo_selected:
         sql += " AND p.id_tipo = %s"
         params.append(tipo_selected)
@@ -256,45 +300,53 @@ def catalogo():
 
     if busqueda:
         sql += " AND (p.nombre LIKE %s OR p.referencia LIKE %s)"
-        like_query = f"%{busqueda}%"
-        params.extend([like_query, like_query])
+        like = f"%{busqueda}%"
+        params.extend([like, like])
 
     sql += " GROUP BY p.id_producto ORDER BY p.nombre ASC"
 
     cursor.execute(sql, params)
     productos = cursor.fetchall()
 
-    # -----------------------------
-    # Reemplazar stock general por stock de tallas
-    # -----------------------------
-    for p in productos:
-        cursor.execute("""
-            SELECT COALESCE(SUM(stock), 0) AS total_stock
-            FROM stock_tallas
-            WHERE id_producto = %s
-        """, (p['id_producto'],))
+    # ======================================================
+    # 📦 Stock por tallas (AMBOS)
+    # ======================================================
+    def ajustar_stock(lista):
+        for p in lista:
+            cursor.execute("""
+                SELECT COALESCE(SUM(stock), 0) AS total_stock
+                FROM stock_tallas
+                WHERE id_producto = %s
+            """, (p['id_producto'],))
+            p['stock'] = cursor.fetchone()['total_stock']
 
-        result = cursor.fetchone()
-        p['stock'] = result['total_stock']
+    ajustar_stock(productos_destacados)
+    ajustar_stock(productos)
 
-    # -----------------------------
-    # Normalizar imágenes
-    # -----------------------------
-    for p in productos:
-        imgs = [s for s in (p.get('imagenes_concat') or '').split('||') if s]
-        imagen_src = p['imagen_local'] or (imgs[0] if imgs else None)
+    # ======================================================
+    # 🖼 Normalizar imágenes (AMBOS)
+    # ======================================================
+    def normalizar_imagenes(lista):
+        for p in lista:
+            imgs = [s for s in (p.get('imagenes_concat') or '').split('||') if s]
+            imagen_src = p['imagen_local'] or (imgs[0] if imgs else None)
 
-        if imagen_src:
-            if imagen_src.startswith('static/'):
-                imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
-            elif imagen_src.startswith('uploads/'):
-                imagen_src = url_for('static', filename=imagen_src)
-        else:
-            imagen_src = url_for('static', filename='img/no-image.png')
+            if imagen_src:
+                if imagen_src.startswith('static/'):
+                    imagen_src = url_for('static', filename=imagen_src.replace('static/', '', 1))
+                elif imagen_src.startswith('uploads/'):
+                    imagen_src = url_for('static', filename=imagen_src)
+            else:
+                imagen_src = url_for('static', filename='img/no-image.png')
 
-        p['imagen_src'] = imagen_src
+            p['imagen_src'] = imagen_src
 
-    # Obtener filtros
+    normalizar_imagenes(productos_destacados)
+    normalizar_imagenes(productos)
+
+    # ======================================================
+    # 🔍 Filtros
+    # ======================================================
     cursor.execute("SELECT * FROM tipos_joya ORDER BY nombre_tipo ASC")
     tipos = cursor.fetchall()
 
@@ -306,6 +358,7 @@ def catalogo():
 
     return render_template(
         'catalogo.html',
+        productos_destacados=productos_destacados,
         productos=productos,
         usuario=usuario,
         tipos=tipos,
@@ -594,9 +647,54 @@ def producto_detalle(id_producto):
         WHERE id_producto = %s
     """, (id_producto,))
     stats = cursor.fetchone()
+    
+    # ---- PRODUCTOS SIMILARES ----
+    # ---- PRODUCTOS SIMILARES ----
+    cursor.execute("""
+        SELECT 
+            p.id_producto,
+            p.nombre,
+            p.precio,
+            p.imagen
+        FROM productos p
+        WHERE p.id_producto != %s
+        AND (
+            p.id_tipo = (
+                SELECT id_tipo FROM productos WHERE id_producto = %s
+            )
+            OR p.id_material = (
+                SELECT id_material FROM productos WHERE id_producto = %s
+            )
+        )
+        LIMIT 6
+    """, (id_producto, id_producto, id_producto))
+
+    productos_similares = cursor.fetchall()
+
+    # ---- NORMALIZAR IMÁGENES DE PRODUCTOS SIMILARES ----
+    def normalize_producto_image(src):
+        if not src:
+            return url_for('static', filename='img/no-image.png')
+
+        if src.startswith('http'):
+            return src
+
+        if src.startswith('static/'):
+            return url_for('static', filename=src.replace('static/', '', 1))
+
+        if src.startswith('uploads/'):
+            return url_for('static', filename=src)
+
+        return url_for('static', filename='uploads/' + src)
+
+
+    for p in productos_similares:
+        p["imagen"] = normalize_producto_image(p.get("imagen"))
 
     cursor.close()
     conn.close()
+    
+    
     
     def normalize_user_image(src):
         if not src:
@@ -622,6 +720,7 @@ def producto_detalle(id_producto):
 
     return render_template(
         "producto_detalle.html",
+        productos_similares=productos_similares,
         usuario=usuario,
         producto=producto,
         valoraciones=valoraciones,
@@ -3056,10 +3155,10 @@ def admin_ver_productos():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
-        SELECT id_producto, nombre, descripcion, precio, stock, activo
-        FROM productos
-        ORDER BY id_producto ASC
-    """)
+    SELECT id_producto, nombre, descripcion, precio, stock, activo, destacado
+    FROM productos
+    ORDER BY id_producto ASC
+""")
     productos = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -3600,6 +3699,60 @@ def buscar_rastreo():
 
     return render_template("rastreo_buscar.html", usuario=usuario)
 
+@app.route('/producto/<int:id_producto>/destacar')
+def destacar_producto(id_producto):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 1:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Obtener estado actual
+    cursor.execute(
+        "SELECT destacado FROM productos WHERE id_producto = %s",
+        (id_producto,)
+    )
+    producto = cursor.fetchone()
+
+    if not producto:
+        cursor.close()
+        conn.close()
+        return redirect(url_for('admin_ver_productos'))
+
+    nuevo_estado = 0 if producto['destacado'] == 1 else 1
+
+    # Actualizar estado
+    cursor.execute(
+        "UPDATE productos SET destacado = %s WHERE id_producto = %s",
+        (nuevo_estado, id_producto)
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('admin_ver_productos'))
+
+@app.route('/producto/<int:id_producto>/quitar-destacado')
+def quitar_destacado(id_producto):
+    usuario = obtener_usuario()
+    if not usuario or usuario['id_rol'] != 1:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "UPDATE productos SET destacado = 0 WHERE id_producto = %s",
+        (id_producto,)
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('admin_ver_productos'))
 
 # ----------------------------
 # Run app

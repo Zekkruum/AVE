@@ -73,6 +73,7 @@
 
             {% if session.get('rol') == 1 %}
             <li><a href="{{ url_for('listar_usuarios') }}">Usuarios</a></li>
+            <li><a href="{{ url_for('admin_ver_productos') }}">Productos</a></li>
             {% endif %}
         </ul>
     </nav>

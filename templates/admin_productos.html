@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_productos.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="admin-main">
+    <h2>Gestión de Productos</h2>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Destacado ⭐</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for p in productos %}
+            <tr class="{% if p.destacado == 1 %}fila-destacada{% endif %}">
+                <td>{{ p.id_producto }}</td>
+
+                <td>
+                    <img src="{{ url_for('static', filename=p.imagen) if p.imagen else url_for('static', filename='img/no-image.png') }}"
+                         style="width:60px;">
+                </td>
+
+                <td>{{ p.nombre }}</td>
+                <td>${{ "{:,.0f}".format(p.precio|float) }}</td>
+                <td>{{ p.stock }}</td>
+
+                <!-- ⭐ ESTADO DESTACADO -->
+                <td style="text-align:center;">
+                    {% if p.destacado == 1 %}
+                        <span style="color:gold; font-size:20px;">★</span>
+                    {% else %}
+                        <span style="color:#ccc; font-size:20px;">☆</span>
+                    {% endif %}
+                </td>
+
+                <!-- 🔘 BOTONES -->
+                <td>
+                    {% if p.destacado == 1 %}
+                        <a href="{{ url_for('quitar_destacado', id_producto=p.id_producto) }}"
+                           class="btn-secondary">
+                            Quitar ⭐
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('destacar_producto', id_producto=p.id_producto) }}"
+                           class="btn-primary">
+                            Destacar ⭐
+                        </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('editar_producto', id_producto=p.id_producto) }}"
+                       class="btn-ghost">
+                        Editar
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}

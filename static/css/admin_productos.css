@@ -1,0 +1,152 @@
+/* ===============================
+   TABLA ADMIN
+================================ */
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.admin-table thead {
+    background: linear-gradient(135deg, #1c1c1c, #333);
+}
+
+.admin-table th {
+    padding: 14px 16px;
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    font-size: 14px;
+    letter-spacing: 0.4px;
+}
+
+.admin-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #333;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr {
+    transition: background 0.25s ease;
+}
+
+.admin-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+/* ===============================
+   FILA DESTACADA
+================================ */
+
+.fila-destacada {
+    background: linear-gradient(90deg, #fff9e6, #fffdf4);
+    position: relative;
+}
+
+.fila-destacada::before {
+    content: "★";
+    position: absolute;
+    left: 6px;
+    color: #d4af37;
+    font-size: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.fila-destacada td {
+    font-weight: 600;
+}
+
+/* ===============================
+   BOTONES
+================================ */
+
+.btn-primary,
+.btn-secondary,
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+/* Botón destacar */
+.btn-primary {
+    background: linear-gradient(135deg, #d4af37, #f1d27a);
+    color: #1a1a1a;
+    box-shadow: 0 4px 10px rgba(212,175,55,0.35);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #c39b2e, #e6c463);
+    transform: translateY(-1px);
+}
+
+/* Botón quitar destacado */
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d1d1d1;
+}
+
+/* Botón editar / ghost */
+.btn-ghost {
+    background: transparent;
+    color: #555;
+    padding: 6px 10px;
+}
+
+.btn-ghost:hover {
+    background: rgba(0,0,0,0.05);
+    color: #000;
+}
+
+/* ===============================
+   ESTADO / BADGES
+================================ */
+
+.badge-destacado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #d4af37;
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+    .admin-table th,
+    .admin-table td {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-ghost {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}

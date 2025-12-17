@@ -39,8 +39,7 @@
       </div>
 
       <!-- STOCK POR TALLA -->
-      <h3>Disponibilidad por talla</h3>
-
+      <h3 class="section-title">Disponibilidad por talla</h3>
       {% if producto.tallas and producto.tallas|length > 0 %}
       <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST">
         <ul class="lista-tallas">
@@ -65,6 +64,23 @@
 
   </div> <!-- FIN CONTAINER -->
 
+  {% if productos_similares %}
+  <section class="productos-similares">
+    <h3 class="section-title">Productos similares</h3>
+    <div class="similares-grid">
+      {% for p in productos_similares %}
+      <article class="similar-card">
+        <img src="{{ p.imagen }}" alt="{{ p.nombre }}">
+        <h4>{{ p.nombre }}</h4>
+        <p class="precio">${{ "{:,.0f}".format(p.precio|float) }} COP</p>
+        <a href="{{ url_for('producto_detalle', id_producto=p.id_producto) }}" class="btn-ver">
+          Ver producto
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
   <!-- ============================== -->
   <!--        VALORACIONES            -->
