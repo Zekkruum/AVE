@@ -3,23 +3,11 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogo.css') }}">
 <style>
-/* ===== ESTILOS PARA PROMOCIONES ===== */
-
+/* ===== SOLO ESTILOS PARA PROMOCIONES ===== */
 .producto-card {
     position: relative;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background: white;
 }
 
-.producto-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-/* Badge de promoción flotante en esquina */
 .badge-promo {
     position: absolute;
     top: 10px;
@@ -40,67 +28,35 @@
     50% { transform: scale(1.05); }
 }
 
-/* Contenedor de precios mejorado */
-.precios-container {
-    margin: 15px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-/* Precio original tachado */
-.precio-original {
+.precio-original-tachado {
     text-decoration: line-through;
     color: #999;
     font-size: 16px;
-    font-weight: normal;
+    margin-right: 8px;
 }
 
-/* Precio con promoción destacado */
-.precio-promo {
+.precio-con-descuento {
     color: #ff4444;
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
 }
 
-/* Precio normal (sin promoción) */
-.precio-normal {
-    color: #333;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-/* Nombre de la promoción */
 .nombre-promo {
     color: #ff4444;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    font-style: italic;
     background: #fff5f5;
-    padding: 5px 10px;
+    padding: 4px 8px;
     border-radius: 5px;
     display: inline-block;
-    margin-top: 3px;
-}
-
-/* Ahorro destacado */
-.ahorro {
-    color: #28a745;
-    font-size: 14px;
-    font-weight: bold;
     margin-top: 5px;
 }
 
-/* Badge pequeño de descuento */
-.mini-badge {
-    background: #ff4444;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 12px;
+.ahorro-destacado {
+    color: #28a745;
+    font-size: 13px;
     font-weight: bold;
-    display: inline-block;
-    margin-left: 8px;
+    margin-top: 5px;
 }
 </style>
 {% endblock %}
@@ -148,106 +104,63 @@
         {% for producto in productos %}
         <article class="producto-card">
             
-            <!-- ✨ BADGE DE PROMOCIÓN FLOTANTE -->
+            <!-- ✨ BADGE DE PROMOCIÓN (NUEVO) -->
             {% if producto.descuento_promocion and producto.descuento_promocion > 0 %}
             <span class="badge-promo">
                 🔥 {{ (producto.descuento_promocion * 100)|int }}% OFF
             </span>
             {% endif %}
 
-            <!-- IMAGEN DEL PRODUCTO -->
             <div class="producto-media">
-                {% if producto.imagen_local %}
-                <img class="producto-img" 
-                     src="{{ url_for('static', filename='uploads/' ~ producto.imagen_local) }}" 
-                     alt="{{ producto.nombre }}">
-                {% else %}
-                <img class="producto-img" 
-                     src="{{ url_for('static', filename='images/default-product.png') }}" 
-                     alt="sin imagen">
-                {% endif %}
+                <img class="producto-img" src="{{ producto.imagen_src }}" alt="Imagen de {{ producto.nombre }}">
             </div>
 
             <div class="producto-info">
-                <!-- NOMBRE -->
                 <h3>{{ producto.nombre }}</h3>
-                
-                <!-- DESCRIPCIÓN -->
-                <p class="descripcion">
-                    {{ producto.descripcion[:120] }}{% if producto.descripcion|length > 120 %}...{% endif %}
-                </p>
+                <p class="descripcion">{{ producto.descripcion[:120] }}{% if producto.descripcion|length > 120 %}...{% endif %}</p>
 
-                <!-- ✨ PRECIOS CON PROMOCIÓN MEJORADOS -->
-                <div class="precios-container">
+                <div class="meta">
+                    <!-- ✨ PRECIOS CON PROMOCIÓN (MODIFICADO) -->
                     {% if producto.descuento_promocion and producto.descuento_promocion > 0 %}
-                        <!-- TIENE PROMOCIÓN ACTIVA -->
-                        <div>
-                            <span class="precio-original">
-                                ${{ '{:,.0f}'.format(producto.precio|float) }}
+                        <div style="margin-bottom: 10px;">
+                            <span class="precio-original-tachado">
+                                ${{ "{:,.0f}".format(producto.precio|float) }}
                             </span>
-                            <span class="precio-promo">
-                                ${{ '{:,.0f}'.format(producto.precio_final|float) }}
+                            <span class="precio-con-descuento">
+                                ${{ "{:,.0f}".format(producto.precio_final|float) }}
                             </span>
                         </div>
                         
                         {% if producto.nombre_promocion %}
-                        <p class="nombre-promo">
+                        <div class="nombre-promo">
                             ✨ {{ producto.nombre_promocion }}
-                        </p>
+                        </div>
                         {% endif %}
                         
-                        <p class="ahorro">
-                            💰 Ahorras: ${{ '{:,.0f}'.format((producto.precio - producto.precio_final)|float) }}
-                        </p>
+                        <div class="ahorro-destacado">
+                            💰 Ahorras: ${{ "{:,.0f}".format((producto.precio - producto.precio_final)|float) }}
+                        </div>
                     {% else %}
-                        <!-- PRECIO NORMAL SIN PROMOCIÓN -->
-                        <p class="precio-normal">
-                            ${{ '{:,.0f}'.format(producto.precio|float) }} 
-                            <span style="font-weight: normal; font-size: 14px;">COP</span>
-                        </p>
+                        <!-- Precio normal sin promoción (COMO ESTABA ANTES) -->
+                        <p class="precio" style="font-size: 18px;">$ {{ '{:,.0f}'.format(producto.precio|float) }} <span style="font-weight: normal; font-size: 13px;">COP</span></p>
                     {% endif %}
+
+                    <span class="stock">Stock: {{ producto.stock }}</span>
                 </div>
 
-                <!-- STOCK -->
-                <div class="meta">
-                    {% if producto.stock > 0 %}
-                    <span class="stock" style="color: green; font-weight: bold;">
-                        ✓ Disponible ({{ producto.stock }} unidades)
-                    </span>
-                    {% else %}
-                    <span class="stock" style="color: red; font-weight: bold;">
-                        ✗ Agotado
-                    </span>
-                    {% endif %}
-                </div>
-
-                <!-- BOTONES DE ACCIÓN -->
                 <div class="producto-actions">
-                    <a class="btn-ghost" href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">
-                        Ver detalle
-                    </a>
-                    
-                    {% if producto.stock > 0 %}
-                    <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" 
-                          method="POST" 
-                          style="display:inline;">
+                    <a class="btn-ghost" href="{{ url_for('producto_detalle', id_producto=producto.id_producto) }}">Ver detalle</a>
+                    <form action="{{ url_for('agregar_carrito', id_producto=producto.id_producto) }}" method="POST" style="display:inline;">
                         <input type="hidden" name="cantidad" value="1">
-                        <button class="btn-primary" type="submit">🛒 Agregar</button>
+                        <button class="btn-primary" type="submit">Agregar</button>
                     </form>
-                    {% else %}
-                    <button class="btn-primary" disabled style="opacity: 0.5; cursor: not-allowed;">
-                        Agotado
-                    </button>
-                    {% endif %}
                 </div>
             </div>
         </article>
         {% endfor %}
 
         {% if productos|length == 0 %}
-        <p style="text-align: center; padding: 40px; color: #999; font-size: 18px;">
-            No se encontraron productos con los filtros seleccionados.
-        </p>
+        <p>No se encontraron productos.</p>
         {% endif %}
     </div>
 </main>
